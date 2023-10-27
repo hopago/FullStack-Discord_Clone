@@ -1,0 +1,50 @@
+.forum-postCard-wrapper {
+    width: 100%;
+    height: 100%;
+    padding: 1.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+    background: linear-gradient(#000000, #1E1F22) border-box border-box;
+    border-radius: 1rem;
+    transition: all 0.15s ease;
+    cursor: pointer;
+
+    img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 1rem;
+    }
+
+    .texts {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+        justify-content: center;
+
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        p {
+            font-size: 0.9rem;
+        }
+
+        .likes {
+            display: flex;
+            align-items: center;
+            color: lightgray;
+            font-weight: 400;
+            font-size: 12px;
+            gap: 4px;
+        }
+    }
+
+    &:hover {
+        box-shadow: #DBDEE1 0px 0px 7px 1px;
+    }
+}

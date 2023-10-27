@@ -1,0 +1,187 @@
+.community-forum {
+    width: calc(100vw - 312px);
+    font-family: 'AppleSDGothicNeo', 'Noto Sans KR', sans-serif;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    .forum-nav {
+        width: 100%;
+        height: 44px;
+        padding: 0.5rem;
+
+        .forum-nav-wrapper {
+            padding: 0.5rem;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            .forum-nav-left {
+                display: flex;
+                align-items: center;
+                color: #C6C8CC;
+                gap: 5px;
+                font-size: 14px;
+                cursor: default;
+                
+                img {
+                    width: 24px;
+                    object-fit: cover;
+                }
+            }
+
+            .forum-nav-right {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                .forum-nav-right-iconWrapper {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    color: #80848E;
+                    transition: all 0.15s ease;
+                    font-size: 16px;
+                    width: 40px;
+                    height: 24px;
+
+                    &:hover {
+                        color: #f2f3f5;
+                    }
+                }
+            }
+        }
+    }
+
+    hr {
+        height: 0.5px;
+        opacity: 0.1;
+        background-color: #1E1F22;
+    }
+
+    .forum-baseContent {
+        width: 100%;
+        height: calc(max-content - 48px);
+        padding: 0px 2rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            padding: 0px 2rem 2rem;
+            height: 100%;
+            gap: 1.5rem;
+
+            .ad-contents {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                padding-top: 5rem;
+                gap: 3rem;
+
+                .items {
+                    width: 100%;
+                    height: 300px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 3rem;
+
+                    .texts {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        height: 100%;
+                        padding: 2rem;
+                        gap: 1rem;
+                        text-wrap: balance;
+
+                        h1 {
+                            font-size: 2.5rem;
+                        }
+
+                        p {
+                            font-size: 1.5rem;
+                            font-weight: 300;
+                        }
+
+                        button {
+                            color: #5865f2;
+                            width: max-content;
+                            height: max-content;
+                            padding: 0.5rem;
+                            cursor: pointer;
+                            border: none;
+                            font-weight: 300;
+                            font-weight: bold;
+
+                            &:hover {
+                                opacity: 0.87;
+                            }
+                        }
+                    }
+
+                    .ad-right-img {
+                        flex: 1;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100%;
+                        padding: 1rem;
+
+                        img {
+                            width: 88%;
+                            height: 88%;
+                            object-fit: cover;
+                            border-radius: 1rem;
+                        }
+                    }
+                }
+            }
+
+            .ad-contents > .items:first-child {
+                background-color: #3C4CCC;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 1200 800'%3E%3Cdefs%3E%3CradialGradient id='a' cx='0' cy='800' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23555fdd'/%3E%3Cstop offset='1' stop-color='%23555fdd' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='b' cx='1200' cy='800' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%238d5ce1'/%3E%3Cstop offset='1' stop-color='%238d5ce1' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='c' cx='600' cy='0' r='600' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23a979ed'/%3E%3Cstop offset='1' stop-color='%23a979ed' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='d' cx='600' cy='800' r='600' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%233C4CCC'/%3E%3Cstop offset='1' stop-color='%233C4CCC' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='e' cx='0' cy='0' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%237275EA'/%3E%3Cstop offset='1' stop-color='%237275EA' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='f' cx='1200' cy='0' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23DF81F0'/%3E%3Cstop offset='1' stop-color='%23DF81F0' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect fill='url(%23a)' width='1200' height='800'/%3E%3Crect fill='url(%23b)' width='1200' height='800'/%3E%3Crect fill='url(%23c)' width='1200' height='800'/%3E%3Crect fill='url(%23d)' width='1200' height='800'/%3E%3Crect fill='url(%23e)' width='1200' height='800'/%3E%3Crect fill='url(%23f)' width='1200' height='800'/%3E%3C/svg%3E");
+                background-attachment: fixed;
+                background-size: cover;
+                border-radius: 1rem;
+            }
+
+            .ad-contents > .items:nth-child(2) {
+                background-color: #050611;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 1200 800'%3E%3Cdefs%3E%3CradialGradient id='a' cx='0' cy='800' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23243366'/%3E%3Cstop offset='1' stop-color='%23243366' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='b' cx='1200' cy='800' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%231c205b'/%3E%3Cstop offset='1' stop-color='%231c205b' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='c' cx='600' cy='0' r='600' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%234056ab'/%3E%3Cstop offset='1' stop-color='%234056ab' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='d' cx='600' cy='800' r='600' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23050611'/%3E%3Cstop offset='1' stop-color='%23050611' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='e' cx='0' cy='0' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%234B71B3'/%3E%3Cstop offset='1' stop-color='%234B71B3' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='f' cx='1200' cy='0' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23353AA3'/%3E%3Cstop offset='1' stop-color='%23353AA3' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect fill='url(%23a)' width='1200' height='800'/%3E%3Crect fill='url(%23b)' width='1200' height='800'/%3E%3Crect fill='url(%23c)' width='1200' height='800'/%3E%3Crect fill='url(%23d)' width='1200' height='800'/%3E%3Crect fill='url(%23e)' width='1200' height='800'/%3E%3Crect fill='url(%23f)' width='1200' height='800'/%3E%3C/svg%3E");
+                background-attachment: fixed;
+                background-size: cover;
+                border-radius: 1rem;
+            }
+
+            .ad-contents > .items:last-child {
+                background-color: #FAB760;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 1200 800'%3E%3Cdefs%3E%3CradialGradient id='a' cx='0' cy='800' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23fcd190'/%3E%3Cstop offset='1' stop-color='%23fcd190' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='b' cx='1200' cy='800' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23f4bd63'/%3E%3Cstop offset='1' stop-color='%23f4bd63' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='c' cx='600' cy='0' r='600' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23f8d591'/%3E%3Cstop offset='1' stop-color='%23f8d591' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='d' cx='600' cy='800' r='600' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23FAB760'/%3E%3Cstop offset='1' stop-color='%23FAB760' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='e' cx='0' cy='0' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23FEE8C1'/%3E%3Cstop offset='1' stop-color='%23FEE8C1' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='f' cx='1200' cy='0' r='800' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='0' stop-color='%23EDC266'/%3E%3Cstop offset='1' stop-color='%23EDC266' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect fill='url(%23a)' width='1200' height='800'/%3E%3Crect fill='url(%23b)' width='1200' height='800'/%3E%3Crect fill='url(%23c)' width='1200' height='800'/%3E%3Crect fill='url(%23d)' width='1200' height='800'/%3E%3Crect fill='url(%23e)' width='1200' height='800'/%3E%3Crect fill='url(%23f)' width='1200' height='800'/%3E%3C/svg%3E");
+                background-attachment: fixed;
+                background-size: cover;
+                border-radius: 1rem;
+            }
+
+            .forum-category {
+                width: 100%;
+                color: #80848E;
+                font-weight: bold;
+                padding: 0.5rem 0;
+            }
+        }
+    }
+}

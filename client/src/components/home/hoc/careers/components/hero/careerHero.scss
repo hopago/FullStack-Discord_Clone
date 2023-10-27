@@ -1,0 +1,81 @@
+.career-hero {
+    color: #fff;
+    width: 100%;
+    height: calc(100% - 71px);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding-top: 5rem;
+
+    .texts {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        p {
+            margin-top: 1rem;
+            margin-bottom: 5rem;
+            font-size: 1.3rem;
+            font-weight: 400;
+        }
+    }
+
+    .img-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+
+        img {
+            object-fit: cover;
+            border-radius: 5%;
+        }
+
+        .top-left,
+        .top-right,
+        .bottom-left,
+        .bottom-right {
+            width: 280px;
+            height: 190px;
+        }
+
+        .top-left {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+        }
+
+        .top-right {
+            position: absolute;
+            top: 0px;
+            right: 5%;
+        }
+
+        .center {
+            width: 700px;
+            height: 550px;
+            z-index: 5;
+        }
+
+        .bottom-left {
+            position: absolute;
+            bottom: 5%;
+            left: 2.5%;
+        }
+
+        .bottom-right {
+            position: absolute;
+            bottom: 10%;
+            right: 5%;
+            z-index: 1;
+        }
+    }
+}

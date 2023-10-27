@@ -1,0 +1,36 @@
+.smallLetter {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3rem;
+
+    img {
+        position: absolute;
+        top: -12px;
+    }
+
+    h4 {
+        font-size: 1.5rem;
+    }
+
+    .link {
+
+        button {
+            background-color: #5865f2;
+            color: #fff;
+            padding: 1rem 2rem;
+            border: none;
+            cursor: pointer;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        button:hover {
+            box-shadow: 0px 25px 20px -20px rgba(88,101,242,0.5), 25px 0 20px -20px rgba(88,101,242,0.5);
+            -webkit-box-shadow: 0px 25px 20px -20px rgba(88,101,242,0.5), 25px 0 20px -20px rgba(88,101,242,0.5);
+        }
+    }
+}

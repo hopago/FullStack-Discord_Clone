@@ -1,0 +1,26 @@
+@import './abstracts/color';
+
+.home {
+    background-color: $home-background;
+    color: $home-text;
+    font-family: $home-font;
+    width: 100%;
+
+    .header {
+        width: 100%;
+        min-height: 65vh;
+        background: linear-gradient(rgba(41, 40, 65, 0.5), rgba(41, 40, 65, 0.75)), url("https://images.pexels.com/photos/4050315/pexels-photo-4050315.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: 50% 62.5%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .main {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+}

@@ -1,0 +1,69 @@
+@import '../../../../../../pages/scss/abstracts/color';
+
+.career-navbar {
+    width: 100%;
+    max-width: 1260px;
+    padding: 0px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    max-height: 80px;
+
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+
+        h4 {
+            font-size: 1.5rem;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        img {
+            width: 30px;
+            height: 24px;
+            object-fit: cover;
+        }
+    }
+
+    .links {
+        display: flex;
+        flex-grow: 1;
+        justify-content: center;
+        
+        ul {
+            list-style: none;
+            display: flex;
+            gap: 5rem;
+            color: #fff;
+
+            li {
+                font-weight: 700;
+                cursor: pointer;
+            }
+
+            li:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        background-color: #fff;
+        color: $home-textSoft;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s ease;
+    }
+
+    button:hover {
+        color: rgb(88, 101, 242);
+        background-color: rgb(246, 246, 246);
+    }
+}

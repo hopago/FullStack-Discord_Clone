@@ -1,0 +1,119 @@
+.chatNavBar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    .upperWrapper {
+        width: 100%;
+        height: 44px;
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem;
+
+        .upperLeft {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 0.5rem;
+
+            img {
+                width: 24px;
+                height: 24px;
+                margin: 0.5rem 0px;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+
+            span {
+                color: #f2f3f5;
+                font-size: 14px;
+                font-weight: bold;
+            }
+        }
+
+        .upperRight {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            .iconWrapper {
+                width: 24px;
+                height: 24px;
+                color: #949BA4;
+                transition: all 0.15s ease-in-out;
+                cursor: pointer;
+
+                &:hover {
+                    color: #f2f3f5;
+                }
+            }
+
+            .search__smBar {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #1E1F22;
+                width: 100%;
+                min-width: 144px;
+                height: 24px;
+                transition: all 0.3s ease;
+
+                &:focus-within {
+                    min-width: 288px;
+                }
+
+                form {
+                    flex: 1;
+                    height: 100%;
+
+                    input {
+                        width: 100%;
+                        height: 100%;
+                        background-color: transparent;
+                        border: none;
+                        color: #f2f3f5;
+                        font-size: 12px;
+                        display: flex;
+                        align-items: center;
+                        padding-left: 0.5rem;
+                        outline: none;
+                    }
+                }
+
+                .searchIconContainer {
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+
+            .notificationsIcon {
+                margin-left: 0.5rem;
+                width: 24px;
+                height: 24px;
+                color: #949BA4;
+                transition: all 0.15s ease-in-out;
+                cursor: pointer;
+
+                &:hover {
+                    color: #f2f3f5;
+                }
+            }
+
+            .helpIcon {
+                margin-left: 0.5rem;
+                width: 24px;
+                height: 24px;
+                color: #949BA4;
+                transition: all 0.15s ease-in-out;
+                cursor: pointer;
+
+                &:hover {
+                    color: #f2f3f5;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,42 @@
+.community-server-base {
+    width: calc(100vw - 312px);
+    font-family: 'AppleSDGothicNeo', 'Noto Sans KR', sans-serif;
+    overflow-y: scroll;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    .wrapper {
+        padding: 2rem 1rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-direction: column;
+
+        .viewWrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+
+            .serverList {
+                width: 100%;
+
+                h2 {
+                    margin-top: 3rem;
+                    margin-bottom: 1rem;
+                    font-weight: bold;
+                    font-size: 21px;
+                }
+
+
+            }
+        }
+    }
+}

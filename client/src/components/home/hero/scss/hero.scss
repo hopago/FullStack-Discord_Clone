@@ -1,0 +1,66 @@
+.hero {
+    width: 100%;
+    max-width: 1260px;
+    height: calc(65vh - 71px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 5rem;
+
+    .wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 5rem;
+
+        .text {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            text-align: center;
+            text-wrap: balance;
+
+            h1 {
+                font-size: 4rem;
+                color: #fff;
+                letter-spacing: 1px;
+            }
+
+            p {
+                color: #fff;
+                font-size: 1.2rem;
+                letter-spacing: 1.5px;
+            }
+        }
+
+        .buttons {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+
+            button {
+                padding: 1rem 2rem;
+                font-weight: bold;
+                cursor: pointer;
+                border-radius: 25px;
+                border: none;
+            }
+
+            button:hover {
+                box-shadow: 0px 25px 20px -20px rgba(0, 0, 0, 0.9), 25px 0 20px -20px rgba(0, 0, 0, 0.9);
+                -webkit-box-shadow: 0px 25px 20px -20px rgba(0, 0, 0, 0.9), 25px 0 20px -20px rgba(0, 0, 0, 0.9);
+            }
+        }
+
+        .buttons > button:nth-child(2) {
+            background-color: #2A2D31;
+            color: #fff;
+        }
+
+        .buttons > button:nth-child(2):hover {
+            box-shadow: 0px 25px 20px -20px rgba(255, 255, 255, 0.9), 25px 0 20px -20px rgba(255, 255, 255, 0.9);
+            -webkit-box-shadow: 0px 25px 20px -20px rgba(255, 255, 255, 0.9), 25px 0 20px -20px rgba(255, 255, 255, 0.9);
+        }
+    }
+}

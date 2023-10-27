@@ -1,0 +1,34 @@
+.community-server-infoLetters {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 3rem 0 2rem 0;
+
+    img {
+        width: 80px;
+        height: 62px;
+        object-fit: contain;
+        margin-bottom: 0.5rem;
+    }
+
+    .texts {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        gap: 3px;
+
+        h1 {
+            font-size: 24px;
+        }
+
+        span {
+            color: #ADF3FF;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    }
+}

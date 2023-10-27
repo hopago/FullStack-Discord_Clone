@@ -1,0 +1,78 @@
+.serverList-hero {
+    width: 100%;
+    height: 50vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 1rem;
+    overflow: hidden;
+
+    img {
+        position: absolute;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .contents {
+        width: 100%;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        h1 {
+            font-size: 24px;
+        }
+
+        p {
+            font-size: 16px;
+        }
+
+        .searchBox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 25%;
+            margin-top: 0.5rem;
+
+            .inputWrap {
+                width: 100%;
+                height: 40px;
+                border-radius: 8px 0px 0px 8px;
+                overflow: hidden;
+
+                input {
+                    width: 100%;
+                    height: 100%;
+                    border: none;
+                    outline: none;
+                    padding-left: 0.5rem;
+                    padding: 8px;
+                    font-size: 16px;
+                }
+            }
+
+            .searchBox-icon {
+                height: 40px;
+                width: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: white;
+                border-radius: 0px 8px 8px 0px;
+            }
+
+            &:focus-within {
+                box-shadow: 0 0 0 1px#5b43f0,0 0 0 2px#bdb3f9,0 0 0 3px#bdb3f9;
+                border-color: transparent;
+                border-radius: 8px;
+            }
+        }
+    }
+}

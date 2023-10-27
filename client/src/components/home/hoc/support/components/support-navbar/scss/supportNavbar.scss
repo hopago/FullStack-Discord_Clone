@@ -1,0 +1,60 @@
+@import '../../../../../../../pages/scss/abstracts/color';
+
+.supportNavbar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0;
+    max-height: 71px;
+    background-color: white;
+
+    .navWrap {
+        width: 100%;
+        max-width: 1160px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+
+            h4 {
+                font-size: 1.5rem;
+                color: #5865F2;
+                letter-spacing: -1.5px;
+            }
+
+            img {
+                width: 30px;
+                height: 24px;
+                object-fit: cover;
+            }
+        }
+
+        .links {
+            display: flex;
+            flex-grow: 1;
+            justify-content: flex-end;
+            
+            ul {
+                list-style: none;
+                display: flex;
+                gap: 5rem;
+                color: #5865F2;
+
+                li {
+                    font-weight: 400;
+                    cursor: pointer;
+                }
+
+                li:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}

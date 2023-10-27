@@ -1,0 +1,125 @@
+@import '../../scss/abstracts/color';
+
+.login {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'NanumGothic', 'serif';
+
+    .login-card {
+        width: 75vw;
+        min-height: 75vh;
+        display: flex;
+        border-radius: 10px;
+        overflow: hidden;
+
+        .login-left {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            gap: 1.5rem;
+            background: linear-gradient(rgba(41, 40, 65, 0.25), rgba(41, 40, 65, 0.5)), url("https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1600");
+            background-size: cover;
+
+            h1 {
+                font-size: 5rem;
+                line-height: 5rem;
+            }
+
+            p {
+                font-weight: bold;
+                line-height: 2rem;
+                letter-spacing: 3px;
+                font-size: 1.25rem;
+            }
+
+            .left__toRegister {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+
+                span {
+                    font-weight: bold;
+                    line-height: 2rem;
+                    text-decoration: underline;
+                }
+    
+                button {
+                    width: max-content;
+                    padding: 1rem 1.5rem;
+                    border: none;
+                    background-color: $background-darker;
+                    color: #fff;
+                    cursor: pointer;
+                    font-weight: bold;
+                    border-radius: 10px;
+                }
+
+                button:hover {
+                    background-color: #fff;
+                    color: $background-darker;
+                }
+            }
+        }
+
+        .login-right {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+            justify-content: center;
+            background-color: $background-darker;
+
+            h1 {
+                color: $text-soft;
+                font-size: 2.5rem;
+            }
+
+            form {
+                display: flex;
+                flex-direction: column;
+                gap: 3rem;
+
+                input {
+                    width: 75%;
+                    border: none;
+                    outline: none;
+                    border-bottom: 1px solid $text-soft;
+                    padding: 1rem 0.5rem;
+                    background: transparent;
+                    color: #fff;
+                    transition: all 0.3s ease-in;
+                }
+
+                input::placeholder {
+                    color: $text-soft;
+                }
+
+                input:focus {
+                    border-left: 1px solid $text-soft;
+                    border-bottom: 1px solid transparent;
+                    outline: none;
+                }
+
+                input:focus::placeholder {
+                    color: transparent;
+                }
+
+                button {
+                    width: 50%;
+                    padding: 0.5rem;
+                    border: none;
+                    background-color: $background-light;
+                    color: #fff;
+                    font-weight: bold;
+                    cursor: pointer;
+                    border-radius: 10px;
+                }
+            }
+        }
+    }
+}
