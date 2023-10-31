@@ -37,7 +37,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             }
           },
           ACCESS_TOKEN_SECRET,
-          { expiresIn: '15m' }
+          // { expiresIn: '15m' }
+          { expiresIn: '10s' } // for dev
         );
 
         const refreshToken = jwt.sign(
@@ -47,14 +48,16 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             }
           },
           REFRESH_TOKEN_SECRET,
-          { expiresIn: '7d' }
+          // { expiresIn: '7d' }
+          { expiresIn: '15s' } // for dev
         );
 
         res.cookie('jwt', refreshToken, {
             httpOnly: true,
             secure: true,
             sameSite: 'none',
-            maxAge: 7 * 24 * 60 * 60 * 1000
+            // maxAge: 7 * 24 * 60 * 60 * 1000
+            maxAge: 30 * 1000 // for dev
         })
         .status(200)
         .json({ accessToken });
@@ -105,7 +108,8 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
                         }
                     },
                     ACCESS_TOKEN_SECRET,
-                    { expiresIn: '15m' }
+                    // { expiresIn: '15m' }
+                    { expiresIn: '15s' }
                 );
 
                 res.status(200).json({ accessToken });

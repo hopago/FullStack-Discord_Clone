@@ -5,15 +5,19 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Community from "./pages/Community";
 
+import RequireAuth from "./features/authentication/RequireAuth";
+
 function App() {
   return (
     <Routes>
+      {/* Public */}
       <Route path="/*" element={<Home />} />
-      {/* Authorization */}
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
       {/* Protected */}
-      <Route path="community/*" element={<Community />} />
+      <Route element={<RequireAuth />}>
+        <Route path="community/*" element={<Community />} />
+      </Route>
     </Routes>
   );
 }
