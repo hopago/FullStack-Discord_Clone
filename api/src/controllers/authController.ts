@@ -7,6 +7,14 @@ import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/jwt.js";
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const { userName, password, email } = req.body;
+        if (!userName || !password || !email) throw new  HttpException(400, "UserName, Email, Password are required...");
+
+        const duplicate = await User.findOne({
+            userName
+        });
+        if (duplicate) throw new HttpException(409, "");
+
         const hash = bcrypt.hashSync(req.body.password, 10);
         const newUser = new User({
             ...req.body,
@@ -20,47 +28,78 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 };
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
+    const cookies = req.cookies;
+
     try {
+        const { userName, password } = req.body;
+        if (!userName || !password) throw new HttpException(400, "UserName and Password are required...");
+
         const user = await User.findOne({
-            userName: req.body.userName
+            userName
         });
         if (!user) throw new HttpException(404, "User not found...");
-        const isCorrect = bcrypt.compareSync(req.body.password, user.password);
-        if (!isCorrect) throw new HttpException(400, "Wrong Creds...");
 
-        const accessToken = jwt.sign(
-          {
-            userInfo: {
+        const isCorrect = bcrypt.compareSync(req.body.password, user.password);
+        if (!isCorrect) return res.sendStatus(401);
+
+        if (isCorrect) {
+          const accessToken = jwt.sign(
+            {
+              userInfo: {
                 id: user._id,
                 isVerified: user.isVerified,
                 type: user.type,
-            }
-          },
-          ACCESS_TOKEN_SECRET,
-          // { expiresIn: '15m' }
-          { expiresIn: '10s' } // for dev
-        );
+              },
+            },
+            ACCESS_TOKEN_SECRET,
+            // { expiresIn: '15m' }
+            { expiresIn: "15s" } // for dev
+          );
 
-        const refreshToken = jwt.sign(
-          {
-            userInfo: {
+          const newRefreshToken = jwt.sign(
+            {
+              userInfo: {
                 id: user._id,
-            }
-          },
-          REFRESH_TOKEN_SECRET,
-          // { expiresIn: '7d' }
-          { expiresIn: '15s' } // for dev
-        );
+              },
+            },
+            REFRESH_TOKEN_SECRET,
+            // { expiresIn: '7d' }
+            { expiresIn: "30s" } // for dev
+          );
 
-        res.cookie('jwt', refreshToken, {
+        let newRefreshTokenArray =
+            !cookies?.jwt
+                ? user.refreshToken
+                : user.refreshToken.filter((rt: string) => rt !== cookies.jwt);
+
+        if (cookies?.jwt) {
+            const refreshToken = cookies.jwt;
+            const foundToken = await User.findOne({ refreshToken }).exec();
+
+            if (!foundToken) {
+                newRefreshTokenArray = [];
+            }
+
+            res.clearCookie('jwt', {
+                httpOnly: true,
+                sameSite: 'none',
+                secure: true,
+            });
+        }
+
+        user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+
+        res
+        .cookie("jwt", newRefreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'none',
+            sameSite: "none",
             // maxAge: 7 * 24 * 60 * 60 * 1000
-            maxAge: 30 * 1000 // for dev
+            maxAge: 30 * 1000, // for dev
         })
         .status(200)
         .json({ accessToken });
+        }
     } catch (err) {
         next(err);
     }
@@ -70,12 +109,25 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
     try {
         const cookies = req.cookies;
         if (!cookies?.jwt) throw new HttpException(204, "");
+        const refreshToken = cookies.jwt;
+
+        const user = await User.findOne({
+            refreshToken
+        }).exec();
+        if (!user) {
+            res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
+            return res.sendStatus(204);
+        }
+
+        user.refreshToken = user.refreshToken.filter(rt => rt !== refreshToken);
+        await user.save();
+
         res.clearCookie('jwt', {
             httpOnly: true,
             sameSite: 'none',
             secure: true
         })
-        .status(200)
+        .status(204)
         .json({ message: 'Cookie cleared...' });
     } catch (err) {
         next(err);
@@ -83,34 +135,77 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
 };
 
 export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+    const cookies = req.cookies;
+    if (!cookies?.jwt) throw new HttpException(401, "Unauthorized...");
+    const refreshToken = cookies.jwt;
+    res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
+
     try {
-        const cookies = req.cookies;
-        if (!cookies?.jwt) throw new HttpException(401, "Unauthorized...");
-        const refreshToken = cookies.jwt;
+        const user = await User.findOne({ refreshToken }).exec();
+
+        if (!user) {
+            jwt.verify(
+                refreshToken,
+                REFRESH_TOKEN_SECRET as Secret,
+                async (err: VerifyErrors | null, decoded: any): Promise<void> => {
+                    if (err) throw new HttpException(403, "Token is not valid...");
+
+                    const hackedUser = await User.findOne({ _id: decoded.userInfo.id }).exec();
+                    if (hackedUser) {
+                        hackedUser.refreshToken = [];
+                        await hackedUser?.save();
+                    }
+                }
+            )
+            return res.sendStatus(403);
+        }
+
+        const newRefreshTokenArray = user.refreshToken.filter(rt => rt !== refreshToken);
 
         jwt.verify(
             refreshToken as string,
             REFRESH_TOKEN_SECRET as Secret,
             async (err: VerifyErrors | null, decoded: any): Promise<void> => {
-                if (err) throw new HttpException(403, "Token is not valid...");
-
-                const foundUser = await User.findOne({
-                    _id: decoded.userInfo.id
-                }).exec();
-                if (!foundUser) throw new HttpException(401, "Unauthorized...");
+                if (err) {
+                    user.refreshToken = [...newRefreshTokenArray];
+                    await user.save();
+                }
+                if (err || user._id !== decoded.userInfo.id) throw new HttpException(403, "Something went wrong...");
 
                 const accessToken = jwt.sign(
                     {
                         userInfo: {
-                            id: foundUser._id,
-                            isVerified: foundUser.isVerified,
-                            type: foundUser.type,
+                            id: user._id,
+                            isVerified: user.isVerified,
+                            type: user.type,
                         }
                     },
                     ACCESS_TOKEN_SECRET,
                     // { expiresIn: '15m' }
                     { expiresIn: '15s' }
                 );
+
+                const newRefreshToken = jwt.sign(
+                    {
+                        userInfo: {
+                            id: user._id,
+                          },
+                    },
+                    REFRESH_TOKEN_SECRET,
+                    // { expiresIn: '7d' }
+                    { expiresIn: "30s" }
+                );
+
+                user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+                await user.save();
+
+                res.cookie('jwt', newRefreshToken, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'none',
+                    // maxAge: 24 * 60 * 60 * 1000
+                    maxAge: 30 * 1000
+                });
 
                 res.status(200).json({ accessToken });
             }

@@ -1,15 +1,20 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './scss/register.scss';
 import { useRef, useState, useEffect } from 'react';
 import {
   Error,
   Report
 } from '@mui/icons-material';
+import { useRegisterMutation } from '../features/authentication/slice/authApiSlice';
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 
 const Register = () => {
+  const [register, { isLoading }] = useRegisterMutation();
+  
+  const navigate = useNavigate();
+
   const userRef = useRef();
   const errRef = useRef();
 
@@ -60,7 +65,32 @@ const Register = () => {
       return;
     }
 
-    
+    const user = {
+      userName,
+      email,
+      password,
+      language
+    };
+
+    try {
+      await register(user).unwrap();
+      setUserName('');
+      setEmail('');
+      setPassword('');
+      setMatchPassword('');
+      setLanguage('');
+      navigate('/login');
+    } catch (err) {
+      if (err?.originalStatus) {
+        setErrMsg('No server response...');
+      } else if (err.originalStatus === 400) {
+        setErrMsg('All fields except language are required...');
+      } else if (err.originalStatus === 409) {
+        setErrMsg('User already exists...');
+      } else {
+        setErrMsg("Register failure...");
+      }
+    }    
   };
 
   return (

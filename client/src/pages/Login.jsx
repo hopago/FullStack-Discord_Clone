@@ -27,7 +27,7 @@ const Login = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    useRef.current.focus();
+    userRef.current.focus();
   }, []);
 
   useEffect(() => {
@@ -39,12 +39,12 @@ const Login = () => {
 
     try {
       const userData = await login(user).unwrap();
-      const userName = user.userName;
-      dispatch(setCredentials({ ...userData, userName }));
+      dispatch(setCredentials({ ...userData }));
       setUser('');
       navigate('/community');
     } catch (err) {
-      if (err?.originalStatus) {
+      console.log(err);
+      if (!err?.originalStatus) {
         setErrMsg('No Server Response...');
       } else if (err.originalStatus === 400) {
         setErrMsg('Missing UserName or Password...');
@@ -53,7 +53,7 @@ const Login = () => {
       } else {
         setErrMsg('Login failure...');
       }
-      errRef.current.focus();
+      errRef.current?.focus();
     }
   };
 
