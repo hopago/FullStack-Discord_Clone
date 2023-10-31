@@ -1,7 +1,23 @@
 import './scss/login.scss';
 import { Link } from 'react-router-dom';
+import { useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { useDispatch } from 'react-redux';
+import { setCredentials } from '../features/authentication/slice/authSlice';
+import { useLoginMutation } from '../features/authentication/slice/authApiSlice';
 
 const Login = () => {
+  const userRef = useRef();
+  const errRef = useRef();
+  
+  const [user, setUser] = useState({
+    userName: '',
+    password: ''
+  });
+  const [errMsg, setErrMsg] = useState('');
+  const navigate = useNavigate();
+
   return (
     <div className="login">
       <div className="login-card">

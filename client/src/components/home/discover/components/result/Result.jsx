@@ -5,6 +5,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import Pagination from 'react-js-pagination';
 
 const Result = () => {
+  {/* memoization */}
   const [page, setPage] = useState(1);
   const itemsCountPerPage = 10;
   const totalItemsCount = serverResults?.length;

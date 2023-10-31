@@ -26,7 +26,7 @@ const Navbar = () => {
           <hr />
           <div aria-label="server" className="server">
             <div className="flex-col">
-              {/* fetch server later... */}
+              {/* fetch server later... & memoization */}
               <Link to={`/community/server/${dummyServerId}`}>
                 <div className="server-items">
                   <div className="pill"></div>

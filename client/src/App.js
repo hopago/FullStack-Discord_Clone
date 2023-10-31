@@ -6,12 +6,9 @@ import Home from "./pages/Home";
 import Community from "./pages/Community";
 
 function App() {
-
-  const currentUser = null;
-
   return (
     <Routes>
-      <Route path="/*" element={<Home currentUser={currentUser} />} />
+      <Route path="/*" element={<Home />} />
       {/* Authorization */}
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />

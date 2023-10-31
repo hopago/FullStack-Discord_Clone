@@ -79,6 +79,7 @@ const ServerSideBar = () => {
             </div>
           ))}
         </div>
+        {/* memoization */}
         <section className="community-sidebar-user">
           <div className="wrapper">
             <img src={profile} alt="" />

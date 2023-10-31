@@ -2,6 +2,7 @@ import './scss/searchBar.scss';
 import SearchIcon from '@mui/icons-material/Search';
 
 const SearchBar = () => {
+  {/* useCallback */}
   return (
     <div className="searchBar">
         <div className="searchBarWrapper">

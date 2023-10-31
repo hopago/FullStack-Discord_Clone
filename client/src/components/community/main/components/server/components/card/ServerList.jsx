@@ -6,7 +6,7 @@ import {
 import './serverList.scss';
 
 const ServerList = () => {
-    {/* lazy fetching */}
+    {/* lazy fetching & memoization */}
 
   return (
     <div className="community-server-serverListCard">
