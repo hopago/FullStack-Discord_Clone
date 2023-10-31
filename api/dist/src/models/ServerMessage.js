@@ -9,31 +9,29 @@ const serverMessageSchema = new Schema({
         childCategory: {
             type: [String],
             required: true,
-        },
+        }
     },
-    referenced_message: {
-        content: {
-            type: Object,
-            required: true,
-        },
-        author: {
-            userId: {
-                type: String,
+    referenced_message: [
+        {
+            content: {
+                type: [Object],
                 required: true,
             },
-            userName: {
-                type: String,
-                required: true,
-            },
-            avatar: {
-                type: String,
-            },
-        },
-    },
-    numberOfMessage: {
-        type: Number,
-        default: 1
-    }
+            author: {
+                userId: {
+                    type: String,
+                    required: true,
+                },
+                userName: {
+                    type: String,
+                    required: true,
+                },
+                avatars: {
+                    type: String,
+                }
+            }
+        }
+    ]
 }, { timestamps: true });
 const ServerMessage = model("ServerMessage", serverMessageSchema);
 export default ServerMessage;

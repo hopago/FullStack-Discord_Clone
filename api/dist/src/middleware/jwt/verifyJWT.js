@@ -12,7 +12,7 @@ import { HttpException } from '../error/utils.js';
 import { ACCESS_TOKEN_SECRET } from '../../config/jwt.js';
 export const verifyJWT = (req, res, next) => {
     var _a, _b;
-    const userToken = (_b = (_a = req.headers["authorization"]) === null || _a === void 0 ? void 0 : _a.split(" ")[1]) !== null && _b !== void 0 ? _b : "null";
+    const userToken = (_b = (_a = req.headers["authorization"]) === null || _a === void 0 ? void 0 : _a.split(" ")[1]) !== null && _b !== void 0 ? _b : null;
     if (userToken === "null" || !userToken)
         throw new HttpException(401, "Unauthorized...");
     try {

@@ -39,11 +39,11 @@ const Login = () => {
 
     try {
       const userData = await login(user).unwrap();
+      const userName = user.userName;
       dispatch(setCredentials({ ...userData }));
       setUser('');
       navigate('/community');
     } catch (err) {
-      console.log(err);
       if (!err?.originalStatus) {
         setErrMsg('No Server Response...');
       } else if (err.originalStatus === 400) {

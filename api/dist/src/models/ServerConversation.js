@@ -1,12 +1,7 @@
 import { model, Schema } from "mongoose";
-import { ConversationType } from "../config/conversationType.js";
 ;
 const serverConversationSchema = new Schema({
-    type: {
-        type: String,
-        default: ConversationType[1]
-    },
-    messages_referenced: {
+    messages_reference: {
         serverId: {
             type: String,
             required: true,
@@ -16,10 +11,9 @@ const serverConversationSchema = new Schema({
             required: true,
         },
     },
-    lastMessageNumber: {
-        type: Number,
-        default: 0
-    }
+    lastMessage: {
+        type: String, // limit 50
+    },
 }, { timestamps: true });
 const ServerConversation = model("ServerConversation", serverConversationSchema);
 export default ServerConversation;

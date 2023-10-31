@@ -13,8 +13,8 @@ const serverSchema = new Schema({
         },
     },
     author: {
-        authorId: { type: String, required: true, unique: true },
-        userName: { type: String, required: true, unique: true },
+        authorId: { type: String },
+        userName: { type: String },
         avatar: { type: String },
     },
     embeds: {
@@ -23,14 +23,11 @@ const serverSchema = new Schema({
         description: { type: String, required: true },
         thumbnail: { type: String },
     },
-    likes: {
-        type: [String],
-        default: []
-    },
+    likes: [String],
     isVerified: {
         type: Boolean,
         default: false,
-    },
+    }
 }, { timestamps: true });
 const Server = model("Server", serverSchema);
 export default Server;

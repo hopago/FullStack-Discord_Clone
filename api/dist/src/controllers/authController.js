@@ -7,15 +7,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-
 import { HttpException } from "../middleware/error/utils.js";
 import bcrypt from 'bcrypt';
 import User from "../models/User.js";
 import jwt from 'jsonwebtoken';
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/jwt.js";
-
 export const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const { userName, password, email } = req.body;
+        if (!userName || !password || !email)
+            throw new HttpException(400, "UserName, Email, Password are required...");
+        const duplicate = yield User.findOne({
+            userName
+        });
+        if (duplicate)
+            throw new HttpException(409, "");
         const hash = bcrypt.hashSync(req.body.password, 10);
         const newUser = new User(Object.assign(Object.assign({}, req.body), { password: hash }));
         yield newUser.save();
@@ -26,35 +32,65 @@ export const register = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const cookies = req.cookies;
     try {
+        const { userName, password } = req.body;
+        if (!userName || !password)
+            throw new HttpException(400, "UserName and Password are required...");
         const user = yield User.findOne({
-            userName: req.body.userName
+            userName
         });
         if (!user)
             throw new HttpException(404, "User not found...");
         const isCorrect = bcrypt.compareSync(req.body.password, user.password);
         if (!isCorrect)
-            throw new HttpException(400, "Wrong Creds...");
-        const accessToken = jwt.sign({
-            userInfo: {
-                id: user._id,
-                isVerified: user.isVerified,
-                type: user.type,
+            return res.sendStatus(401);
+        if (isCorrect) {
+            const accessToken = jwt.sign({
+                userInfo: {
+                    id: user._id,
+                    isVerified: user.isVerified,
+                    type: user.type,
+                },
+            }, ACCESS_TOKEN_SECRET, 
+            // { expiresIn: '15m' }
+            { expiresIn: "15s" } // for dev
+            );
+            const newRefreshToken = jwt.sign({
+                userInfo: {
+                    id: user._id,
+                },
+            }, REFRESH_TOKEN_SECRET, 
+            // { expiresIn: '7d' }
+            { expiresIn: "30s" } // for dev
+            );
+            let newRefreshTokenArray = !(cookies === null || cookies === void 0 ? void 0 : cookies.jwt)
+                ? user.refreshToken
+                : user.refreshToken.filter((rt) => rt !== cookies.jwt);
+            if (cookies === null || cookies === void 0 ? void 0 : cookies.jwt) {
+                const refreshToken = cookies.jwt;
+                const foundToken = yield User.findOne({ refreshToken }).exec();
+                if (!foundToken) {
+                    newRefreshTokenArray = [];
+                }
+                res.clearCookie('jwt', {
+                    httpOnly: true,
+                    sameSite: 'none',
+                    secure: true,
+                });
             }
-        }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
-        const refreshToken = jwt.sign({
-            userInfo: {
-                id: user._id,
-            }
-        }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
-        res.cookie('jwt', refreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        })
-            .status(200)
-            .json({ accessToken });
+            user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+            res
+                .cookie("jwt", newRefreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+                // maxAge: 7 * 24 * 60 * 60 * 1000
+                maxAge: 30 * 1000, // for dev
+            })
+                .status(200)
+                .json({ accessToken });
+        }
     }
     catch (err) {
         next(err);
@@ -65,12 +101,22 @@ export const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         const cookies = req.cookies;
         if (!(cookies === null || cookies === void 0 ? void 0 : cookies.jwt))
             throw new HttpException(204, "");
+        const refreshToken = cookies.jwt;
+        const user = yield User.findOne({
+            refreshToken
+        }).exec();
+        if (!user) {
+            res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
+            return res.sendStatus(204);
+        }
+        user.refreshToken = user.refreshToken.filter(rt => rt !== refreshToken);
+        yield user.save();
         res.clearCookie('jwt', {
             httpOnly: true,
             sameSite: 'none',
             secure: true
         })
-            .status(200)
+            .status(204)
             .json({ message: 'Cookie cleared...' });
     }
     catch (err) {
@@ -78,26 +124,58 @@ export const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     }
 });
 export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const cookies = req.cookies;
+    if (!(cookies === null || cookies === void 0 ? void 0 : cookies.jwt))
+        throw new HttpException(401, "Unauthorized...");
+    const refreshToken = cookies.jwt;
+    res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
     try {
-        const cookies = req.cookies;
-        if (!(cookies === null || cookies === void 0 ? void 0 : cookies.jwt))
-            throw new HttpException(401, "Unauthorized...");
-        const refreshToken = cookies.jwt;
+        const user = yield User.findOne({ refreshToken }).exec();
+        if (!user) {
+            jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
+                if (err)
+                    throw new HttpException(403, "Token is not valid...");
+                const hackedUser = yield User.findOne({ _id: decoded.userInfo.id }).exec();
+                if (hackedUser) {
+                    hackedUser.refreshToken = [];
+                    yield (hackedUser === null || hackedUser === void 0 ? void 0 : hackedUser.save());
+                }
+            }));
+            return res.sendStatus(403);
+        }
+        const newRefreshTokenArray = user.refreshToken.filter(rt => rt !== refreshToken);
         jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
-            if (err)
-                throw new HttpException(403, "Token is not valid...");
-            const foundUser = yield User.findOne({
-                _id: decoded.userInfo.id
-            }).exec();
-            if (!foundUser)
-                throw new HttpException(401, "Unauthorized...");
+            if (err) {
+                user.refreshToken = [...newRefreshTokenArray];
+                yield user.save();
+            }
+            if (err || user._id !== decoded.userInfo.id)
+                throw new HttpException(403, "Something went wrong...");
             const accessToken = jwt.sign({
                 userInfo: {
-                    id: foundUser._id,
-                    isVerified: foundUser.isVerified,
-                    type: foundUser.type,
+                    id: user._id,
+                    isVerified: user.isVerified,
+                    type: user.type,
                 }
-            }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+            }, ACCESS_TOKEN_SECRET, 
+            // { expiresIn: '15m' }
+            { expiresIn: '15s' });
+            const newRefreshToken = jwt.sign({
+                userInfo: {
+                    id: user._id,
+                },
+            }, REFRESH_TOKEN_SECRET, 
+            // { expiresIn: '7d' }
+            { expiresIn: "30s" });
+            user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+            yield user.save();
+            res.cookie('jwt', newRefreshToken, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'none',
+                // maxAge: 24 * 60 * 60 * 1000
+                maxAge: 30 * 1000
+            });
             res.status(200).json({ accessToken });
         }));
     }

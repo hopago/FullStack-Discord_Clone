@@ -39,6 +39,10 @@ const userSchema = new Schema({
     blackList: {
         type: [String],
         default: []
+    },
+    refreshToken: {
+        type: [String],
+        default: []
     }
 }, { timestamps: true });
 const User = model("User", userSchema);

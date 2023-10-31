@@ -1,0 +1,24 @@
+@import '../../scss/abstracts/color';
+@import '../../scss//abstracts/font';
+
+.spinner {
+    font-family: $community-fontFamily;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+
+    .circular {
+        margin: 3rem;
+    }
+
+    p {
+        font-size: 1.3rem;
+        text-align: center;
+        padding: 0.5rem;
+        margin-top: 1rem;
+        color: $text-color;
+    }
+}
