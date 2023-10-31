@@ -1,13 +1,22 @@
 import logo from '../../home/navbar/assets/free-icon-computer-settings-2888694.png';
+
 import './navbar.scss';
+
 import serverImg from './assets/kisspng-community-of-practice-organization-social-group-on-stakeholder-management-5b03c46322fe96.2547190115269735391434.png';
 import serverImg2 from './assets/community-icon-29131.png';
+
 import ExploreIcon from '@mui/icons-material/Explore';
 import AddIcon from '@mui/icons-material/Add';
+
 import { Link } from 'react-router-dom';
+
+import { selectCurrentUser } from '../../../features/users/slice/userSlice';
+import { useSelector } from 'react-redux';
 
 const Navbar = () => {
   const dummyServerId = "dummyServerId";
+  
+  const currentUser = useSelector(state => selectCurrentUser(state));
 
   return (
     <div className="community-navbar-lefts">
