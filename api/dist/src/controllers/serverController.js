@@ -199,3 +199,21 @@ export const likeServer = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         next(err);
     }
 });
+export const searchServer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query.search;
+    try {
+        const servers = yield Server.find({
+            title: {
+                $regex: query,
+                $options: "i"
+            }
+        })
+            .limit(20);
+        if (Array.isArray(servers) && !servers.length)
+            throw new HttpException(404, "Server not founded...");
+        res.status(200).json(servers);
+    }
+    catch (err) {
+        next(err);
+    }
+});

@@ -222,3 +222,22 @@ export const likeServer = async (req: Request, res: Response, next: NextFunction
         next(err);
     }
 };
+
+export const searchServer = async (req: Request, res: Response, next: NextFunction) => {
+    const query = req.query.search;
+    try {
+        const servers = await Server.find({
+            title: {
+                $regex: query,
+                $options: "i"
+            }
+        })
+        .limit(20);
+
+        if (Array.isArray(servers) && !servers.length) throw new HttpException(404, "Server not founded...");
+
+        res.status(200).json(servers);        
+    } catch (err) {
+        next(err);
+    }
+};

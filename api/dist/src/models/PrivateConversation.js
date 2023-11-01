@@ -33,6 +33,6 @@ const privateConversationSchema = new Schema({
     lastMessage: {
         type: String,
     }
-});
+}, { timestamps: true });
 const PrivateConversation = model("PrivateConversation", privateConversationSchema);
 export default PrivateConversation;

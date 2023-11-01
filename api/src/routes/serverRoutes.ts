@@ -10,7 +10,8 @@ import {
   getSingleServer,
   getAllUserServers,
   deleteUserServer,
-  createServer
+  createServer,
+  searchServer
 } from "../controllers/serverController.js";
 
 const router = express.Router();
@@ -41,5 +42,9 @@ router
 router
   .route("/likes/:serverId")
   .put(likeServer)
+
+router
+  .route("/search")
+  .get(searchServer)
 
 export default router;

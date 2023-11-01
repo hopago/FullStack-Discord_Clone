@@ -1,0 +1,26 @@
+@import '../../../../../../../scss/abstracts/color';
+
+.reactionButtons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    button {
+        color: lightgray;
+        font-weight: 400;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        border: none;
+        cursor: pointer;
+        margin-right: 2px;
+        padding: 0.3rem;
+        background-color: #313338;
+        border-radius: 5px;
+
+        &:hover {
+            outline: 0.5px solid $background-light;
+            border-radius: 5px;
+        }
+    }
+}

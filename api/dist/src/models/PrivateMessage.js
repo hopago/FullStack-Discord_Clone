@@ -3,7 +3,7 @@ import { model, Schema } from "mongoose";
 const privateMessageSchema = new Schema({
     numberOfMessage: {
         type: Number,
-        default: 1
+        default: 1,
     },
     referenced_conversation: {
         conversationId: {
@@ -33,6 +33,6 @@ const privateMessageSchema = new Schema({
             },
         },
     },
-});
+}, { timestamps: true });
 const PrivateMessage = model("ServerMessage", privateMessageSchema);
 export default PrivateMessage;

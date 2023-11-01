@@ -1,7 +1,5 @@
 import './postCard.scss';
-import {
-    ThumbUp
-} from '@mui/icons-material';
+import ReactionButtons from '../reactionButtons/ReactionButtons';
 
 const PostCard = ({ post }) => {
   return (
@@ -12,10 +10,7 @@ const PostCard = ({ post }) => {
       <div className="texts">
         <h1>{post.title}</h1>
         <p>{post.desc}</p>
-        <p className="likes">
-          {<ThumbUp style={{ fontSize: "12px" }} />}
-          &nbsp;{post.likes}
-        </p>
+        <ReactionButtons post={post} />
       </div>
     </div>
   );

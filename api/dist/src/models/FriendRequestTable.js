@@ -10,6 +10,6 @@ const friendRequestTableSchema = new Schema({
             default: [],
         },
     },
-});
+}, { timestamps: true });
 const FriendAcceptReject = model("FriendRequest", friendRequestTableSchema);
 export default FriendAcceptReject;

@@ -1,31 +1,39 @@
 import './postCards.scss';
 import PostCard from '../postCard/PostCard';
-
-const dummyPostData = [
-    {
-        img: "https://images.pexels.com/photos/3861959/pexels-photo-3861959.jpeg?auto=compress&cs=tinysrgb&w=1600",
-        title: "항상, 매일",
-        desc: "개발 해봅시다.",
-        likes: "6300",
-    },
-    {
-        img: "https://images.pexels.com/photos/3861964/pexels-photo-3861964.jpeg?auto=compress&cs=tinysrgb&w=1600",
-        title: "재밌게 하는 방법",
-        desc: "웃으며 하세요.",
-        likes: "6300",
-    },
-    {
-        img: "https://images.pexels.com/photos/7988086/pexels-photo-7988086.jpeg?auto=compress&cs=tinysrgb&w=1600",
-        title: "개발자들",
-        desc: "이보다 더 완벽한 2인조가 있을까요?",
-        likes: "6300",
-    }
-];
+import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from "react";
+import {
+  selectAllPosts,
+  getPostsStatus,
+  getPostsError,
+  fetchPosts,
+} from "../../../../../../../features/post/slice/postsSlice";
+import Spinner from '../../../../../../../lib/react-loader-spinner/Spinner';
 
 const PostCards = ({ type }) => {
+  const dispatch = useDispatch();
+  const posts = useSelector(selectAllPosts);
+  const postsStatus = useSelector(getPostsStatus);
+  const postsError = useSelector(getPostsError);
+
+  useEffect(() => {
+    if (postsStatus === 'idle') {
+      dispatch(fetchPosts());
+    }
+  }, [postsStatus, dispatch]);
+
+  let content;
+  if (postsStatus === 'loading') {
+    content = <Spinner message="컨텐츠를 기다리는 중 이에요..." />
+  } else if (postsStatus === 'succeeded') {
+    content = posts.map((post) => <PostCard post={post} />);
+  } else if (postsStatus === 'failed') {
+    content = <p>{postsError}</p>
+  }
+
   return (
     <div className="forum-postCard-container">
-        {dummyPostData.map((post) => <PostCard post={post} />)}
+        {content}
     </div>
   )
 }

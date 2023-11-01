@@ -22,8 +22,8 @@
     .texts {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
-        align-items: flex-start;
+        gap: 1rem;
+        align-items: center;
         justify-content: center;
 
         h1 {
@@ -32,15 +32,6 @@
 
         p {
             font-size: 0.9rem;
-        }
-
-        .likes {
-            display: flex;
-            align-items: center;
-            color: lightgray;
-            font-weight: 400;
-            font-size: 12px;
-            gap: 4px;
         }
     }
 

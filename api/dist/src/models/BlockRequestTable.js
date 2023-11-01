@@ -7,9 +7,9 @@ const blockRequestTableSchema = new Schema({
         },
         members: {
             type: [Object],
-            default: []
+            default: [],
         },
     },
-});
+}, { timestamps: true });
 const BlackList = model("BlackList", blockRequestTableSchema);
 export default BlackList;

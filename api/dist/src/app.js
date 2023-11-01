@@ -12,6 +12,7 @@ import serverRouter from './routes/serverRoutes.js';
 import conversationRouter from './routes/conversationRoutes.js';
 import privateMessageRouter from './routes/messageRoutes.js';
 import serverConversationRouter from './routes/serverConversationRoutes.js';
+import postRouter from './routes/postRoutes.js';
 const app = express();
 connectDB();
 app.use(express.json());
@@ -29,6 +30,7 @@ app.use('/server', serverRouter);
 app.use('/conversation', conversationRouter);
 app.use('/private/messages', privateMessageRouter);
 app.use('/server/conversation', serverConversationRouter);
+app.use('/posts', postRouter);
 // error
 app.use(errorHandler);
 mongoose.connection.once('open', () => {

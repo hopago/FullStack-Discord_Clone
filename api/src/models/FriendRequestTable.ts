@@ -3,17 +3,20 @@ import { TFriendRequestTable } from "./type/FriendRequestTable";
 
 export interface IFriendRequestTable extends TFriendRequestTable, Document {};
 
-const friendRequestTableSchema: Schema = new Schema({
-  table: {
-    referenced_user: {
+const friendRequestTableSchema: Schema = new Schema(
+  {
+    table: {
+      referenced_user: {
         type: String,
-    },
-    members: {
-      type: [Object],
-      default: [],
+      },
+      members: {
+        type: [Object],
+        default: [],
+      },
     },
   },
-});
+  { timestamps: true }
+);
 
 const FriendAcceptReject = model<IFriendRequestTable>("FriendRequest", friendRequestTableSchema);
 

@@ -37,7 +37,8 @@ const privateConversationSchema: Schema = new Schema(
         lastMessage: {
             type: String,
         }
-    }
+    },
+    { timestamps: true }
 );
 
 const PrivateConversation = model<IPrivateConversation>("PrivateConversation", privateConversationSchema);
