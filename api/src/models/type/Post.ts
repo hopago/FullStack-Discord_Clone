@@ -10,10 +10,8 @@ export type TPost = {
     description: string,
     imgUrl: string,
     category: string[],
-    likes: [string: IUser["_id"]],
-    dislikes: [string: IUser["_id"]],
     reactions: {
-        [key: string]: number;
+        [key: string]: [string: IUser["_id"]];
     },
     views: number,
 }

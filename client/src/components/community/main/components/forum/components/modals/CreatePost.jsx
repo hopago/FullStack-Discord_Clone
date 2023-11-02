@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { postAdded } from "../../../../../../../features/post/slice/postsSlice";
 import { setCurrentUser } from "../../../../../../../features/users/slice/userSlice";
 import { postCardCategories } from "../constants";
 
@@ -34,9 +33,7 @@ const CreatePost = ({ modalRef, modalOutsideClick, setShowModal }) => {
         const description = post.description;
 
         if (post.title && post.desc && file) {
-            dispatch(
-                postAdded(_id, file, title, description, category)
-            )
+
         }
 
         setPost('');

@@ -83,11 +83,11 @@ const Forum = () => {
             </div>
           </main>
           <div className="forum-category">인기 게시물</div>
-          <PostCards type="hot" />
+          <PostCards type="forum-hot" />
           <div className="forum-category">추천 게시물</div>
-          <PostCards type="recommend" />
+          <PostCards type="forum-recommend" />
           <div className="forum-category">게시글 목록</div>
-          <PostCards type="all" />
+          <PostCards type="forum-all" />
         </div>
       </div>
       <div className="tut-itemWrapper" onClick={() => setShowModal(true)}>

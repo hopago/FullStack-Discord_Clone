@@ -6,6 +6,7 @@ import Server from '../main/components/server/Server';
 import Forum from '../main/components/forum/Forum';
 import Conversation from '../main/components/conversation/Conversation';
 import UserServer from '../main/components/userServer/UserServer';
+import SinglePost from '../main/components/forum/components/singlePost/SinglePost';
 
 const Base = () => {
   const params = useParams();
@@ -20,10 +21,10 @@ const Base = () => {
         <Routes>
           <Route path="/" element={<Friend />} />
           <Route path="/forum" element={<Forum />} />
+          <Route path="/forum/:postId" element={<SinglePost />} />
           <Route path="/server" element={<Server />} />
           <Route path="/conversation/:friendId" element={<Conversation />} />
           <Route path="/server/:serverId" element={<UserServer />} />
-          <Route path="/profile/:userId" element={{/* UserProfile */}} />
         </Routes>
       </div>
     </div>

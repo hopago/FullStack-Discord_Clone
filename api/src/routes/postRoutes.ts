@@ -18,12 +18,14 @@ router.use(verifyJWT);
 
 router
   .route('/')
+  // .get(getPostsByUserId) -> req.query.authorId
   .post(addPost)
 
 router
   .route('/:postId')
   .get(getPost)
   .put(updatePost)
+  .patch()
   .delete(deletePost)
 
 router

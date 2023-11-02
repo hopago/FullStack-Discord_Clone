@@ -1,5 +1,5 @@
 import Post from "../models/Post.js";
-import User from "../models/User.js";
+import User, { IUser } from "../models/User.js";
 import { HttpException } from "../middleware/error/utils.js";
 import { Response, Request, NextFunction } from "express";
 
@@ -35,6 +35,10 @@ export const getPost = async (
   next: NextFunction
 ) => {
   try {
+    const post = await Post.findById(req.params.postId);
+    if (!post) throw new HttpException(404, "Could not found this post...");
+
+    res.status(200).json(post);
   } catch (err) {
     next(err);
   }
@@ -100,18 +104,27 @@ export const likePost = async (
 
     const reactionName: string = req.body.reactionName;
     const reactionsObject: {
-      [key: string]: number;
+      [key: string]: [string: IUser["_id"]];
     } = post.reactions;
 
     const isExist = Object.keys(reactionsObject).includes(reactionName);
     if (!isExist) {
       throw new HttpException(400, "Bad request...");
-    } else {
-      post.reactions[reactionName]++;
-      await post.save();
     }
 
-    res.sendStatus(204);
+    const currentUserId: [string: IUser["_id"]] = req.body.currentUserId;
+    if (!currentUserId) throw new HttpException(400, "Bad Request...");
+
+    const isUserExists: boolean = Object.values(reactionsObject).includes(currentUserId);
+    if (!isUserExists) {
+      post.reactions[reactionName].push(currentUserId);
+      const updatedPost = await post.save();
+      res.status(201).json(updatedPost);
+    } else {
+      post.reactions[reactionName].filter(userId => userId !== currentUserId);
+      const updatedPost = await post.save();
+      res.status(201).json(updatedPost);
+    }
   } catch (err) {
     next(err);
   }
