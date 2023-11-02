@@ -4,8 +4,8 @@ import { HttpException } from '../error/utils.js';
 import { ACCESS_TOKEN_SECRET } from '../../config/jwt.js';
 
 export const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
-  const userToken = req.headers["authorization"]?.split(" ")[1] ?? null;
-  if (userToken === "null" || !userToken)
+  const userToken = req.headers["authorization"]?.split(" ")[1];
+  if (userToken === null || !userToken)
     throw new HttpException(401, "Unauthorized...");
 
   try {
@@ -13,8 +13,8 @@ export const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
       userToken,
       ACCESS_TOKEN_SECRET,
       async (err: VerifyErrors | null, decoded: any): Promise<void> => {
-        if (err) throw new HttpException(403, "Token is not found...");
-        req.user = decoded.userInfo;
+        if (err) throw new HttpException(403, "Token is not valid...");
+        req.user = await decoded.userInfo;
         next();
       }
     );

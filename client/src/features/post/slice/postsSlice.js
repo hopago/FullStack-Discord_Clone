@@ -1,20 +1,10 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import apiCall from '../../../services/requestMethods';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     posts: [],
     status: 'idle',
     error: null
 };
-
-export const fetchPosts = createAsyncThunk('posts/latest', async () => {
-    try {
-        const res = await apiCall.get("/posts/latest");
-        return res.data;
-    } catch (error) {
-        return error.message;
-    }
-});
 
 const postsSlice = createSlice({
     name: 'posts',
@@ -52,36 +42,16 @@ const postsSlice = createSlice({
         }
     },
     extraReducers(builder) {
-        builder
-          .addCase(fetchPosts.pending, (state, action) => {
-            state.status = 'loading';
-          })
-          .addCase(fetchPosts.fulfilled, (state, action) => {
-            state.status = 'succeeded';
 
-            const loadedPosts = action.payload.map(post => {
-                post.reactions = {
-                    thumbsUp: 0,
-                    wow: 0,
-                    heart: 0,
-                    rocket: 0,
-                    coffee: 0
-                }
-                return post;
-            });
-
-            state.posts = state.posts.concat(loadedPosts);
-          })
-          .addCase(fetchPosts.rejected, (state, action) => {
-            state.status = 'failed';
-            state.error = action.error.message;
-          })
     }
 });
 
 export const selectAllPosts = (state) => state.posts.posts;
 export const getPostsStatus = (state) => state.posts.status;
 export const getPostsError = (state) => state.posts.error;
+
+export const selectPostById = (state, postId) =>
+  state.posts.posts.find(post => post._id === postId);
 
 export const { postAdded, reactionAdded } = postsSlice.actions;
 

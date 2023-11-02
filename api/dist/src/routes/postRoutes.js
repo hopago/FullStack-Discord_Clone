@@ -1,6 +1,8 @@
 import express from 'express';
 import { addPost, addViewOnPost, deletePost, findByPostsCategory, getLatestPosts, getPost, getTrendPosts, likePost, updatePost, } from "../controllers/postController.js";
+import { verifyJWT } from '../middleware/jwt/verifyJWT.js';
 const router = express.Router();
+router.use(verifyJWT);
 router
     .route('/')
     .post(addPost);

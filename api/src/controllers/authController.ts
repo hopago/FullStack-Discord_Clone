@@ -52,8 +52,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
               },
             },
             ACCESS_TOKEN_SECRET,
-            // { expiresIn: '15m' }
-            { expiresIn: "15s" } // for dev
+            { expiresIn: '15m' }
           );
 
           const newRefreshToken = jwt.sign(
@@ -63,8 +62,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
               },
             },
             REFRESH_TOKEN_SECRET,
-            // { expiresIn: '7d' }
-            { expiresIn: "30s" } // for dev
+            { expiresIn: '7d' }
           );
 
         let newRefreshTokenArray =
@@ -94,8 +92,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             httpOnly: true,
             secure: true,
             sameSite: "none",
-            // maxAge: 7 * 24 * 60 * 60 * 1000
-            maxAge: 30 * 1000, // for dev
+            maxAge: 7 * 24 * 60 * 60 * 1000
         })
         .status(200)
         .json({ accessToken });
@@ -181,8 +178,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
                         }
                     },
                     ACCESS_TOKEN_SECRET,
-                    // { expiresIn: '15m' }
-                    { expiresIn: '15s' }
+                    { expiresIn: '15m' }
                 );
 
                 const newRefreshToken = jwt.sign(
@@ -192,8 +188,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
                           },
                     },
                     REFRESH_TOKEN_SECRET,
-                    // { expiresIn: '7d' }
-                    { expiresIn: "30s" }
+                    { expiresIn: '7d' }
                 );
 
                 user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
@@ -203,8 +198,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
                     httpOnly: true,
                     secure: true,
                     sameSite: 'none',
-                    // maxAge: 24 * 60 * 60 * 1000
-                    maxAge: 30 * 1000
+                    maxAge: 24 * 60 * 60 * 1000
                 });
 
                 res.status(200).json({ accessToken });

@@ -2,6 +2,8 @@ import logo from '../../home/navbar/assets/free-icon-computer-settings-2888694.p
 
 import './navbar.scss';
 
+import CreateModal from './modal/CreateModal';
+
 import serverImg from './assets/kisspng-community-of-practice-organization-social-group-on-stakeholder-management-5b03c46322fe96.2547190115269735391434.png';
 import serverImg2 from './assets/community-icon-29131.png';
 
@@ -13,10 +15,21 @@ import { Link } from 'react-router-dom';
 import { selectCurrentUser } from '../../../features/users/slice/userSlice';
 import { useSelector } from 'react-redux';
 
+import { useRef, useState } from 'react';
+
 const Navbar = () => {
   const dummyServerId = "dummyServerId";
-  
+
   const currentUser = useSelector(state => selectCurrentUser(state));
+  
+  const modalRef = useRef();
+  const [showModal, setShowModal] = useState(false);
+
+  const modalOutsideClick = (e) => {
+      if (modalRef.current === e.target) {
+          setShowModal(false);
+      }
+  };
 
   return (
     <div className="community-navbar-lefts">
@@ -57,7 +70,7 @@ const Navbar = () => {
           <hr />
           <div className="tutorialContainer-2">
             <div className="flex-col">
-              <div className="tut-itemWrapper">
+              <div className="tut-itemWrapper" onClick={() => setShowModal(true)}>
                 <AddIcon className="icon" />
               </div>
               <Link to="/community/server" className="link">
@@ -69,6 +82,9 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
+      {showModal && (
+        <CreateModal modalRef={modalRef} modalOutsideClick={modalOutsideClick} />
+      )}
     </div>
   );
 }

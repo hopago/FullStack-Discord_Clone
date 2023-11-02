@@ -52,18 +52,12 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                     isVerified: user.isVerified,
                     type: user.type,
                 },
-            }, ACCESS_TOKEN_SECRET, 
-            // { expiresIn: '15m' }
-            { expiresIn: "15s" } // for dev
-            );
+            }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
             const newRefreshToken = jwt.sign({
                 userInfo: {
                     id: user._id,
                 },
-            }, REFRESH_TOKEN_SECRET, 
-            // { expiresIn: '7d' }
-            { expiresIn: "30s" } // for dev
-            );
+            }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
             let newRefreshTokenArray = !(cookies === null || cookies === void 0 ? void 0 : cookies.jwt)
                 ? user.refreshToken
                 : user.refreshToken.filter((rt) => rt !== cookies.jwt);
@@ -85,8 +79,7 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
-                // maxAge: 7 * 24 * 60 * 60 * 1000
-                maxAge: 30 * 1000, // for dev
+                maxAge: 7 * 24 * 60 * 60 * 1000
             })
                 .status(200)
                 .json({ accessToken });
@@ -157,24 +150,19 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
                     isVerified: user.isVerified,
                     type: user.type,
                 }
-            }, ACCESS_TOKEN_SECRET, 
-            // { expiresIn: '15m' }
-            { expiresIn: '15s' });
+            }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
             const newRefreshToken = jwt.sign({
                 userInfo: {
                     id: user._id,
                 },
-            }, REFRESH_TOKEN_SECRET, 
-            // { expiresIn: '7d' }
-            { expiresIn: "30s" });
+            }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
             user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
             yield user.save();
             res.cookie('jwt', newRefreshToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'none',
-                // maxAge: 24 * 60 * 60 * 1000
-                maxAge: 30 * 1000
+                maxAge: 24 * 60 * 60 * 1000
             });
             res.status(200).json({ accessToken });
         }));

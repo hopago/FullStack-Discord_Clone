@@ -141,7 +141,7 @@ export const getLatestPosts = async (
   next: NextFunction
 ) => {
   try {
-    const posts = await Post.find({}, { sort: "created_at" }).limit(10);
+    const posts = await Post.find().sort({ createdAt: - 1 }).limit(10);
     if (Array.isArray(posts) && !posts.length)
       throw new HttpException(400, "No post found...");
 

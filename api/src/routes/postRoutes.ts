@@ -14,6 +14,8 @@ import { verifyJWT } from '../middleware/jwt/verifyJWT.js';
 
 const router = express.Router();
 
+router.use(verifyJWT);
+
 router
   .route('/')
   .post(addPost)

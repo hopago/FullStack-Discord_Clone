@@ -11,19 +11,19 @@ import jwt from 'jsonwebtoken';
 import { HttpException } from '../error/utils.js';
 import { ACCESS_TOKEN_SECRET } from '../../config/jwt.js';
 export const verifyJWT = (req, res, next) => {
-    var _a, _b;
-    const userToken = (_b = (_a = req.headers["authorization"]) === null || _a === void 0 ? void 0 : _a.split(" ")[1]) !== null && _b !== void 0 ? _b : null;
-    if (userToken === "null" || !userToken)
+    var _a;
+    const userToken = (_a = req.headers["authorization"]) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
+    if (userToken === null || !userToken)
         throw new HttpException(401, "Unauthorized...");
     try {
         jwt.verify(userToken, ACCESS_TOKEN_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
             if (err)
-                throw new HttpException(403, "Token is not found...");
-            req.user = decoded.userInfo;
+                throw new HttpException(403, "Token is not valid...");
+            req.user = yield decoded.userInfo;
             next();
         }));
     }
-    catch (_c) {
+    catch (_b) {
         throw new HttpException(400, "Not allowed token...");
     }
 };

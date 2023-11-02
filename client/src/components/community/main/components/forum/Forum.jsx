@@ -1,15 +1,26 @@
-import { Help, Notifications } from "@mui/icons-material";
+import { Help, InsertComment, Notifications } from "@mui/icons-material";
 import "./scss/forum.scss";
 import logo from '../../../../home/navbar/assets/free-icon-computer-settings-2888694.png';
 import jsAd from './assets/ad/331739-eng.png';
 import backend from './assets/ad/main_521.png';
 import adGif from './assets/ad/ezgif-2-46c9d255a1.gif';
 import PostCards from "./components/postCards/PostCards";
+import { useRef, useState } from "react";
+import CreatePost from "./components/modals/CreatePost";
 
 const Forum = () => {
   {
     /* 게시물 카테고리 - 유저 메인 언어 연결 필요 + fixed navigator top-left 클릭 시 인기, 추천, 게시글 category로 이동 */
   }
+
+  const modalRef = useRef();
+  const [showModal, setShowModal] = useState(false);
+
+  const modalOutsideClick = (e) => {
+    if (modalRef.current === e.target) {
+      setShowModal(false);
+    }
+  };
 
   return (
     <div className="community-forum">
@@ -79,6 +90,16 @@ const Forum = () => {
           <PostCards type="all" />
         </div>
       </div>
+      <div className="tut-itemWrapper" onClick={() => setShowModal(true)}>
+        <InsertComment style={{ fontSize: "24px" }} className="icon" />
+      </div>
+      {showModal && (
+        <CreatePost
+          setShowModal={setShowModal}
+          modalRef={modalRef}
+          modalOutsideClick={modalOutsideClick}
+        />
+      )}
     </div>
   );
 };

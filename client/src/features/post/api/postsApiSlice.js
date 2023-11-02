@@ -2,13 +2,13 @@ import { apiSlice } from "../../authentication/api/apiSlice";
 
 export const postsApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
-        getPosts: builder.query({
-            query: () => '/posts',
+        getLatestPosts: builder.query({
+            query: () => '/posts/latest',
             keepUnusedDataFor: 60,
         })
     })
 });
 
 export const {
-    useGetPostsQuery,
+    useGetLatestPostsQuery,
 } = usersApiSlice;

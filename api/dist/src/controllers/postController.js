@@ -106,7 +106,7 @@ export const addViewOnPost = (req, res, next) => __awaiter(void 0, void 0, void 
 });
 export const getLatestPosts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const posts = yield Post.find({}, { sort: "created_at" }).limit(10);
+        const posts = yield Post.find().sort({ createdAt: -1 }).limit(10);
         if (Array.isArray(posts) && !posts.length)
             throw new HttpException(400, "No post found...");
         res.status(200).json(posts);
