@@ -11,7 +11,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => (
         {
             getPostsBySortOptions: builder.query({
-                query: (fetchType, categories, language) => `/posts?sort=${fetchType}&categories=${categories}&language=${language}`,
+                query: ({ fetchType, categories, language }) => `/posts?sort=${fetchType}&categories=${categories}&language=${language}`,
                 providesTags: (result, error, arg) => [
                     { type: 'Post', id: "LIST" },
                     ...result.ids.map(id => ({

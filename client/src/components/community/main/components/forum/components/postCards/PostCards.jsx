@@ -6,16 +6,27 @@ import {
   selectPostsIds,
   useGetPostsBySortOptionsQuery,
 } from "../../../../../../../features/post/slice/postsApiSlice";
+import { selectCurrentUser } from '../../../../../../../features/users/slice/userSlice';
 
 const PostCards = ({ type }) => {
+  const currentUser = useSelector(selectCurrentUser);
+  {/* if category ?? const category = ... */}
+  const params = {
+    fetchType: type,
+    category: undefined,
+    language: currentUser?.language
+  };
+
   const {
     isLoading,
     isSuccess,
     isError,
     error
-  } = useGetPostsBySortOptionsQuery(type);
+  } = useGetPostsBySortOptionsQuery(params);
 
   const orderedPostIds = useSelector(selectPostsIds);
+
+  console.log(orderedPostIds);
 
   let content;
   if (isLoading) {

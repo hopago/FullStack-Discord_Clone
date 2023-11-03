@@ -37,7 +37,7 @@ export const getPostsBySortOptions = async (
     } else if (fetchType === "recommend") {
       const categories = req.query.categories;
       const userLanguage = req.query.language;
-      if (categories === undefined || !categories) {
+      if (categories === 'undefined' && userLanguage) {
         try {
           const posts = await Post.find({
             category: userLanguage,
@@ -50,7 +50,7 @@ export const getPostsBySortOptions = async (
         } catch (err) {
           next(err);
         }
-      } else if (userLanguage === undefined || !userLanguage) {
+      } else if (userLanguage === 'undefined' && categories) {
         let categoryArr: string[] = [];
 
         if (typeof categories === "string") {
@@ -61,6 +61,9 @@ export const getPostsBySortOptions = async (
           const posts = await Post.find({
             category: { $in: categoryArr },
           }).limit(20);
+
+          if (!posts || (Array.isArray(posts) && !posts.length))
+            throw new HttpException(400, "No post found...");
 
           res.status(200).json(posts);
         } catch (err) {
