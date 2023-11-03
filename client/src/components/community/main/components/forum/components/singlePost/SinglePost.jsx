@@ -1,5 +1,4 @@
 import { useSelector } from 'react-redux';
-import { selectPostById } from '../../../../../../../features/post/slice/postsSlice';
 import './singlePost.scss';
 import ReactionButtons from '../reactionButtons/ReactionButtons';
 import Spinner from '../../../../../../../lib/react-loader-spinner/Spinner';
@@ -7,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import { selectCurrentUser } from '../../../../../../../features/users/slice/userSlice';
 import { useRef, useState } from 'react';
 import EditPost from './components/EditPost';
+import { selectPostById } from '../../../../../../../features/post/slice/postsApiSlice';
 
 const SinglePost = () => {
   const { postId } = useParams();

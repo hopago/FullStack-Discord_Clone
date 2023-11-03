@@ -3,12 +3,11 @@ import {
   addPost,
   addViewOnPost,
   deletePost,
-  findByPostsCategory,
-  getLatestPosts,
   getPost,
-  getTrendPosts,
   likePost,
   updatePost,
+  getPostsBySortOptions,
+  getPostsByAuthorId
 } from "../controllers/postController.js";
 import { verifyJWT } from '../middleware/jwt/verifyJWT.js';
 
@@ -18,14 +17,17 @@ router.use(verifyJWT);
 
 router
   .route('/')
-  // .get(getPostsByUserId) -> req.query.authorId
+  .get(getPostsBySortOptions)
   .post(addPost)
+
+router
+  .route('/author/:authorId')
+  .get(getPostsByAuthorId);
 
 router
   .route('/:postId')
   .get(getPost)
   .put(updatePost)
-  .patch()
   .delete(deletePost)
 
 router
@@ -33,19 +35,7 @@ router
   .put(likePost)
 
 router
-  .route('/views/postId')
+  .route('/views/:postId')
   .put(addViewOnPost)
-
-router
-  .route('/latest')
-  .get(getLatestPosts)
-
-router
-  .route('/trend')
-  .get(getTrendPosts)
-
-router
-  .route('/category')
-  .get(findByPostsCategory)
 
 export default router;

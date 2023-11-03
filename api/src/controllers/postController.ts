@@ -3,6 +3,66 @@ import User, { IUser } from "../models/User.js";
 import { HttpException } from "../middleware/error/utils.js";
 import { Response, Request, NextFunction } from "express";
 
+export const getPostsBySortOptions = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const fetchType = req.query.sort;
+  const checkFetchType = Boolean(fetchType);
+
+  if (checkFetchType) {
+    if (fetchType === "latest") {
+      try {
+        const posts = await Post.find().sort({ createdAt: -1 }).limit(10);
+        if (Array.isArray(posts) && !posts.length)
+          throw new HttpException(400, "No post found...");
+
+        res.status(200).json(posts);
+      } catch (err) {
+        next(err);
+      }
+    } else if (fetchType === "trend") {
+      try {
+        const posts = await Post.find().sort({
+          views: -1,
+        });
+        if (Array.isArray(posts) && !posts.length)
+          throw new HttpException(400, "No post found...");
+
+        res.status(200).json(posts);
+      } catch (err) {
+        next(err);
+      }
+    } else if (fetchType === "recommend") {
+      const categories = req.query.categories;
+      if (categories === undefined)
+        throw new HttpException(400, "Bad request...");
+      let categoryArr: string[] = [];
+
+      if (typeof categories === "string") {
+        const splitCategories = categories.split("#");
+        return categoryArr.push(...splitCategories);
+      }
+      try {
+        if (Array.isArray(categoryArr) && categoryArr.length) {
+          const posts = await Post.find({
+            category: { $in: categoryArr },
+          }).limit(20);
+
+          res.status(200).json(posts);
+        } else {
+          throw new HttpException(400, "Bad Request...");
+        }
+      } catch (err) {
+        next(err);
+      }
+    }
+  } else {
+    throw new HttpException(400, "Bad request...");
+  }
+};
+
 export const addPost = async (
   req: Request,
   res: Response,
@@ -28,6 +88,27 @@ export const addPost = async (
     next(err);
   }
 };
+
+export const getPostsByAuthorId = async (req: Request, res: Response, next: NextFunction) => {
+  const authorId: string = req.params.authorId;
+  try {
+    const author = await User.findById(authorId);
+    if (!author) throw new HttpException(404, "Could not found this user...");
+
+    const posts = await Post.find({
+      author: {
+        authorId
+      }
+    })
+    .limit(10);
+
+    if (!posts || (Array.isArray(posts) && !posts.length)) throw new HttpException(400, "No post found...");
+
+    res.send(200).json(posts);
+  } catch (err) {
+    next(err);
+  }
+}
 
 export const getPost = async (
   req: Request,
@@ -143,68 +224,6 @@ export const addViewOnPost = async (
     });
 
     res.sendStatus(204);
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const getLatestPosts = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const posts = await Post.find().sort({ createdAt: - 1 }).limit(10);
-    if (Array.isArray(posts) && !posts.length)
-      throw new HttpException(400, "No post found...");
-
-    res.status(200).json(posts);
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const getTrendPosts = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const posts = await Post.find().sort({
-      views: -1,
-    });
-    if (Array.isArray(posts) && !posts.length)
-      throw new HttpException(400, "No post found...");
-
-    res.status(200).json(posts);
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const findByPostsCategory = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const categories = req.query.categories;
-  if (categories === undefined) throw new HttpException(400, "Bad request...");
-  let categoryArr: string[] = [];
-
-  if (typeof categories === "string") {
-    const splitCategories = categories.split("#");
-    return categoryArr.push(...splitCategories);
-  }
-  try {
-    if (Array.isArray(categoryArr) && categoryArr.length) {
-      const posts = await Post.find({
-        category: { $in: categoryArr },
-      }).limit(20);
-
-      res.status(200).json(posts);
-    } else {
-        throw new HttpException(400, "Bad Request...");
-    }
   } catch (err) {
     next(err);
   }
