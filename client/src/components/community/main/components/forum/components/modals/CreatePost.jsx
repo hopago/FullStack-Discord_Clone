@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
-import { setCurrentUser } from "../../../../../../../features/users/slice/userSlice";
 import { postCardCategories } from "../constants";
 
 import './createPost.scss';
 import { Done, Image } from "@mui/icons-material";
+import { useAddNewPostMutation } from "../../../../../../../features/post/slice/postsApiSlice";
+
+import { useNavigate } from "react-router-dom";
 
 const CreatePost = ({ modalRef, modalOutsideClick, setShowModal }) => {
-    const dispatch = useDispatch();
-    const currentUser = useSelector(state => setCurrentUser(state));
+    const [addNewPost, { isLoading }] = useAddNewPostMutation();
+
+    const navigate = useNavigate();
 
     const [post, setPost] = useState({
         title: "",
@@ -25,22 +27,46 @@ const CreatePost = ({ modalRef, modalOutsideClick, setShowModal }) => {
 
     const handleFile = e => setFile(e.target.files[0]);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = async (e) => {
+      e.preventDefault();
 
-        const _id = currentUser._id;
-        const title = post.title;
-        const description = post.description;
+      const title = post.title;
+      const description = post.description;
 
-        if (post.title && post.desc && file) {
 
+
+      if (canSave) {
+        const post = {
+          title,
+          description,
+          category,
+          imgUrl: file,
+        };
+
+        try {
+          await addNewPost(post).unwrap();
+
+          setPost({
+            title: "",
+            description: "",
+          });
+          setCategory("");
+          setFile("");
+        } catch (err) {
+          console.error(err);
         }
+      } else {
+      }
 
-        setPost('');
-        setFile('');
+      setPost({
+        title: "",
+        description: "",
+      });
+      setFile("");
+      setCategory("");
     };
 
-    const canSave = Boolean(post.title) && Boolean(post.desc) && Boolean(file) && Boolean(category);
+    const canSave = Object.values(post).every(Boolean) && Boolean(file) && !isLoading;
 
     const categoryOption = postCardCategories.map(category => (
         <option key={`postCardCategories${category}`} value={category}>

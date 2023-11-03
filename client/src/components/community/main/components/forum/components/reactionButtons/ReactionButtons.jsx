@@ -7,11 +7,9 @@ import { selectCurrentUser } from '../../../../../../../features/users/slice/use
 import { useSelector } from 'react-redux';
 
 const ReactionButtons = ({ post }) => {
-    const [reactionName, setReactionName] = useState('');
     const currentUser = useSelector(selectCurrentUser);
     const parameters = {
       initialPost: post,
-      reactionName,
       currentUser
     };
 
@@ -24,8 +22,7 @@ const ReactionButtons = ({ post }) => {
               type='button'
               className='reactionButton'
               onClick={() => {
-                setReactionName(name);
-                addReaction(parameters);
+                addReaction({ ...parameters, reactionName: name });
               }}
             >
             {emoji}&nbsp;{post.reactions[name]}

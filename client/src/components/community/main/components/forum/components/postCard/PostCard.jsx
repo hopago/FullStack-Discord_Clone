@@ -1,21 +1,24 @@
 import './postCard.scss';
 import ReactionButtons from '../reactionButtons/ReactionButtons';
 import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { selectPostById } from '../../../../../../../features/post/slice/postsApiSlice';
+import { useAddViewOnPostMutation } from '../../../../../../../features/post/slice/postsApiSlice';
 
-const PostCard = ({ postId }) => {
-  const post = useSelector(state => selectPostById(state, postId));
+const PostCard = ({ post }) => {
+  const [addView] = useAddViewOnPostMutation();
 
   return (
-    <Link to={`/community/forum/${post._id}`}>
+    <Link
+      onClick={() => addView(post)}
+      to={`/community/forum/${post?._id}`}
+      className="link"
+    >
       <div className="forum-postCard-wrapper">
         <div className="img">
-          <img src={post.imgUrl} alt="" />
+          <img src={post?.imgUrl} alt="" />
         </div>
         <div className="texts">
-          <h1>{post.title}</h1>
-          <p>{post.description.substring(0, 50)}...</p>
+          <h1>{post?.title}</h1>
+          <p>{post?.description.substring(0, 50)}...</p>
           <ReactionButtons post={post} />
         </div>
       </div>

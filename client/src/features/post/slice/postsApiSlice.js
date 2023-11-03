@@ -1,9 +1,7 @@
 import { createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { apiSlice } from '../../authentication/api/apiSlice';
 
-const postsAdapter = createEntityAdapter({
-    sortComparer: (a, b) => b.updatedAt - a.updatedAt
-});
+const postsAdapter = createEntityAdapter();
 
 const initialState = postsAdapter.getInitialState();
 
@@ -12,17 +10,19 @@ export const postsApiSlice = apiSlice.injectEndpoints({
         {
             getPostsBySortOptions: builder.query({
                 query: ({ fetchType, categories, language }) => `/posts?sort=${fetchType}&categories=${categories}&language=${language}`,
-                providesTags: (result, error, arg) => [
-                    { type: 'Post', id: "LIST" },
-                    ...result.ids.map(id => ({
-                        type: 'Post', id
-                    }))
-                ]
+                providesTags: (result, error, arg) => {
+                    return [
+                        { type: 'Post', id: "LIST" },
+                        ...result.map(({ _id }) => ({
+                            type: 'Post', _id
+                        }))
+                    ];
+                }
             }),
             getPostsByAuthorId: builder.query({
                 query: id => `/posts/author/${id}`,
                 providesTags: (result, error, arg) => [
-                    ...result.ids.map(id => ({ type: 'Post', id }))
+                    ...result.map(({ _id }) => ({ type: 'Post', _id }))
                 ]
             }),
             getPost: builder.query({
@@ -73,7 +73,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
             }),
             likePost: builder.mutation({
                 query: ({ initialPost, reactionName, currentUser }) => ({
-                    url: `/like/${initialPost._id}`,
+                    url: `/posts/like/${initialPost._id}`,
                     method: 'PUT',
                     body: {
                         reactionName,
@@ -118,22 +118,10 @@ export const postsApiSlice = apiSlice.injectEndpoints({
 export const {
     useGetPostsBySortOptionsQuery,
     useGetPostsByAuthorIdQuery,
+    useGetPostQuery,
     useAddNewPostMutation,
     useUpdatePostMutation,
     useDeletePostMutation,
     useLikePostMutation,
     useAddViewOnPostMutation,
 } = postsApiSlice;
-
-export const selectPostsResult = postsApiSlice.endpoints.getPostsBySortOptions.select();
-
-const selectPostsData = createSelector(
-    selectPostsResult,
-    postsResult => postsResult.data
-);
-
-export const {
-    selectAll: selectAllPosts,
-    selectById: selectPostById,
-    selectIds: selectPostsIds,
-} = postsAdapter.getSelectors(state => selectPostsData(state) ?? initialState);

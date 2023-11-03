@@ -6,13 +6,19 @@ import { useParams } from 'react-router-dom';
 import { selectCurrentUser } from '../../../../../../../features/users/slice/userSlice';
 import { useRef, useState } from 'react';
 import EditPost from './components/EditPost';
-import { selectPostById } from '../../../../../../../features/post/slice/postsApiSlice';
+import { useGetPostQuery } from '../../../../../../../features/post/slice/postsApiSlice';
 
 const SinglePost = () => {
   const { postId } = useParams();
-
-  const post = useSelector(state => selectPostById(state, postId));
   const { _id } = useSelector(state => selectCurrentUser(state));
+
+  const {
+    data: post,
+    isLoading,
+    isSuccess,
+    isError,
+    error
+  } = useGetPostQuery(postId);
 
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
