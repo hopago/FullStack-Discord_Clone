@@ -1,11 +1,15 @@
 import express from 'express';
-import { addPost, addViewOnPost, deletePost, findByPostsCategory, getLatestPosts, getPost, getTrendPosts, likePost, updatePost, } from "../controllers/postController.js";
+import { addPost, addViewOnPost, deletePost, getPost, likePost, updatePost, getPostsBySortOptions, getPostsByAuthorId } from "../controllers/postController.js";
 import { verifyJWT } from '../middleware/jwt/verifyJWT.js';
 const router = express.Router();
 router.use(verifyJWT);
 router
     .route('/')
+    .get(getPostsBySortOptions)
     .post(addPost);
+router
+    .route('/author/:authorId')
+    .get(getPostsByAuthorId);
 router
     .route('/:postId')
     .get(getPost)
@@ -15,15 +19,6 @@ router
     .route('/like/:postId')
     .put(likePost);
 router
-    .route('/views/postId')
+    .route('/views/:postId')
     .put(addViewOnPost);
-router
-    .route('/latest')
-    .get(getLatestPosts);
-router
-    .route('/trend')
-    .get(getTrendPosts);
-router
-    .route('/category')
-    .get(findByPostsCategory);
 export default router;

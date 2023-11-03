@@ -23,7 +23,7 @@ const PostCards = ({ type }) => {
   } else if (isSuccess && (Array.isArray(orderedPostIds) && !orderedPostIds.length)) {
     content = <Spinner message="컨텐츠가 아직 준비되지 않았어요." />;
   } else if (isSuccess) {
-    content = orderedPostIds.map((postId) => <PostCard key={post?._id} postId={postId} />);
+    content = orderedPostIds.map((postId) => <PostCard key={postId} postId={postId} />);
   } else if (isError) {
     content = <p>{error}</p>;
   }

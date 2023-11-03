@@ -15,7 +15,7 @@ const PostCard = ({ postId }) => {
         </div>
         <div className="texts">
           <h1>{post.title}</h1>
-          <p>{post.desc.substring(0, 50)}...</p>
+          <p>{post.description.substring(0, 50)}...</p>
           <ReactionButtons post={post} />
         </div>
       </div>

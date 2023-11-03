@@ -36,30 +36,42 @@ export const getPostsBySortOptions = async (
       }
     } else if (fetchType === "recommend") {
       const categories = req.query.categories;
-      if (categories === undefined)
-        throw new HttpException(400, "Bad request...");
-      let categoryArr: string[] = [];
+      const userLanguage = req.query.language;
+      if (categories === undefined || !categories) {
+        try {
+          const posts = await Post.find({
+            category: userLanguage,
+          }).limit(20);
 
-      if (typeof categories === "string") {
-        const splitCategories = categories.split("#");
-        return categoryArr.push(...splitCategories);
-      }
-      try {
-        if (Array.isArray(categoryArr) && categoryArr.length) {
+          if (!posts || (Array.isArray(posts) && !posts.length))
+            throw new HttpException(400, "No post found...");
+
+          res.status(200).json(posts);
+        } catch (err) {
+          next(err);
+        }
+      } else if (userLanguage === undefined || !userLanguage) {
+        let categoryArr: string[] = [];
+
+        if (typeof categories === "string") {
+          const splitCategories = categories.split("#");
+          return categoryArr.push(...splitCategories);
+        }
+        try {
           const posts = await Post.find({
             category: { $in: categoryArr },
           }).limit(20);
 
           res.status(200).json(posts);
-        } else {
-          throw new HttpException(400, "Bad Request...");
+        } catch (err) {
+          next(err);
         }
-      } catch (err) {
-        next(err);
+      } else {
+        throw new HttpException(400, "Bad request...");
       }
+    } else {
+      throw new HttpException(400, "Bad request...");
     }
-  } else {
-    throw new HttpException(400, "Bad request...");
   }
 };
 
@@ -89,7 +101,11 @@ export const addPost = async (
   }
 };
 
-export const getPostsByAuthorId = async (req: Request, res: Response, next: NextFunction) => {
+export const getPostsByAuthorId = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const authorId: string = req.params.authorId;
   try {
     const author = await User.findById(authorId);
@@ -97,18 +113,18 @@ export const getPostsByAuthorId = async (req: Request, res: Response, next: Next
 
     const posts = await Post.find({
       author: {
-        authorId
-      }
-    })
-    .limit(10);
+        authorId,
+      },
+    }).limit(10);
 
-    if (!posts || (Array.isArray(posts) && !posts.length)) throw new HttpException(400, "No post found...");
+    if (!posts || (Array.isArray(posts) && !posts.length))
+      throw new HttpException(400, "No post found...");
 
     res.send(200).json(posts);
   } catch (err) {
     next(err);
   }
-}
+};
 
 export const getPost = async (
   req: Request,
@@ -196,13 +212,14 @@ export const likePost = async (
     const currentUserId: [string: IUser["_id"]] = req.body.currentUserId;
     if (!currentUserId) throw new HttpException(400, "Bad Request...");
 
-    const isUserExists: boolean = Object.values(reactionsObject).includes(currentUserId);
+    const isUserExists: boolean =
+      Object.values(reactionsObject).includes(currentUserId);
     if (!isUserExists) {
       post.reactions[reactionName].push(currentUserId);
       const updatedPost = await post.save();
       res.status(201).json(updatedPost);
     } else {
-      post.reactions[reactionName].filter(userId => userId !== currentUserId);
+      post.reactions[reactionName].filter((userId) => userId !== currentUserId);
       const updatedPost = await post.save();
       res.status(201).json(updatedPost);
     }

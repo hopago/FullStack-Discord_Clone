@@ -10,6 +10,75 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import Post from "../models/Post.js";
 import User from "../models/User.js";
 import { HttpException } from "../middleware/error/utils.js";
+export const getPostsBySortOptions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const fetchType = req.query.sort;
+    const checkFetchType = Boolean(fetchType);
+    if (checkFetchType) {
+        if (fetchType === "latest") {
+            try {
+                const posts = yield Post.find().sort({ createdAt: -1 }).limit(10);
+                if (Array.isArray(posts) && !posts.length)
+                    throw new HttpException(400, "No post found...");
+                res.status(200).json(posts);
+            }
+            catch (err) {
+                next(err);
+            }
+        }
+        else if (fetchType === "trend") {
+            try {
+                const posts = yield Post.find().sort({
+                    views: -1,
+                });
+                if (Array.isArray(posts) && !posts.length)
+                    throw new HttpException(400, "No post found...");
+                res.status(200).json(posts);
+            }
+            catch (err) {
+                next(err);
+            }
+        }
+        else if (fetchType === "recommend") {
+            const categories = req.query.categories;
+            const userLanguage = req.query.language;
+            if (categories === undefined || !categories) {
+                try {
+                    const posts = yield Post.find({
+                        category: userLanguage,
+                    }).limit(20);
+                    if (!posts || (Array.isArray(posts) && !posts.length))
+                        throw new HttpException(400, "No post found...");
+                    res.status(200).json(posts);
+                }
+                catch (err) {
+                    next(err);
+                }
+            }
+            else if (userLanguage === undefined || !userLanguage) {
+                let categoryArr = [];
+                if (typeof categories === "string") {
+                    const splitCategories = categories.split("#");
+                    return categoryArr.push(...splitCategories);
+                }
+                try {
+                    const posts = yield Post.find({
+                        category: { $in: categoryArr },
+                    }).limit(20);
+                    res.status(200).json(posts);
+                }
+                catch (err) {
+                    next(err);
+                }
+            }
+            else {
+                throw new HttpException(400, "Bad request...");
+            }
+        }
+        else {
+            throw new HttpException(400, "Bad request...");
+        }
+    }
+});
 export const addPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const author = yield User.findById(req.user.id);
@@ -27,8 +96,31 @@ export const addPost = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         next(err);
     }
 });
+export const getPostsByAuthorId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const authorId = req.params.authorId;
+    try {
+        const author = yield User.findById(authorId);
+        if (!author)
+            throw new HttpException(404, "Could not found this user...");
+        const posts = yield Post.find({
+            author: {
+                authorId,
+            },
+        }).limit(10);
+        if (!posts || (Array.isArray(posts) && !posts.length))
+            throw new HttpException(400, "No post found...");
+        res.send(200).json(posts);
+    }
+    catch (err) {
+        next(err);
+    }
+});
 export const getPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const post = yield Post.findById(req.params.postId);
+        if (!post)
+            throw new HttpException(404, "Could not found this post...");
+        res.status(200).json(post);
     }
     catch (err) {
         next(err);
@@ -81,11 +173,20 @@ export const likePost = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!isExist) {
             throw new HttpException(400, "Bad request...");
         }
-        else {
-            post.reactions[reactionName]++;
-            yield post.save();
+        const currentUserId = req.body.currentUserId;
+        if (!currentUserId)
+            throw new HttpException(400, "Bad Request...");
+        const isUserExists = Object.values(reactionsObject).includes(currentUserId);
+        if (!isUserExists) {
+            post.reactions[reactionName].push(currentUserId);
+            const updatedPost = yield post.save();
+            res.status(201).json(updatedPost);
         }
-        res.sendStatus(204);
+        else {
+            post.reactions[reactionName].filter((userId) => userId !== currentUserId);
+            const updatedPost = yield post.save();
+            res.status(201).json(updatedPost);
+        }
     }
     catch (err) {
         next(err);
@@ -99,54 +200,6 @@ export const addViewOnPost = (req, res, next) => __awaiter(void 0, void 0, void 
             },
         });
         res.sendStatus(204);
-    }
-    catch (err) {
-        next(err);
-    }
-});
-export const getLatestPosts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const posts = yield Post.find().sort({ createdAt: -1 }).limit(10);
-        if (Array.isArray(posts) && !posts.length)
-            throw new HttpException(400, "No post found...");
-        res.status(200).json(posts);
-    }
-    catch (err) {
-        next(err);
-    }
-});
-export const getTrendPosts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const posts = yield Post.find().sort({
-            views: -1,
-        });
-        if (Array.isArray(posts) && !posts.length)
-            throw new HttpException(400, "No post found...");
-        res.status(200).json(posts);
-    }
-    catch (err) {
-        next(err);
-    }
-});
-export const findByPostsCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const categories = req.query.categories;
-    if (categories === undefined)
-        throw new HttpException(400, "Bad request...");
-    let categoryArr = [];
-    if (typeof categories === "string") {
-        const splitCategories = categories.split("#");
-        return categoryArr.push(...splitCategories);
-    }
-    try {
-        if (Array.isArray(categoryArr) && categoryArr.length) {
-            const posts = yield Post.find({
-                category: { $in: categoryArr },
-            }).limit(20);
-            res.status(200).json(posts);
-        }
-        else {
-            throw new HttpException(400, "Bad Request...");
-        }
     }
     catch (err) {
         next(err);

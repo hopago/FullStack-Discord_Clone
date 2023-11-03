@@ -30,38 +30,30 @@ const postSchema = new Schema({
         default: [],
         required: true
     },
-    likes: {
-        type: [String],
-        default: []
-    },
-    dislikes: {
-        type: [String],
-        default: []
-    },
     views: {
         type: Number,
         default: 0
     },
     reactions: {
         thumbsUp: {
-            type: Number,
-            default: 0
+            type: [String],
+            default: []
         },
         wow: {
-            type: Number,
-            default: 0
+            type: [String],
+            default: []
         },
         heart: {
-            type: Number,
-            default: 0
+            type: [String],
+            default: []
         },
         rocket: {
-            type: Number,
-            default: 0
+            type: [String],
+            default: []
         },
         coffee: {
-            type: Number,
-            default: 0
+            type: [String],
+            default: []
         }
     }
 }, { timestamps: true });
