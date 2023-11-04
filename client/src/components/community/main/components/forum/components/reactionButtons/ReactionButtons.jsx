@@ -17,17 +17,18 @@ const ReactionButtons = ({ post }) => {
 
     const reactionButtons = Object.entries(reactionEmoji).map(([name, emoji]) => {
         return (
-            <button
-              key={name}
-              type='button'
-              className='reactionButton'
-              onClick={() => {
-                addReaction({ ...parameters, reactionName: name });
-              }}
-            >
-            {emoji}&nbsp;{post.reactions[name].length}
-            </button>
-        )
+          <button
+            key={name}
+            type="button"
+            className="reactionButton"
+            onClick={() => {
+              addReaction({ ...parameters, reactionName: name });
+            }}
+          >
+            {emoji}&nbsp;
+            {post.reactions[name].length > 0 && post.reactions[name].length}
+          </button>
+        );
     })
 
   return (

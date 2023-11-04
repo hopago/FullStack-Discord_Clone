@@ -52,7 +52,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
               },
             },
             ACCESS_TOKEN_SECRET,
-            { expiresIn: '15m' }
+            { expiresIn: '3h' }
           );
 
           const newRefreshToken = jwt.sign(
@@ -124,8 +124,7 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
             sameSite: 'none',
             secure: true
         })
-        .status(204)
-        .json({ message: 'Cookie cleared...' });
+        .sendStatus(204);
     } catch (err) {
         next(err);
     }
@@ -133,7 +132,7 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
 
 export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     const cookies = req.cookies;
-    if (!cookies?.jwt) throw new HttpException(401, "Unauthorized...");
+    if (!cookies?.jwt) res.sendStatus(401);
     const refreshToken = cookies.jwt;
     res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
 
@@ -145,7 +144,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
                 refreshToken,
                 REFRESH_TOKEN_SECRET as Secret,
                 async (err: VerifyErrors | null, decoded: any): Promise<void> => {
-                    if (err) throw new HttpException(403, "Token is not valid...");
+                    if (err) res.sendStatus(403);
 
                     const hackedUser = await User.findOne({ _id: decoded.userInfo.id }).exec();
                     if (hackedUser) {
@@ -178,7 +177,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
                         }
                     },
                     ACCESS_TOKEN_SECRET,
-                    { expiresIn: '15m' }
+                    { expiresIn: '3h' }
                 );
 
                 const newRefreshToken = jwt.sign(

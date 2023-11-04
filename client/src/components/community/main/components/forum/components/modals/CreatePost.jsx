@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 
 import { storage } from "../../../../../../../lib/firebase/config/firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { v4 } from "uuid";
 
 const CreatePost = ({ modalRef, modalOutsideClick, setShowModal }) => {
   const [addNewPost, { isLoading }] = useAddNewPostMutation();
@@ -41,7 +40,10 @@ const CreatePost = ({ modalRef, modalOutsideClick, setShowModal }) => {
 
     if (!file) return;
 
-    const imageRef = ref(storage, `images/${file.name + v4()}`);
+    const imageRef = ref(
+      storage,
+      `images/${file.name + new Date().getSeconds() + new Date().getTime()}`
+    );
 
     await uploadBytes(imageRef, file).then((snapshot) => {
       getDownloadURL(snapshot.ref)

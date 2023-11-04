@@ -52,7 +52,7 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                     isVerified: user.isVerified,
                     type: user.type,
                 },
-            }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+            }, ACCESS_TOKEN_SECRET, { expiresIn: '3h' });
             const newRefreshToken = jwt.sign({
                 userInfo: {
                     id: user._id,
@@ -119,7 +119,7 @@ export const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const cookies = req.cookies;
     if (!(cookies === null || cookies === void 0 ? void 0 : cookies.jwt))
-        throw new HttpException(401, "Unauthorized...");
+        res.sendStatus(401);
     const refreshToken = cookies.jwt;
     res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
     try {
@@ -127,7 +127,7 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
         if (!user) {
             jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
                 if (err)
-                    throw new HttpException(403, "Token is not valid...");
+                    res.sendStatus(403);
                 const hackedUser = yield User.findOne({ _id: decoded.userInfo.id }).exec();
                 if (hackedUser) {
                     hackedUser.refreshToken = [];
@@ -150,7 +150,7 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
                     isVerified: user.isVerified,
                     type: user.type,
                 }
-            }, ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+            }, ACCESS_TOKEN_SECRET, { expiresIn: '3h' });
             const newRefreshToken = jwt.sign({
                 userInfo: {
                     id: user._id,

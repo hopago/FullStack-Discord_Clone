@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { setCredentials, logOut } from '../slice/authSlice';
+import { REHYDRATE } from 'redux-persist';
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'http://localhost:8000',
@@ -13,6 +14,7 @@ const baseQuery = fetchBaseQuery({
     },
 });
 
+// check refresh token
 const baseQueryWithReAuth = async (args, api, extraOptions) => {
     let result = await baseQuery(args, api, extraOptions);
 
@@ -20,7 +22,6 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
         console.log('Sending refresh token...');
         
         const refreshResult = await baseQuery('/auth/refresh', api, extraOptions);
-        console.log(refreshResult);
 
         if (refreshResult?.data) {
             const user = api.getState().auth.user;
@@ -39,5 +40,5 @@ export const apiSlice = createApi({
     tagTypes: ['Post', 'User', 'Server'],
     endpoints: builder => ({
         
-    })
+    }),
 });

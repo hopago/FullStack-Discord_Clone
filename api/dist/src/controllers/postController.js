@@ -175,25 +175,16 @@ export const likePost = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!isExist) {
             throw new HttpException(400, "Bad request...");
         }
-        if (!reactionsObject[reactionName].includes(req.user.id)) {
-            const updatedPost = yield post.updateOne({
-                $push: {
-                    reactions: {
-                        [reactionName]: req.user.id
-                    }
-                },
-            }, { new: true });
-            res.status(201).json(updatedPost);
+        if (!(reactionsObject[reactionName].includes(req.user.id))) {
+            post.reactions[reactionName].push(req.user.id);
+            yield post.save();
+            res.status(201).json("Reaction added...");
         }
         else {
-            const updatedPost = yield post.updateOne({
-                $pull: {
-                    reactions: {
-                        [reactionName]: req.user.id
-                    }
-                },
-            }, { new: true });
-            res.status(201).json(updatedPost);
+            const findIndex = post.reactions[reactionName].findIndex(_id => _id === req.user.id);
+            post.reactions[reactionName].splice(findIndex, 1);
+            yield post.save();
+            res.status(201).json("Reaction removed...");
         }
     }
     catch (err) {

@@ -212,32 +212,17 @@ export const likePost = async (
       throw new HttpException(400, "Bad request...");
     }
 
-    if (!reactionsObject[reactionName].includes(req.user.id)) {
-      const updatedPost = await post.updateOne(
-        {
-          $push: {
-            reactions: {
-              [reactionName]: req.user.id
-            }
-          },
-        },
-        { new: true }
-      );
+    if (!(reactionsObject[reactionName].includes(req.user.id))) {
+      post.reactions[reactionName].push(req.user.id);
+      await post.save();
 
-      res.status(201).json(updatedPost);
+      res.sendStatus(204);
     } else {
-      const updatedPost = await post.updateOne(
-        {
-          $pull: {
-            reactions: {
-              [reactionName]: req.user.id
-            }
-          },
-        },
-        { new: true }
-      );
+      const findIndex = post.reactions[reactionName].findIndex(_id => _id === req.user.id);
+      post.reactions[reactionName].splice(findIndex, 1);
+      await post.save();
 
-      res.status(201).json(updatedPost);
+      res.sendStatus(204);
     }
   } catch (err) {
     next(err);

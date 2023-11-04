@@ -37,23 +37,23 @@ const postSchema = new Schema({
     reactions: {
         thumbsUp: {
             type: [String],
-            default: []
+            default: [],
         },
         wow: {
             type: [String],
-            default: []
+            default: [],
         },
         heart: {
             type: [String],
-            default: []
+            default: [],
         },
         rocket: {
             type: [String],
-            default: []
+            default: [],
         },
         coffee: {
             type: [String],
-            default: []
+            default: [],
         }
     }
 }, { timestamps: true });

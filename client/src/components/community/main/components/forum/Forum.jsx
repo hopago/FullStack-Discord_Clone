@@ -9,9 +9,7 @@ import { useRef, useState } from "react";
 import CreatePost from "./components/modals/CreatePost";
 
 const Forum = () => {
-  {
-    /* 게시물 카테고리 - 유저 메인 언어 연결 필요 + fixed navigator top-left 클릭 시 인기, 추천, 게시글 category로 이동 */
-  }
+  // TODO: 싱글 포스트 페이지, 코멘트 기능 / UserProfilePage에 게시글 연동 / persisted user / call refresh
 
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);

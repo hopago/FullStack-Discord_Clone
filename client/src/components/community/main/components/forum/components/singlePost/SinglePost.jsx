@@ -7,6 +7,8 @@ import { selectCurrentUser } from '../../../../../../../features/users/slice/use
 import { useRef, useState } from 'react';
 import EditPost from './components/EditPost';
 import { useGetPostQuery } from '../../../../../../../features/post/slice/postsApiSlice';
+import moment from 'moment';
+import 'moment/locale/ko';
 
 const SinglePost = () => {
   const { postId } = useParams();
@@ -31,17 +33,25 @@ const SinglePost = () => {
 
   if (!post) {
     return (
-        <section>
+        <section className='singlePost-Spinner'>
             <Spinner message="컨텐츠를 찾지 못했어요." />
         </section>
     );
   }
 
+  const setTime = (createdAt, updatedAt) => {
+    if (createdAt !== updatedAt) {
+      return moment.utc(updatedAt).lang("ko").format('YYYY년 MMMM Do dddd') + "(수정됨)";
+    } else {
+      return moment.utc(createdAt).lang("ko").format('YYYY년 MMMM Do dddd');
+    }
+  };
+
   return (
     <article className="singlePost">
       <h2>{post.title}</h2>
       <p>{post.description}</p>
-      <p className="postCredit">{post.createdAt}</p>
+      <p className="postCredit">{setTime(post.createdAt, post.updatedAt)}</p>
       <ReactionButtons post={post} />
       {post.author.authorId === _id && <button>수정</button>}
       {showModal && (
