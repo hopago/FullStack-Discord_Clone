@@ -204,7 +204,7 @@ export const likePost = async (
 
     const reactionName: string = req.body.reactionName;
     const reactionsObject: {
-      [key: string]: [string: IUser["_id"]];
+      [key: string]: [IUser["_id"]];
     } = post.reactions;
 
     const isExist = Object.keys(reactionsObject).includes(reactionName);
@@ -212,18 +212,31 @@ export const likePost = async (
       throw new HttpException(400, "Bad request...");
     }
 
-    const currentUserId: [string: IUser["_id"]] = req.body.currentUserId;
-    if (!currentUserId) throw new HttpException(400, "Bad Request...");
+    if (!reactionsObject[reactionName].includes(req.user.id)) {
+      const updatedPost = await post.updateOne(
+        {
+          $push: {
+            reactions: {
+              [reactionName]: req.user.id
+            }
+          },
+        },
+        { new: true }
+      );
 
-    const isUserExists: boolean =
-      Object.values(reactionsObject).includes(currentUserId);
-    if (!isUserExists) {
-      post.reactions[reactionName].push(currentUserId);
-      const updatedPost = await post.save();
       res.status(201).json(updatedPost);
     } else {
-      post.reactions[reactionName].filter((userId) => userId !== currentUserId);
-      const updatedPost = await post.save();
+      const updatedPost = await post.updateOne(
+        {
+          $pull: {
+            reactions: {
+              [reactionName]: req.user.id
+            }
+          },
+        },
+        { new: true }
+      );
+
       res.status(201).json(updatedPost);
     }
   } catch (err) {

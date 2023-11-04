@@ -175,18 +175,24 @@ export const likePost = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!isExist) {
             throw new HttpException(400, "Bad request...");
         }
-        const currentUserId = req.body.currentUserId;
-        if (!currentUserId)
-            throw new HttpException(400, "Bad Request...");
-        const isUserExists = Object.values(reactionsObject).includes(currentUserId);
-        if (!isUserExists) {
-            post.reactions[reactionName].push(currentUserId);
-            const updatedPost = yield post.save();
+        if (!reactionsObject[reactionName].includes(req.user.id)) {
+            const updatedPost = yield post.updateOne({
+                $push: {
+                    reactions: {
+                        [reactionName]: req.user.id
+                    }
+                },
+            }, { new: true });
             res.status(201).json(updatedPost);
         }
         else {
-            post.reactions[reactionName].filter((userId) => userId !== currentUserId);
-            const updatedPost = yield post.save();
+            const updatedPost = yield post.updateOne({
+                $pull: {
+                    reactions: {
+                        [reactionName]: req.user.id
+                    }
+                },
+            }, { new: true });
             res.status(201).json(updatedPost);
         }
     }

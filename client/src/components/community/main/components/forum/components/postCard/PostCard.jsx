@@ -19,7 +19,6 @@ const PostCard = ({ post }) => {
         <div className="texts">
           <h1>{post?.title}</h1>
           <p>{post?.description.substring(0, 50)}...</p>
-          <ReactionButtons post={post} />
         </div>
       </div>
     </Link>

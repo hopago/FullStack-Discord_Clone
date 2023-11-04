@@ -25,7 +25,7 @@ const ReactionButtons = ({ post }) => {
                 addReaction({ ...parameters, reactionName: name });
               }}
             >
-            {emoji}&nbsp;{post.reactions[name]}
+            {emoji}&nbsp;{post.reactions[name].length}
             </button>
         )
     })
