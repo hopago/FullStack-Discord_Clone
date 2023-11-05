@@ -6,7 +6,8 @@ import {
   getSingleFriend,
   getSingleUser,
   updateUser,
-  removeFriend
+  removeFriend,
+  findUserById
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -18,6 +19,10 @@ router
   .get(getSingleUser)
   .put(updateUser)
   .delete(deleteUser);
+
+router
+  .route("/:userId")
+  .get(findUserById);
 
 router
   .route("/friends")

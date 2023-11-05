@@ -64,5 +64,375 @@
         background-color: #1E1F22;
     }
 
+    .singlePost-content-container {
+        width: 100%;
+        height: calc(100% - 46px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .singlePost-content-LeftWrapper {
+            flex: 3;
+            width: calc(100% - 80px);
+            height: calc(100% - 80px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 5rem;
+            background-color: #242526;
+            border-radius: 1rem;
+            overflow-y: scroll;
+            &::-webkit-scrollbar {
+                display: none;
+            }
+
+            .contents-container {
+                width: 100%;
+                height: 100%;
+
+                .contents-wrapper {
+                    width: 100%;
+                    padding: 1rem;
     
+                    .singlePost-content {
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 0.5rem;
+    
+                        .top {
+                            width: 100%;
+                            display: flex;
+                            align-items: center;
+                            gap: 1rem;
+
+                            .topImgWrapper {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+
+                                img {
+                                    width: 32px;
+                                    height: 32px;
+                                    object-fit: cover;
+                                    background-color: white;
+                                    border-radius: 50%;
+                                    cursor: pointer;
+                                }
+                            }
+
+                            .row-center {
+                                flex: 1;
+                                display: flex;
+                                flex-direction: column;
+                                gap: 0.3rem;
+
+                                span {
+                                    color: #e4e6eb;
+                                    font-weight: bold;
+                                    font-size: 15px;
+                                    cursor: pointer;
+                                }
+
+                                .singlePost_time {
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 0.5rem;
+                                    color: #b0b3b8;
+                                    font-weight: 400;
+                                    font-size: 13px;
+                                }
+                            }
+    
+                            .row-right {
+                                display: flex;
+                                align-items: center;
+
+                                .top-right-icon {
+                                    cursor: pointer;
+                                }
+                            }
+                        }
+    
+                        .center {
+                            flex: 1;
+                            display: flex;
+                            flex-direction: column;
+                            width: 100%;
+    
+                            .postBody {
+                                display: flex;
+                                flex-direction: column;
+                                gap: 0.5rem;
+
+                                .postBody_text {
+
+                                    span {
+                                        color: #e4e6eb;
+                                        font-weight: 400;
+                                        font-size: 15px;
+                                    }
+                                }
+    
+                                .postBody_img {
+                                    width: 100%;
+                                    min-height: 631px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    flex-direction: column;
+                                    gap: 1rem;
+
+                                    img {
+                                        width: 100%;
+                                        height: 100%;
+                                        border-radius: 0.5rem;
+                                        object-fit: cover;
+                                    }
+                                }
+                            }
+                        }
+    
+                        .bottom {
+                            width: 100%;
+                            display: flex;
+                            flex-direction: column;
+
+                            .wrapper {
+                                width: 100%;
+                                height: 100%;
+                                display: flex;
+                                flex-direction: column;
+                                gap: 0.5rem;
+
+                                .col-up {
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: space-between;
+                                    width: 100%;
+
+                                    .col-up-texts {
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+
+                                        span {
+                                            color: #b0b3b8;
+                                            font-weight: 400;
+                                            font-size: 13px;
+                                            cursor: pointer;
+
+                                            &:hover {
+                                                text-decoration: underline;
+                                            }
+                                        }
+                                    }
+                                }
+    
+                                .col-down {
+                                    padding-top: 0.5rem;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: space-between;
+                                    width: 100%;
+
+                                    .addLike {
+                                        flex: 1;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        color: #b0b3b8;
+                                        font-weight: 400;
+                                        font-size: 15px;
+                                        gap: 0.5rem;
+                                        cursor: pointer;
+                                        padding: 0.5rem;
+                                        border-radius: 0.5rem;
+
+                                        &:hover {
+
+                                            background-color: rgba(128,132,142,0.400);
+                                        }
+                                    }
+
+                                    .addComment {
+                                        flex: 1;
+                                        display: flex;
+                                        align-items: center;
+                                        color: #b0b3b8;
+                                        font-weight: 400;
+                                        font-size: 15px;
+                                        justify-content: center;
+                                        gap: 0.5rem;
+                                        cursor: pointer;
+                                        padding: 0.5rem;
+                                        border-radius: 0.5rem;
+
+                                        &:hover {
+
+                                            background-color: rgba(128,132,142,0.400);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        .profilePanel {
+            flex: 1;
+            height: 100%;
+            background-color: #232428;
+
+            .profilePanel-ImgContainer {
+                width: 100%;
+                height: 160px;
+                position: relative;
+
+                .background {
+                    width: 100%;
+                    height: 120px;
+                    object-fit: cover;
+                }
+
+                .background-fill {
+                    width: 100%;
+                    height: 120px;
+                    background-color: #7D7D7D;
+                }
+
+                .profilePictureWrapper {
+                    position: absolute;
+                    top: 72px;
+                    left: 18px;
+                    border: 5px solid #232428;
+                    overflow: hidden;
+                    width: 85px;
+                    height: 85px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    .profileImg {
+                        width: 80px;
+                        height: 80px;
+                        object-fit: cover;
+                        border-radius: 50%;
+                        background-color: white;
+                    }
+
+                    .roleImgWrapper {
+                        position: absolute;
+                        top: 44px;
+                        left: 42.5px;
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 50%;
+                        background-color: #232428;
+                        overflow: hidden;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        .roleImg {
+                            width: 100%;
+                            height: 100%;
+                            padding: 0.25rem;
+                            border-radius: 50%;
+                            object-fit: cover;
+                        }
+                    }
+                }
+            }
+
+            .profilePanel-userInfo {
+                width: 100%;
+                height: max-content;
+                padding: 1rem;
+
+                .profilePanel-userInfo-wrapper {
+                    width: 100%;
+                    padding: 0.5rem;
+                    display: flex;
+                    flex-direction: column;
+                    background-color: #111214;
+                    border-radius: 1rem;
+                    
+                    .top {
+                        width: 100%;
+                        margin-bottom: 0.5rem;
+
+                        .userText {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+
+                            h4 {
+                                font-size: 20px;
+                                font-weight: bold;
+                                color: #f3f5f7;
+                            }
+    
+                            p {
+                                font-size: 14px;
+                                color: #f3f5f7;
+                                font-weight: 400;
+                            }
+                        }
+                    }
+
+                    .center {
+                        width: 100%;
+                        margin: 0.5rem 0px;
+
+                        span {
+                            font-size: 14px;
+                            color: #f3f5f7;
+                            font-weight: bold;
+                        }
+
+                        p {
+                            margin-top: 4px;
+                            font-size: 14px;
+                            color: #f3f5f7;
+                            font-weight: 400;
+                        }
+                    }
+
+                    .bottom {
+                        width: 100%;
+                        margin-top: 0.5rem;
+                        margin-bottom: 1rem;
+
+                        span {
+                            font-size: 14px;
+                            color: #f3f5f7;
+                            font-weight: bold;
+                        }
+
+                        p {
+                            margin-top: 4px;
+                            font-size: 14px;
+                            color: #DBDEE1;
+                            width: 100%;
+                            text-align: left;
+                        }
+                    }
+
+                    .userInfo-divider {
+
+                    }
+                }
+            }
+        }
+    }
 }

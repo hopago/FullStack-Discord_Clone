@@ -1,5 +1,5 @@
 import { HttpException } from "../middleware/error/utils.js";
-import User from "../models/User.js";
+import User, { IUser } from "../models/User.js";
 import { Request, Response, NextFunction } from "express";
 import bcrypt from 'bcrypt';
 import { IFriends } from "./type/friends";
@@ -62,6 +62,22 @@ export const deleteUser = async (req: Request, res: Response, next: NextFunction
     }
 };
 
+export const findUserById = async(req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.userId;
+    try {
+        if (!userId) res.sendStatus(400);
+
+        const user = await User.findOne({
+            _id: userId
+        }).select('-password').lean();
+        if (!user) res.sendStatus(404);
+
+        res.status(200).json(user);
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const getFriends = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.user.id;
     try {
@@ -95,11 +111,13 @@ export const getSingleFriend = async (req: Request, res: Response, next:NextFunc
         const user = await User.findById(currentUserId);
         if (!user) throw new HttpException(404, "User not found...");
 
-        const foundFriend: object[] = user.friends.filter((friend: IFriends) => {
+        const friend: IUser[] = user.friends.filter((friend: IFriends) => {
             return friend._id === friendId;
         });
 
-        res.status(200).json(foundFriend);
+        const { password, ...friendInfo } = friend[0];
+
+        res.status(200).json(friendInfo);
     } catch (err) {
         next(err);
     }

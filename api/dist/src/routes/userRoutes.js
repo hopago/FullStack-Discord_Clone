@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyJWT } from '../middleware/jwt/verifyJWT.js';
-import { deleteUser, getFriends, getSingleFriend, getSingleUser, updateUser, removeFriend } from "../controllers/userController.js";
+import { deleteUser, getFriends, getSingleFriend, getSingleUser, updateUser, removeFriend, findUserById } from "../controllers/userController.js";
 const router = express.Router();
 router.use(verifyJWT);
 router
@@ -8,6 +8,9 @@ router
     .get(getSingleUser)
     .put(updateUser)
     .delete(deleteUser);
+router
+    .route("/:userId")
+    .get(findUserById);
 router
     .route("/friends")
     .get(getFriends);

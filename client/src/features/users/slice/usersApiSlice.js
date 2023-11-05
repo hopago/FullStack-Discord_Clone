@@ -5,12 +5,16 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         {
             getUser: builder.query({
                 query: () => '/users',
+            }),
+            findUserById: builder.query({
+                query: (userId) => `/users/${userId}`,
                 keepUnusedDataFor: 60,
-            })
+            }),
         }
     )
 });
 
 export const {
     useGetUserQuery,
+    useFindUserByIdQuery,
 } = usersApiSlice;
