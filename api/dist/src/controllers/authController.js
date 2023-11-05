@@ -109,8 +109,7 @@ export const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             sameSite: 'none',
             secure: true
         })
-            .status(204)
-            .json({ message: 'Cookie cleared...' });
+            .sendStatus(204);
     }
     catch (err) {
         next(err);

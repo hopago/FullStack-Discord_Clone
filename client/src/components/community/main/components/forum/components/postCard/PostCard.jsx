@@ -4,13 +4,15 @@ import { Link } from 'react-router-dom';
 import { useAddViewOnPostMutation } from '../../../../../../../features/post/slice/postsApiSlice';
 
 const PostCard = ({ post }) => {
+  const postId = post._id;
+
   const [addView] = useAddViewOnPostMutation();
 
   return (
     <Link
-      onClick={() => addView(post)}
       to={`/community/forum/${post?._id}`}
       className="link"
+      onClick={() => addView(postId)}
     >
       <div className="forum-postCard-wrapper">
         <div className="img">

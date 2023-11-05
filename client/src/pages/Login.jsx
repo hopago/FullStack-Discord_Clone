@@ -20,6 +20,7 @@ const Login = () => {
     password: ''
   });
   const [errMsg, setErrMsg] = useState('');
+  const [persist, setPersist] = useState(false);
 
   const navigate = useNavigate();
 
@@ -62,6 +63,14 @@ const Login = () => {
     [e.target.name]: e.target.value
   }));
 
+  const togglePersist = () => {
+    setPersist(prev => !prev);
+  };
+
+  useEffect(() => {
+    localStorage.setItem("persist", persist);
+  }, [persist]);
+
   return (
     <section className="login">
       <div className="login-card">
@@ -98,6 +107,15 @@ const Login = () => {
               onChange={handleUserInput}
             />
             <button disabled={isLoading ? true : false}>로그인</button>
+            <div className="persistCheck">
+              <input
+                type="checkbox"
+                id="persist"
+                onChange={togglePersist}
+                checked={persist}
+              />
+              <label htmlFor='persist'>신뢰할 수 있는 기기입니까?</label>
+            </div>
             {errMsg && (
               <p ref={errRef} className="instruction" aria-live="assertive">
                 <Report style={{ color: "color: #c4302b" }} />

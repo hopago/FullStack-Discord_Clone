@@ -16,15 +16,20 @@ import storage from 'redux-persist/lib/storage';
 import authReducer from '../../features/authentication/slice/authSlice';
 import userReducer from '../../features/users/slice/userSlice';
 import serverReducer from '../../features/server/slice/serversSlice';
+import { postsApiSlice } from '../../features/post/slice/postsApiSlice';
+import { usersApiSlice } from '../../features/users/slice/usersApiSlice';
 
 const persistConfig = {
     key: 'root',
     version: 1,
     storage,
+    blackList: [postsApiSlice.reducerPath, usersApiSlice.reducerPath],
 };
 
 const rootReducer = combineReducers({
     [apiSlice.reducerPath]: apiSlice.reducer,
+    [postsApiSlice.reducerPath]: postsApiSlice.reducer,
+    [usersApiSlice.reducerPath]: usersApiSlice.reducer,
     auth: authReducer,
     user: userReducer,
     servers: serverReducer

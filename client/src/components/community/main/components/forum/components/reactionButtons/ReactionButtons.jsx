@@ -26,7 +26,9 @@ const ReactionButtons = ({ post }) => {
             }}
           >
             {emoji}&nbsp;
-            {post.reactions[name].length > 0 && post.reactions[name].length}
+            {Array.isArray(post.reactions[name]) &&
+              post.reactions[name].length > 1 &&
+              post.reactions[name].length - 1}
           </button>
         );
     })

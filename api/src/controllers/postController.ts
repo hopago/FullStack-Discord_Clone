@@ -215,14 +215,16 @@ export const likePost = async (
     if (!(reactionsObject[reactionName].includes(req.user.id))) {
       post.reactions[reactionName].push(req.user.id);
       await post.save();
+      const updatedPost = post;
 
-      res.sendStatus(204);
+      res.status(201).json(updatedPost);
     } else {
       const findIndex = post.reactions[reactionName].findIndex(_id => _id === req.user.id);
       post.reactions[reactionName].splice(findIndex, 1);
       await post.save();
+      const updatedPost = post;
 
-      res.sendStatus(204);
+      res.status(201).json(updatedPost);
     }
   } catch (err) {
     next(err);

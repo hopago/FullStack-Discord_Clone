@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSelector } from '@reduxjs/toolkit';
+import { createEntityAdapter, createSelector, current } from '@reduxjs/toolkit';
 import { apiSlice } from '../../authentication/api/apiSlice';
 
 const postsAdapter = createEntityAdapter();
@@ -81,16 +81,18 @@ export const postsApiSlice = apiSlice.injectEndpoints({
                     }
                 }),
                 async onQueryStarted({ initialPost, reactionName, currentUser }, { dispatch, queryFulfilled }) {
-                    const patchResult = dispatch(
-                        postsApiSlice.util.updateQueryData('getPostsBySortOptions', undefined, draft => {
-                            const post = draft.entities[initialPost._id];
+                    const { _id } = initialPost;
 
-                            if (post) {
-                                if (!post.reactions[reactionName].includes(currentUser._id)) {
-                                    post.reactions[reactionName]++;
-                                } else {
-                                    post.reactions[reactionName]--;
-                                }
+                    const patchResult = dispatch(
+                        postsApiSlice.util.updateQueryData('getPost', _id, draftPost => {
+                            console.log(current(draftPost));
+                            const findIndex = draftPost.reactions[reactionName].findIndex(_id => _id === currentUser._id);
+                            const isExist = draftPost.reactions[reactionName].includes(currentUser._id);
+
+                            if (!isExist) {
+                                draftPost.reactions[reactionName].push(currentUser._id);
+                            } else {
+                                draftPost.reactions[reactionName].splice(findIndex, 1);
                             }
                         })
                     );
@@ -103,8 +105,8 @@ export const postsApiSlice = apiSlice.injectEndpoints({
                 }
             }),
             addViewOnPost: builder.mutation({
-                query: initialPost => ({
-                    url: `/posts/${initialPost._id}`,
+                query: postId => ({
+                    url: `/posts/views/${postId}`,
                     method: 'PUT',
                 }),
                 invalidatesTags: (result, error, arg) => [

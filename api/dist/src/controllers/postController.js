@@ -178,13 +178,15 @@ export const likePost = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!(reactionsObject[reactionName].includes(req.user.id))) {
             post.reactions[reactionName].push(req.user.id);
             yield post.save();
-            res.status(201).json("Reaction added...");
+            const updatedPost = post;
+            res.status(201).json(updatedPost);
         }
         else {
             const findIndex = post.reactions[reactionName].findIndex(_id => _id === req.user.id);
             post.reactions[reactionName].splice(findIndex, 1);
             yield post.save();
-            res.status(201).json("Reaction removed...");
+            const updatedPost = post;
+            res.status(201).json(updatedPost);
         }
     }
     catch (err) {

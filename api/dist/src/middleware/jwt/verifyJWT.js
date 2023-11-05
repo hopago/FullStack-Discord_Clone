@@ -14,16 +14,19 @@ export const verifyJWT = (req, res, next) => {
     var _a;
     const userToken = (_a = req.headers["authorization"]) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
     if (userToken === null || !userToken)
-        throw new HttpException(401, "Unauthorized...");
+        return res.sendStatus(401);
     try {
         jwt.verify(userToken, ACCESS_TOKEN_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
-            if (err)
-                throw new HttpException(403, "Token is not valid...");
+            if (err) {
+                res.sendStatus(403);
+                return;
+            }
             req.user = yield decoded.userInfo;
             next();
         }));
     }
     catch (_b) {
+        res.sendStatus(400);
         throw new HttpException(400, "Not allowed token...");
     }
 };
