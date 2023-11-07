@@ -120,6 +120,24 @@
                     border-radius: 10px;
                 }
 
+                .persistCheck {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    width: 50%;
+
+                    input {
+                        width: max-content;
+                    }
+
+                    label {
+                        display: flex;
+                        align-items: center;
+                        text-wrap: balance;
+                        width: max-content;
+                    }
+                }
+
                 .instruction {
                     font-size: 11px;
                     font-weight: bold;

@@ -6,9 +6,12 @@ import {
   useGetPostsBySortOptionsQuery,
 } from "../../../../../../../features/post/slice/postsApiSlice";
 import { selectCurrentUser } from '../../../../../../../features/users/slice/userSlice';
+import { useEffect } from 'react';
+import { selectCurrentToken } from '../../../../../../../features/authentication/slice/authSlice';
 
 const PostCards = ({ type }) => {
   const currentUser = useSelector(selectCurrentUser);
+  const currentToken = useSelector(selectCurrentToken);
   {/* if category ?? const category = ... */}
   const params = {
     fetchType: type,
@@ -22,7 +25,7 @@ const PostCards = ({ type }) => {
     isSuccess,
     isError,
     error
-  } = useGetPostsBySortOptionsQuery(params);
+  } = useGetPostsBySortOptionsQuery(params, { refetchOnMountOrArgChange: true });
 
   let content;
   if (isLoading) {

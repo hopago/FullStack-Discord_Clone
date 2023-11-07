@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { postCardCategories } from "../constants";
 
@@ -6,15 +6,11 @@ import "./createPost.scss";
 import { Done, Image } from "@mui/icons-material";
 import { useAddNewPostMutation } from "../../../../../../../features/post/slice/postsApiSlice";
 
-import { useNavigate } from "react-router-dom";
-
 import { storage } from "../../../../../../../lib/firebase/config/firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const CreatePost = ({ modalRef, modalOutsideClick, setShowModal }) => {
   const [addNewPost, { isLoading }] = useAddNewPostMutation();
-
-  const navigate = useNavigate();
 
   const [post, setPost] = useState({
     title: "",

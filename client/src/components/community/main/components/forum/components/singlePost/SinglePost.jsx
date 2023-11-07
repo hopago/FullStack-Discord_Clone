@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import ReactionButtons from "../reactionButtons/ReactionButtons";
 import Spinner from "../../../../../../../lib/react-loader-spinner/Spinner";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { selectCurrentUser } from "../../../../../../../features/users/slice/userSlice";
 import { useRef, useState } from "react";
 import EditPost from "./components/EditPost";
@@ -22,14 +22,17 @@ import {
 import "./singlePost.scss";
 import { useFindUserByIdQuery } from "../../../../../../../features/users/slice/usersApiSlice";
 import AddComment from "./modals/AddComment";
+import MoreVertical from "./components/MoreVertical";
 
 const SinglePost = () => {
   const userBackGroundImg = false;
-  const userProfilePicture = false;
 
   const currentUser = useSelector(selectCurrentUser);
 
   const { postId } = useParams();
+  const navigate = useNavigate();
+
+  const [showMoreVert, setShowMoreVert] = useState(false);
 
   const {
     data: post,
@@ -44,18 +47,18 @@ const SinglePost = () => {
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
 
+  const modalOutsideClick = (e) => {
+    if (modalRef.current === e.target) {
+      setShowModal(false);
+    }
+  };
+
   const commentModalRef = useRef();
   const [showCommentForm, setShowCommentForm] = useState(false);
 
   const commentModalOutsideClick = (e) => {
     if (commentModalRef.current === e.target) {
-      setShowModal(false);
-    }
-  };
-
-  const modalOutsideClick = (e) => {
-    if (modalRef.current === e.target) {
-      setShowModal(false);
+      setShowCommentForm(false);
     }
   };
 
@@ -129,8 +132,25 @@ const SinglePost = () => {
                         </div>
                       </div>
                       <div className="row-right">
-                        <MoreVert className="top-right-icon" />
-                        <Close className="top-right-icon" />
+                        <MoreVert
+                          onClick={() => setShowMoreVert((prev) => !prev)}
+                          className="top-right-icon"
+                        />
+                        {showMoreVert && (
+                          <MoreVertical
+                            setShowModal={setShowModal}
+                            currentUser={currentUser}
+                            author={author}
+                            setShowMoreVert={setShowMoreVert}
+                          />
+                        )}
+                        <Close
+                          onMouseEnter={() => setShowMoreVert(false)}
+                          onClick={() =>
+                            navigate("/community/forum", { replace: true })
+                          }
+                          className="top-right-icon"
+                        />
                       </div>
                     </div>
                     <div className="center">
@@ -173,6 +193,7 @@ const SinglePost = () => {
                         setShowCommentForm={setShowCommentForm}
                         modalRef={commentModalRef}
                         modalOutsideClick={commentModalOutsideClick}
+                        post={post}
                       />
                     )}
                   </article>
@@ -189,14 +210,15 @@ const SinglePost = () => {
                   )}
                   <div className="profilePictureWrapper">
                     {author?.avatar ? (
-                      <img src={author?.avatar} className="profileImg" />
+                      <img src={author?.avatar} className="profileImg" alt={author?.avatar} />
                     ) : (
-                      <img src={defaultAvatar} />
+                      <img src={defaultAvatar} alt="default-pp" />
                     )}
                     <div className="roleImgWrapper">
                       <img
                         src="https://cdn4.iconfinder.com/data/icons/logos-3/600/React.js_logo-512.png"
                         className="roleImg"
+                        alt={author?.language}
                       />
                     </div>
                   </div>
@@ -207,13 +229,18 @@ const SinglePost = () => {
                   <div className="top">
                     <div className="userText">
                       <h4>{author?.userName}</h4>
-                      <p><strong>Stack</strong> {author?.language}</p>
+                      <p>
+                        <strong>Stack</strong> {author?.language?.toUpperCase()}
+                      </p>
                     </div>
                   </div>
                   <hr className="userInfo-divider" />
                   <div className="center">
                     <span>내 소개</span>
-                    <p>{author?.description ?? "아직 소개글을 작성하지 않았어요."}</p>
+                    <p>
+                      {author?.description ??
+                        "아직 소개글을 작성하지 않았어요."}
+                    </p>
                   </div>
                   <hr className="userInfo-divider" />
                   <div className="bottom">
@@ -230,6 +257,7 @@ const SinglePost = () => {
             setShowModal={setShowModal}
             modalRef={modalRef}
             modalOutsideClick={modalOutsideClick}
+            currPost={post}
           />
         )}
       </>

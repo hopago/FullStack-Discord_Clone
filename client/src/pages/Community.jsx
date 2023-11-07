@@ -4,7 +4,7 @@ import {
     Base,
 } from '../components';
 import './scss/community.scss';
-import { useGetUserQuery } from '../features/users/slice/usersApiSlice';
+import { useGetCurrentUserQuery } from '../features/users/slice/usersApiSlice';
 import Spinner from '../lib/react-loader-spinner/Spinner';
 import { useDispatch } from 'react-redux';
 import { setCurrentUser } from '../features/users/slice/userSlice';
@@ -17,7 +17,7 @@ const Community = () => {
     isSuccess,
     isError,
     error
-  } = useGetUserQuery();
+  } = useGetCurrentUserQuery();
 
   if (currentUser) {
     dispatch(setCurrentUser(currentUser));

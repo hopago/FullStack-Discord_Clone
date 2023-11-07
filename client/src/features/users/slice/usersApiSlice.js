@@ -3,7 +3,7 @@ import { apiSlice } from "../../authentication/api/apiSlice";
 export const usersApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => (
         {
-            getUser: builder.query({
+            getCurrentUser: builder.query({
                 query: () => '/users',
             }),
             findUserById: builder.query({
@@ -15,6 +15,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
 });
 
 export const {
-    useGetUserQuery,
+    useGetCurrentUserQuery,
     useFindUserByIdQuery,
 } = usersApiSlice;

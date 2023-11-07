@@ -1,9 +1,5 @@
-import { createEntityAdapter, createSelector, current } from '@reduxjs/toolkit';
+import { current } from '@reduxjs/toolkit';
 import { apiSlice } from '../../authentication/api/apiSlice';
-
-const postsAdapter = createEntityAdapter();
-
-const initialState = postsAdapter.getInitialState();
 
 export const postsApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => (

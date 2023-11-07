@@ -4,10 +4,10 @@ import {
   deleteUser,
   getFriends,
   getSingleFriend,
-  getSingleUser,
   updateUser,
   removeFriend,
-  findUserById
+  findUserById,
+  getCurrentUser
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -16,7 +16,7 @@ router.use(verifyJWT);
 
 router
   .route("/")
-  .get(getSingleUser)
+  .get(getCurrentUser)
   .put(updateUser)
   .delete(deleteUser);
 

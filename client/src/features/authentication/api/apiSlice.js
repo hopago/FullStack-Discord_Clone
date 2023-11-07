@@ -14,7 +14,6 @@ const baseQuery = fetchBaseQuery({
     },
 });
 
-// check refresh token
 const baseQueryWithReAuth = async (args, api, extraOptions) => {
     let result = await baseQuery(args, api, extraOptions);
 
@@ -26,6 +25,8 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
         if (!isPersist) return api.dispatch(logOut());
 
         const refreshResult = await baseQuery('/auth/refresh', api, extraOptions);
+
+        console.log(refreshResult);
 
         if (refreshResult?.data) {
             const user = api.getState().auth.user;

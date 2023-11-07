@@ -1,0 +1,36 @@
+.singlePost-moreVertical {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    border-radius: 1rem;
+    background-color: #313338;
+
+    .wrapper {
+        width: max-content;
+        height: max-content;
+        padding: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+
+            span {
+                font-size: 15px;
+                font-weight: 400;
+                color: #f2f3f5;
+            }
+
+            &:hover {
+                font-weight: bold;
+                background-color: rgba(128,132,142,0.400);
+            }
+        }
+    }
+}

@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express";
 import bcrypt from 'bcrypt';
 import { IFriends } from "./type/friends";
 
-export const getSingleUser = async (req: Request, res: Response, next: NextFunction ) => {
+export const getCurrentUser = async (req: Request, res: Response, next: NextFunction ) => {
     const userId = req.user.id;
     try {
         const user = await User.findById(userId).select('-password').lean();

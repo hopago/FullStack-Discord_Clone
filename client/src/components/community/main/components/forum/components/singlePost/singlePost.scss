@@ -153,6 +153,7 @@
                             .row-right {
                                 display: flex;
                                 align-items: center;
+                                position: relative;
 
                                 .top-right-icon {
                                     cursor: pointer;
@@ -275,7 +276,6 @@
                                         border-radius: 0.5rem;
 
                                         &:hover {
-
                                             background-color: rgba(128,132,142,0.400);
                                         }
                                     }
