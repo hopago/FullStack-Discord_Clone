@@ -154,7 +154,7 @@ const SinglePost = () => {
                       </div>
                     </div>
                     <div className="center">
-                      <div className="postBody">
+                      <div className="postBody" onMouseEnter={() => setShowMoreVert(false)}>
                         <div className="postBody_text">
                           <span>{post.description}</span>
                         </div>

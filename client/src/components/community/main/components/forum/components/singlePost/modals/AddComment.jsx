@@ -94,7 +94,9 @@ const AddComment = ({
                       <div className="comment">
                         <div className="comment-top">
                           <div className="wrap">
-                            <span className="comment_userName"></span>
+                            <span className="comment_userName">
+                              comment_userName
+                            </span>
                             <p className="comment-description">
                               Lorem ipsum dolor sit amet consectetur adipisicing
                               elit. Laboriosam eum beatae culpa debitis neque
@@ -104,12 +106,10 @@ const AddComment = ({
                           </div>
                         </div>
                         <div className="comment-bottom">
-                          <div className="comment-add">
-                            <div className="flexWrap">
-                              <span>좋아요</span>
-                              <span>답글 달기</span>
-                              <span>createdAt</span>
-                            </div>
+                          <div className="flexWrap">
+                            <span>좋아요</span>
+                            <span>답글 달기</span>
+                            <span>createdAt</span>
                           </div>
                         </div>
                       </div>
