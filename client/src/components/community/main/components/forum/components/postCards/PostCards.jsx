@@ -11,7 +11,6 @@ import { selectCurrentToken } from '../../../../../../../features/authentication
 
 const PostCards = ({ type }) => {
   const currentUser = useSelector(selectCurrentUser);
-  const currentToken = useSelector(selectCurrentToken);
   {/* if category ?? const category = ... */}
   const params = {
     fetchType: type,

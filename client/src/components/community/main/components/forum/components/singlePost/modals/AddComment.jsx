@@ -1,4 +1,4 @@
-import { ArrowDropDown, Close, MoreVert, Public, Send } from "@mui/icons-material";
+import { ArrowDropDown, Close, EmojiEmotions, Gif, MoreVert, PhotoCamera, Public, Send } from "@mui/icons-material";
 import React, { useState } from "react";
 import "./addComment.scss";
 import ReactionButtons from "../../reactionButtons/ReactionButtons";
@@ -9,6 +9,7 @@ const AddComment = ({
   modalRef,
   modalOutsideClick,
   post,
+  currentUser
 }) => {
   const {
     data: author
@@ -84,7 +85,7 @@ const AddComment = ({
                 </div>
               </div>
               {/* fetch point */}
-              <div className="comments_scrollWrap">
+              <div className="comment_scrollWrap">
                 <ul>
                   <li>
                     <div className="commentWrap">
@@ -116,6 +117,30 @@ const AddComment = ({
                     </div>
                   </li>
                 </ul>
+              </div>
+              <div className="commentForm">
+                <div className="leftWrap">
+                  <div className="innerYWrap">
+                    <div className="form_flexRow">
+                      <img src={currentUser.avatar} alt="" />
+                      <form>
+                        <div className="commentInput_top">
+                          <div className="inputWrap">
+                            <input type="text" placeholder="댓글을 입력하세요..." autoComplete="off" />
+                          </div>
+                        </div>
+                        <div className="commentInput_bottom">
+                          <div className="icons">
+                            <EmojiEmotions />
+                            <PhotoCamera />
+                            <Gif />
+                          </div>
+                          <Send style={{ cursor: "pointer" }} />
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -194,6 +194,7 @@ const SinglePost = () => {
                         modalRef={commentModalRef}
                         modalOutsideClick={commentModalOutsideClick}
                         post={post}
+                        currentUser={currentUser}
                       />
                     )}
                   </article>

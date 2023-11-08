@@ -21,7 +21,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 import { HttpException } from "../middleware/error/utils.js";
 import User from "../models/User.js";
 import bcrypt from 'bcrypt';
-export const getSingleUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+export const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.user.id;
     try {
         const user = yield User.findById(userId).select('-password').lean();

@@ -52,6 +52,7 @@
                         padding: 1rem;
                         background-color: #1E1F22;
                         border-radius: 1rem;
+                        padding-bottom: 0;
 
                         .createComment {
                             width: 100%;
@@ -277,7 +278,7 @@
                                                 }
                                             }
 
-                                            .comments_scrollWrap {
+                                            .comment_scrollWrap {
                                                 width: 100%;
                                                 overflow-y: scroll;
                                                 &::-webkit-scrollbar {
@@ -361,6 +362,89 @@
                                                                                 text-decoration: underline;
                                                                             }
                                                                         }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            .commentForm {
+                                                display: flex;
+                                                align-items: center;
+                                                width: 100%;
+                                                width: 100%;
+
+                                                .leftWrap {
+                                                    padding: 0px 1rem;
+                                                    width: 100%;
+
+                                                    .innerYWrap {
+                                                        padding: 1rem 0px;
+                                                        width: 100%;
+
+                                                        .form_flexRow {
+                                                            width: 100%;
+                                                            display: flex;
+                                                            align-items: center;
+                                                            gap: 0.5rem;
+
+                                                            img {
+                                                                width: 32px;
+                                                                height: 32px;
+                                                                object-fit: cover;
+                                                                background-color: white;
+                                                                border-radius: 50%;
+                                                                cursor: pointer;
+                                                            }
+
+                                                            form {
+                                                                display: flex;
+                                                                flex-direction: column;
+                                                                width: 100%;
+                                                                padding-bottom: 0.5rem;
+
+                                                                .commentInput_top {
+                                                                    width: 100%;
+                                                                    background-color: #3A3B3C;
+                                                                    border-radius: 1rem 1rem 0 0;
+
+                                                                    .inputWrap {
+                                                                        padding: 0.5rem;
+                                                                        width: 100%;
+
+                                                                        input {
+                                                                            width: 100%;
+                                                                            background-color: transparent;
+                                                                            border: none;
+                                                                            outline: none;
+                                                                            font-size: 15px;
+                                                                            color: #E4E6EB;
+
+                                                                            &::placeholder {
+                                                                                color: #bdb3b8;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                                .commentInput_bottom {
+                                                                    width: 100%;
+                                                                    display: flex;
+                                                                    align-items: center;
+                                                                    justify-content: space-between;
+                                                                    background-color: #3A3B3C;
+                                                                    border-radius: 0 0 1rem 1rem;
+                                                                    padding: 0.5rem;
+
+                                                                    .icons {
+                                                                        display: flex;
+                                                                        align-items: center;
+                                                                        gap: 0.5rem;
+                                                                        cursor: pointer;
+
+
                                                                     }
                                                                 }
                                                             }

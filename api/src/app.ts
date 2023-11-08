@@ -16,6 +16,7 @@ import conversationRouter from './routes/conversationRoutes.js';
 import privateMessageRouter from './routes/messageRoutes.js';
 import serverConversationRouter from './routes/serverConversationRoutes.js';
 import postRouter from './routes/postRoutes.js';
+import commentRouter from './routes/commentRoutes.js';
 
 const app: Express = express();
 
@@ -38,6 +39,7 @@ app.use('/conversation', conversationRouter);
 app.use('/private/messages', privateMessageRouter);
 app.use('/server/conversation', serverConversationRouter);
 app.use('/posts', postRouter);
+app.use('/comments', commentRouter);
 
 // error
 app.use(errorHandler);
