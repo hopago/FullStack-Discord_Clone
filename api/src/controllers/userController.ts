@@ -7,10 +7,14 @@ import { IFriends } from "./type/friends";
 export const getCurrentUser = async (req: Request, res: Response, next: NextFunction ) => {
     const userId = req.user.id;
     try {
-        const user = await User.findById(userId).select('-password').lean();
-        res.status(200).json(user);
+      const user = await User.findOne({
+        _id: userId,
+      })
+        .select("-password")
+        .lean();
+      res.status(200).json(user);
     } catch (err) {
-        next(err);
+      next(err);
     }
 };
 
@@ -65,7 +69,7 @@ export const deleteUser = async (req: Request, res: Response, next: NextFunction
 export const findUserById = async(req: Request, res: Response, next: NextFunction) => {
     const userId = req.params.userId;
     try {
-        if (!userId) res.sendStatus(400);
+        if (!userId || userId === "undefined") return res.sendStatus(400);
 
         const user = await User.findOne({
             _id: userId

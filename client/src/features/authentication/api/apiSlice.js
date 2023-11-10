@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { setCredentials, logOut } from '../slice/authSlice';
-import { REHYDRATE } from 'redux-persist';
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'http://localhost:8000',
@@ -42,7 +41,7 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
 
 export const apiSlice = createApi({
     baseQuery: baseQueryWithReAuth,
-    tagTypes: ['Post', 'User', 'Server'],
+    tagTypes: ['Post', 'User', 'Server', 'Comment'],
     endpoints: builder => ({
         
     }),

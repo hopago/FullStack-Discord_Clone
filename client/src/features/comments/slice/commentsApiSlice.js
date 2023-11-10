@@ -15,6 +15,28 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
                     ];
                 }
             }),
+            getComment: builder.query({
+                query: commentId => `/comments/${commentId}`,
+                providesTags: (result, error, arg) => [
+                    { type: 'Comment', id: arg._id }
+                ]
+            }),
+            getCommentsLength: builder.query({
+                query: postId => `/comments/length?postId=${postId}`,
+            }),
+            addComment: builder.mutation({
+                query: ({ description, postId }) => ({
+                    url: '/comments',
+                    method: 'POST',
+                    body: {
+                        postId,
+                        description
+                    }
+                }),
+                invalidatesTags: [
+                    { type: 'Comment', id: 'LIST' }
+                ]
+            }),
             updateComment: builder.mutation({
                 query: ({commentId, initialComment}) => ({
                     url: `/comments/${commentId}`,
@@ -28,8 +50,68 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
                 ]
             }),
             deleteComment: builder.mutation({
-                
+                query: commentId => ({
+                    url: `/comments/${commentId}`,
+                    method: 'DELETE'
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: 'Comment', id: arg._id }
+                ]
+            }),
+            replyComment: builder.mutation({
+                query: ({ commentId, description }) => ({
+                    url: `/comments/reply/${commentId}`,
+                    method: 'PUT',
+                    body: {
+                        description
+                    }
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: 'Comment', id: arg._id }
+                ]
+            }),
+            likeComment: builder.mutation({
+                query: ({ commentId }) => ({
+                    url: `/comments/like/${commentId}`,
+                    method: 'PUT'
+                }),
+
+                async onQueryStarted({ fetchCount, fetchType, postId, currentUserId, commentId }, { dispatch, queryFulfilled }) {
+                    const patchResult = dispatch(
+                        commentsApiSlice.util.updateQueryData('getComments', { fetchCount, fetchType, postId }, draftComment => {
+                            console.log(current(draftComment));
+
+                            const currentComment = draftComment.filter(comment => comment._id === commentId);
+
+                            const findIndex = currentComment.comments[0].comment_like_count.findIndex(_id => _id === currentUserId);
+                            const isExist = currentComment.comments[0].comment_like_count.includes(currentUserId);
+
+                            if (!isExist) {
+                                currentComment.comments[0].comment_like_count.push(currentUserId);
+                            } else {
+                                currentComment.comments[0].comment_like_count.splice(findIndex, 1);
+                            }
+                        })
+                    );
+
+                    try {
+                        await queryFulfilled;
+                    } catch {
+                        patchResult.undo();
+                    }
+                }
             })
         }
     )
 });
+
+export const {
+    useGetCommentsQuery,
+    useGetCommentQuery,
+    useGetCommentsLengthQuery,
+    useAddCommentMutation,
+    useUpdateCommentMutation,
+    useDeleteCommentMutation,
+    useReplyCommentMutation,
+    useLikeCommentMutation
+} = commentsApiSlice;

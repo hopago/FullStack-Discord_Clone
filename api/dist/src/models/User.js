@@ -42,7 +42,6 @@ const userSchema = new Schema({
     },
     refreshToken: {
         type: [String],
-        default: []
     }
 }, { timestamps: true });
 const User = model("User", userSchema);

@@ -13,7 +13,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
                             type: 'Post', _id
                         }))
                     ];
-                }
+                },
             }),
             getPostsByAuthorId: builder.query({
                 query: id => `/posts/author/${id}`,
@@ -22,9 +22,9 @@ export const postsApiSlice = apiSlice.injectEndpoints({
                 ]
             }),
             getPost: builder.query({
-                query: id => `/posts/${id}`,
+                query: _id => `/posts/${_id}`,
                 providesTags: (result, error, arg) => [
-                    { type: 'Post', id: arg._id }
+                    { type: 'Post', id: arg }
                 ],
             }),
             addNewPost: builder.mutation({
@@ -106,7 +106,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
                     method: 'PUT',
                 }),
                 invalidatesTags: (result, error, arg) => [
-                    { type: 'Post', id: arg._id }
+                    { type: 'Post', id: arg }
                 ]
             })
         }

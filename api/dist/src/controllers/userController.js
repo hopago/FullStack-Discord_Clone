@@ -24,7 +24,11 @@ import bcrypt from 'bcrypt';
 export const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.user.id;
     try {
-        const user = yield User.findById(userId).select('-password').lean();
+        const user = yield User.findOne({
+            _id: userId,
+        })
+            .select("-password")
+            .lean();
         res.status(200).json(user);
     }
     catch (err) {
@@ -76,8 +80,8 @@ export const deleteUser = (req, res, next) => __awaiter(void 0, void 0, void 0, 
 export const findUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.userId;
     try {
-        if (!userId)
-            res.sendStatus(400);
+        if (!userId || userId === "undefined")
+            return res.sendStatus(400);
         const user = yield User.findOne({
             _id: userId
         }).select('-password').lean();

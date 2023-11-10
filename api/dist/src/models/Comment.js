@@ -32,11 +32,9 @@ const commentSchema = new Schema({
                 user: {
                     userId: {
                         type: String,
-                        required: true,
                     },
                     userName: {
                         type: String,
-                        required: true
                     },
                     avatar: {
                         type: String,
@@ -44,7 +42,6 @@ const commentSchema = new Schema({
                 },
                 description: {
                     type: String,
-                    required: true
                 },
                 reply_like_count: {
                     type: Number,

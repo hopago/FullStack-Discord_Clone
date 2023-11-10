@@ -6,6 +6,9 @@ import {
   likeComment,
   replyComment,
   updateComment,
+  getComment,
+  createComment,
+  getCommentsLength
 } from "../controllers/commentController.js";
 
 const router = express.Router();
@@ -14,10 +17,16 @@ router.use(verifyJWT);
 
 router
   .route("/")
-  .get(getComments)
+  .post(createComment)
+  .get(getComments);
+
+router
+  .route("/length")
+  .get(getCommentsLength);
 
 router
   .route("/:commentId")
+  .get(getComment)
   .put(updateComment)
   .delete(deleteComment);
 

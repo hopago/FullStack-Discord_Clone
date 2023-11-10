@@ -5,10 +5,15 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         {
             getCurrentUser: builder.query({
                 query: () => '/users',
+                providesTags: (result, err, arg) => [
+                    { type: 'User', id: result._id }
+                ]
             }),
             findUserById: builder.query({
-                query: (userId) => `/users/${userId}`,
-                keepUnusedDataFor: 60,
+                query: _id => `/users/${_id}`,
+                providesTags: (result, err, arg) => [
+                    { type: 'User', id: arg }
+                ],
             }),
         }
     )

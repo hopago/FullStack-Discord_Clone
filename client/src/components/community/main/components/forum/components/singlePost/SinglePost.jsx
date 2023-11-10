@@ -6,7 +6,6 @@ import { selectCurrentUser } from "../../../../../../../features/users/slice/use
 import { useRef, useState } from "react";
 import EditPost from "./components/EditPost";
 import { useGetPostQuery } from "../../../../../../../features/post/slice/postsApiSlice";
-import moment from "moment";
 import "moment/locale/ko";
 import defaultAvatar from "../../../../assets/default-profile-pic-e1513291410505.jpg";
 import logo from "../../../../../../home/navbar/assets/free-icon-computer-settings-2888694.png";
@@ -23,6 +22,8 @@ import "./singlePost.scss";
 import { useFindUserByIdQuery } from "../../../../../../../features/users/slice/usersApiSlice";
 import AddComment from "./modals/AddComment";
 import MoreVertical from "./components/MoreVertical";
+import { setTime } from "../../../../../../../lib/moment/timeAgo";
+import { useGetCommentsLengthQuery } from "../../../../../../../features/comments/slice/commentsApiSlice";
 
 const SinglePost = () => {
   const userBackGroundImg = false;
@@ -42,7 +43,13 @@ const SinglePost = () => {
     error,
   } = useGetPostQuery(postId);
 
-  const { data: author } = useFindUserByIdQuery(post?.author?.authorId);
+  const {
+    data
+  } = useGetCommentsLengthQuery(postId);
+
+  const authorId = post?.author.authorId;
+
+  const { data: author } = useFindUserByIdQuery(authorId);
 
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
@@ -78,17 +85,6 @@ const SinglePost = () => {
       </section>
     );
   }
-
-  const setTime = (createdAt, updatedAt) => {
-    if (createdAt !== updatedAt) {
-      return (
-        moment.utc(updatedAt).lang("ko").format("YYYY년 MMMM Do dddd") +
-        " (수정됨)"
-      );
-    } else {
-      return moment.utc(createdAt).lang("ko").format("YYYY년 MMMM Do dddd");
-    }
-  };
 
   return (
     isSuccess && (
@@ -169,8 +165,8 @@ const SinglePost = () => {
                           <div className="buttonsWrapper">
                             <ReactionButtons post={post} />
                           </div>
-                          <div className="col-up-texts">
-                            <span>댓글 67개</span>
+                          <div className="col-up-texts" onClick={() => setShowCommentForm(true)}>
+                            <span>{data?.length && `댓글 ${data?.length}개`}</span>
                           </div>
                         </div>
                         <div className="col-down">
@@ -195,6 +191,7 @@ const SinglePost = () => {
                         modalOutsideClick={commentModalOutsideClick}
                         post={post}
                         currentUser={currentUser}
+                        length={data?.length}
                       />
                     )}
                   </article>
