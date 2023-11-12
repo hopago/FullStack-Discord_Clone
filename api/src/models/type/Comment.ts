@@ -22,6 +22,8 @@ export type TComment = {
           };
           description: string;
           reply_like_count: number;
+          createdAt: Date,
+          updatedAt: string,
         }
       ];
     }

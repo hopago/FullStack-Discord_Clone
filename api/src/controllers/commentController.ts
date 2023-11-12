@@ -207,27 +207,32 @@ export const updateReplyComment = async (
   const commentId = req.params.commentId;
   if (!commentId || commentId === "undefined") return res.sendStatus(400);
   try {
-    const comment = await Comment.findById(commentId);
-    if (!comment) return res.sendStatus(404);
+    const ref_comment = await Comment.findById(commentId);
+    if (!ref_comment) return res.sendStatus(404);
+    
+    const findIndex = ref_comment.comments[0].comment_reply.findIndex(
+      (replyObj) =>
+        replyObj.description === req.body.description &&
+        replyObj.user.userId === req.user.id
+    );
+
     const description = req.body.description;
     if (!Boolean(description) || description === "undefined")
       return res.sendStatus(400);
 
     const currDate = new Date();
-
     const updatedAt = currDate.toISOString();
 
-    const updatedComment = await comment.updateOne({
-      $set: {
-        "comments.0.comment_reply.0.description": req.body.description,
-        "comments.0.comment_reply.0.updatedAt": updatedAt,
-      }
-    },
-    { new: true }
-    );
+    const updatedComment = ref_comment.comments[0].comment_reply[findIndex];
+    updatedComment.description = req.body.description;
+    updatedComment.updatedAt = updatedAt;
     if (!updateComment) return res.sendStatus(500);
 
-    res.status(201).json(updatedComment);
+    ref_comment.comments[0].comment_reply.splice(findIndex, 1, updatedComment);
+
+    await ref_comment.save();
+
+    res.status(201).json(ref_comment);
   } catch (err) {
     next(err);
   }

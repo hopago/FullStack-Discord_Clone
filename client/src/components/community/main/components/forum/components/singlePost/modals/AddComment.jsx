@@ -155,8 +155,7 @@ const AddComment = ({
     setShowReplyComment(true);
   };
 
-  const handleCommentReplyUpdate = (_id) => {
-    const commentId = _id;
+  const handleCommentReplyUpdate = (commentId) => {
     const description = updatedReplyDescription;
 
     updateReply({ commentId, description }).unwrap();
@@ -585,7 +584,7 @@ const AddComment = ({
                                                     }}
                                                     onClick={() =>
                                                       handleCommentReplyUpdate(
-                                                        reply._id
+                                                        data._id
                                                       )
                                                     }
                                                     className="reply_update"
@@ -596,7 +595,7 @@ const AddComment = ({
                                                     fontSize="15px"
                                                     onClick={() =>
                                                       handleCommentReplyDelete(
-                                                        reply?._id,
+                                                        data?._id,
                                                         reply?.description
                                                       )
                                                     }
