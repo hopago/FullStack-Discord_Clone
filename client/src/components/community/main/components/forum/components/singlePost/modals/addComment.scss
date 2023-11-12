@@ -379,7 +379,7 @@
                                                                             .commentEdit {
                                                                                 position: absolute;
                                                                                 top: 16px;
-                                                                                right: -24px;
+                                                                                right: -38px;
                                                                                 cursor: pointer;
                                                                             }
 
@@ -392,8 +392,8 @@
 
                                                                                 .update_icon {
                                                                                     position: absolute;
-                                                                                    top: -13px;
-                                                                                    right: -4px;
+                                                                                    top: -3px;
+                                                                                    right: 18px;
                                                                                     cursor: pointer;
                                                                                     opacity: 0.7;
                                                                                     transition: all 0.15s ease;
@@ -405,8 +405,8 @@
 
                                                                                 .cancel_icon {
                                                                                     position: absolute;
-                                                                                    top: 13px;
-                                                                                    right: -6px;
+                                                                                    top: 18px;
+                                                                                    right: 18px;
                                                                                     cursor: pointer;
                                                                                     opacity: 0.7;
                                                                                     transition: all 0.15s ease;
@@ -423,28 +423,255 @@
                                                                     width: 100%;
 
                                                                     .flexWrap {
+                                                                        width: 100%;
                                                                         display: flex;
-                                                                        align-items: center;
-                                                                        gap: 1rem;
-                                                                        justify-content: flex-start;
+                                                                        align-items: flex-start;
+                                                                        gap: 0.5rem;
+                                                                        justify-content: center;
+                                                                        flex-direction: column;
 
-                                                                        span {
-                                                                            color: #bdb3b8;
-                                                                            font-weight: bold;
-                                                                            cursor: pointer;
-                                                                            font-size: 11px;
+                                                                        .verticalWrapper {
+                                                                            width: 100%;
+                                                                            display: flex;
+                                                                            align-items: center;
+                                                                            flex-direction: column;
+                                                                            gap: 0.5rem;
 
+                                                                            .top_span {
+                                                                                width: 100%;
+                                                                                display: flex;
+                                                                                align-items: center;
+                                                                                justify-content: flex-start;
+                                                                                gap: 1rem;
+
+                                                                                span {
+                                                                                    color: #bdb3b8;
+                                                                                    font-weight: bold;
+                                                                                    cursor: pointer;
+                                                                                    font-size: 11px;
+        
+                                                                                    &:hover {
+                                                                                        text-decoration: underline;
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                           
+                                                                            .bottom_span {
+                                                                                width: 100%;
+                                                                                display: flex;
+                                                                                align-items: center;
+                                                                                justify-content: flex-start;
+                                                                                gap: 3px;
+                                                                                color: #bdb3b8;
+                                                                                font-size: 11px;
+                                                                                font-weight: bold;
+
+                                                                                span {
+                                                                                    cursor: pointer;
+                                                                                }
+
+                                                                                .shortCut {
+                                                                                    transform: scaleY(-1);
+                                                                                }
+
+                                                                                &:hover {
+                                                                                    text-decoration: underline;
+                                                                                }
+                                                                            }
+                                                                        }
+
+                                                                        .top_span > span:last-child {
+                                                                        
                                                                             &:hover {
-                                                                                text-decoration: underline;
+                                                                                cursor: default;
+                                                                                text-decoration: none;
+                                                                            }
+                                                                        }
+
+                                                                        .replyForm {
+                                                                            display: flex;
+                                                                            align-items: center;
+                                                                            justify-content: center;
+                                                                            width: 100%;
+
+                                                                            .replyForm_flexRow {
+                                                                                display: flex;
+                                                                                align-items: center;
+                                                                                gap: 0.5rem;
+                                                                                width: 100%;
+
+                                                                                img {
+                                                                                    width: 32px;
+                                                                                    height: 32px;
+                                                                                    object-fit: cover;
+                                                                                    border-radius: 50%;
+                                                                                    background-color: white;
+                                                                                }
+
+                                                                                .replyForm_vertical {
+                                                                                    width: 100%;
+                                                                                    display: flex;
+                                                                                    flex-direction: column;
+                                                                                    gap: 0.5rem;
+
+                                                                                    .vertical_container {
+                                                                                        width: 100%;
+                                                                                        background-color: #363738;
+                                                                                        border-radius: 1rem;
+
+                                                                                        .vertical_wrapper {
+                                                                                            width: 100%;
+                                                                                            padding: 0.5rem;
+                                                                                            display: flex;
+                                                                                            flex-direction: column;
+                                                                                            gap: 0.5rem;
+
+                                                                                            input {
+                                                                                                width: 100%;
+                                                                                                background-color: transparent;
+                                                                                                border: none;
+                                                                                                outline: none;
+                                                                                                color: #E4E6EB;
+                                                                                                font-size: 15px;
+
+                                                                                                &::placeholder {
+                                                                                                    color: #bdb3b8;
+                                                                                                }
+                                                                                            }
+
+                                                                                            .commentInput_bottom {
+                                                                                                display: flex;
+                                                                                                align-items: center;
+                                                                                                justify-content: space-between;
+
+                                                                                                .icons {
+                                                                                                    display: flex;
+                                                                                                    align-items: center;
+                                                                                                    gap: 0.5rem;
+                                                                                                    cursor: pointer;
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
 
-                                                                    .flexWrap > span:last-child {
-                                                                        
-                                                                        &:hover {
-                                                                            cursor: default;
-                                                                            text-decoration: none;
+                                                                    .commentReply_container {
+                                                                        width: 100%;
+                                                                        position: relative;
+
+                                                                        .commentReply_wrapper {
+                                                                            width: max-content;
+                                                                            display: flex;
+                                                                            align-items: flex-start;
+                                                                            gap: 0.5rem;
+                                                                            justify-content: flex-start;
+                                                                            flex-direction: column;
+                                                                            position: relative;
+
+                                                                            .reply_icons_wrapper {
+                                                                                position: absolute;
+                                                                                top: 26px;
+                                                                                right: -37px;
+                                                                                cursor: pointer;
+                                                                            }
+
+                                                                            .commentReply_row {
+                                                                                width: 100%;
+                                                                                display: flex;
+                                                                                align-items: center;
+                                                                                gap: 0.5rem;
+
+                                                                                img {
+                                                                                    width: 32px;
+                                                                                    height: 32px;
+                                                                                    object-fit: cover;
+                                                                                    border-radius: 50%;
+                                                                                    background-color: white;
+                                                                                }
+
+                                                                                .commentReply_vertical {
+                                                                                    width: max-content;
+                                                                                    max-width: 100%;
+                                                                                    padding: 0.5rem;
+                                                                                    border-radius: 1rem;
+                                                                                    display: flex;
+                                                                                    flex-direction: column;
+                                                                                    transition: all 0.15s ease;
+                                                                                    gap: 3px;
+                                                                                    background-color: #3A3B3C;
+
+                                                                                    span {
+                                                                                        font-weight: bold;
+                                                                                        cursor: pointer;
+                                                                                        width: max-content;
+                                                                                    }
+
+                                                                                    p {
+                                                                                        width: 100%;
+                                                                                        font-weight: 400;
+                                                                                        word-wrap: break-word;
+                                                                                        white-space: pre-wrap;
+                                                                                        word-break: break-word;
+                                                                                    }
+    
+                                                                                    .reply_edit_input {
+                                                                                        font-family: inherit;
+                                                                                        height: 21px;
+                                                                                        background-color: transparent;
+                                                                                        border: none;
+                                                                                        font-weight: 400;
+                                                                                        outline: none;
+                                                                                        font-size: 16px;
+                                                                                        color: inherit;
+                                                                                    }
+                                                                                }
+                                                                            }
+
+                                                                            .commentReply_vertical_row {
+                                                                                margin-left: 40px;
+                                                                                display: flex;
+                                                                                align-items: center;
+                                                                                gap: 1rem;
+
+                                                                                span {
+                                                                                    color: #bdb3b8;
+                                                                                    font-weight: bold;
+                                                                                    cursor: pointer;
+                                                                                    font-size: 11px;
+
+                                                                                    &:hover {
+                                                                                        text-decoration: underline;
+                                                                                    }
+
+                                                                                    &:first-child {
+                                                                                        cursor: default;
+                                                                                        text-decoration: none;
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                            
+                                                                            .reply_update {
+                                                                                cursor: pointer;
+                                                                                transition: all 0.15s ease;
+                                                                                opacity: 0.7;
+
+                                                                                &:hover {
+                                                                                    opacity: 1;
+                                                                                }
+                                                                            }
+
+                                                                            .reply_delete {
+                                                                                cursor: pointer;
+                                                                                transition: all 0.15s ease;
+                                                                                opacity: 0.7;
+
+                                                                                &:hover {
+                                                                                    opacity: 1;
+                                                                                }
+                                                                            }
                                                                         }
                                                                     }
                                                                 }
@@ -513,16 +740,13 @@
                                                     width: 100%;
 
                                                     input {
-                                                        width: 100%;
+                                                        font-family: inherit;
+                                                        height: 21px;
                                                         background-color: transparent;
                                                         border: none;
+                                                        color: inherit;
+                                                        font-size: inherit;
                                                         outline: none;
-                                                        font-size: 15px;
-                                                        color: #E4E6EB;
-
-                                                        &::placeholder {
-                                                            color: #bdb3b8;
-                                                        }
                                                     }
                                                 }
                                             }
@@ -541,8 +765,6 @@
                                                     align-items: center;
                                                     gap: 0.5rem;
                                                     cursor: pointer;
-
-
                                                 }
                                             }
                                         }

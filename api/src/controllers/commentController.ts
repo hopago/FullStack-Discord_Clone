@@ -81,7 +81,7 @@ export const getCommentsLength = async (
     const comments: IComment[] | null = await Comment.find({
       "comments.0.postId": postId
     });
-    if (!comments || (Array.isArray(comments) && !comments.length)) res.sendStatus(400);
+    if (!comments || (Array.isArray(comments) && !comments.length)) return res.sendStatus(400);
 
     const commentLength = {
       length: comments.length
@@ -122,7 +122,9 @@ export const updateComment = async (
     if (comment?.comments[0].author.authorId !== req.user.id) return res.sendStatus(405);
     
     const updatedComment = await comment.updateOne({
-      ...req.body
+      $set: {
+        "comments.0.description": req.body.description
+      }
     },
     { new: true }
     );
@@ -157,13 +159,20 @@ export const replyComment = async (
   next: NextFunction
 ) => {
   const commentId = req.params.commentId;
+  if (!commentId || commentId === "undefined") return res.sendStatus(400);
   try {
     const currentUser = await User.findOne({
       _id: req.user.id
     });
     if (!currentUser) res.sendStatus(404);
 
+    const comment = await Comment.findById(commentId);
+    if (!comment) return res.sendStatus(404);
+
+    let commentReply: object[] = comment.comments[0].comment_reply;
+
     const commentReplyObj = {
+      referenced_comment: commentId,
       user: {
         userId: currentUser?._id,
         userName: currentUser?.userName,
@@ -172,20 +181,81 @@ export const replyComment = async (
       description: req.body.description
     }
 
-    const comment = Comment.findByIdAndUpdate(
-      commentId,
+    commentReply = [...commentReply, commentReplyObj];
+
+    const updatedComment = await comment.updateOne(
       {
         $set: {
-          "comments.0.comment_reply": {
-            ...commentReplyObj,
-          },
+          "comments.0.comment_reply": commentReply,
         },
       },
       { new: true }
-    ).exec();
-    if (!comment) res.sendStatus(500);
+    );
+    if (!updatedComment) res.sendStatus(500);
 
-    res.status(201).json(comment);
+    res.status(201).json(updatedComment);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateReplyComment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const commentId = req.params.commentId;
+  if (!commentId || commentId === "undefined") return res.sendStatus(400);
+  try {
+    const comment = await Comment.findById(commentId);
+    if (!comment) return res.sendStatus(404);
+    const description = req.body.description;
+    if (!Boolean(description) || description === "undefined")
+      return res.sendStatus(400);
+
+    const currDate = new Date();
+
+    const updatedAt = currDate.toISOString();
+
+    const updatedComment = await comment.updateOne({
+      $set: {
+        "comments.0.comment_reply.0.description": req.body.description,
+        "comments.0.comment_reply.0.updatedAt": updatedAt,
+      }
+    },
+    { new: true }
+    );
+    if (!updateComment) return res.sendStatus(500);
+
+    res.status(201).json(updatedComment);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteReplyComment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const commentId = req.params.commentId;
+  if (!commentId || commentId === "undefined") return res.sendStatus(400);
+  try {
+    const comment = await Comment.findById(commentId);
+    if (!comment) return res.sendStatus(404);
+
+    const findIndex = comment.comments[0].comment_reply.findIndex(
+      (reply) =>
+        reply.description === req.body.description &&
+        reply.user.userId === req.user.id
+    );
+    if (!Boolean(findIndex)) return res.sendStatus(404);
+
+    comment.comments[0].comment_reply.splice(findIndex, 1);
+
+    await comment.save();
+
+    res.sendStatus(204);
   } catch (err) {
     next(err);
   }
@@ -205,7 +275,7 @@ export const likeComment = async (
     if (!comment) return res.sendStatus(400);
 
     if (!comment?.comments[0].comment_like_count.includes(req.user.id)) {
-      await comment?.updateOne(
+      const updatedComment = await comment?.updateOne(
         {
           $push: {
             "comments.0.comment_like_count": req.user.id,
@@ -214,9 +284,9 @@ export const likeComment = async (
         { new: true }
       );
 
-      res.status(201).json(comment);
+      res.status(201).json(updatedComment);
     } else {
-      await comment.updateOne(
+      const updatedComment = await comment.updateOne(
         {
           $pull: {
             "comments.0.comment_like_count": req.user.id,
@@ -225,7 +295,7 @@ export const likeComment = async (
         { new: true }
       );
 
-      res.status(201).json(comment);
+      res.status(201).json(updatedComment);
     }
   } catch (err) {
     next(err);

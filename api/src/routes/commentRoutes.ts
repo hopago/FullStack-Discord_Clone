@@ -8,7 +8,9 @@ import {
   updateComment,
   getComment,
   createComment,
-  getCommentsLength
+  getCommentsLength,
+  updateReplyComment,
+  deleteReplyComment
 } from "../controllers/commentController.js";
 
 const router = express.Router();
@@ -33,6 +35,11 @@ router
 router
   .route("/reply/:commentId")
   .put(replyComment);
+
+router
+  .route("/reply/edit/:commentId")
+  .put(updateReplyComment)
+  .delete(deleteReplyComment);
 
 router
   .route("/like/:commentId")

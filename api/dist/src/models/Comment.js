@@ -18,7 +18,7 @@ const commentSchema = new Schema({
                 },
                 avatar: {
                     type: String,
-                }
+                },
             },
             description: {
                 type: String,
@@ -26,30 +26,44 @@ const commentSchema = new Schema({
             },
             comment_like_count: {
                 type: [String],
-                default: []
+                default: [],
             },
-            comment_reply: {
-                user: {
-                    userId: {
+            comment_reply: [
+                {
+                    referenced_comment: {
+                        type: String,
+                        required: true,
+                    },
+                    user: {
+                        userId: {
+                            type: String,
+                        },
+                        userName: {
+                            type: String,
+                        },
+                        avatar: {
+                            type: String,
+                        },
+                    },
+                    description: {
                         type: String,
                     },
-                    userName: {
-                        type: String,
+                    reply_like_count: {
+                        type: Number,
+                        default: 0,
                     },
-                    avatar: {
-                        type: String,
+                    createdAt: {
+                        type: Date,
+                        default: new Date(),
+                    },
+                    updatedAt: {
+                        type: Date,
+                        default: new Date(),
                     }
                 },
-                description: {
-                    type: String,
-                },
-                reply_like_count: {
-                    type: Number,
-                    default: 0
-                }
-            }
-        }
-    ]
+            ],
+        },
+    ],
 }, { timestamps: true });
 const Comment = model("Comment", commentSchema);
 export default Comment;

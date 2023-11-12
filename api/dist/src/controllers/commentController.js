@@ -72,7 +72,7 @@ export const getCommentsLength = (req, res, next) => __awaiter(void 0, void 0, v
             "comments.0.postId": postId
         });
         if (!comments || (Array.isArray(comments) && !comments.length))
-            res.sendStatus(400);
+            return res.sendStatus(400);
         const commentLength = {
             length: comments.length
         };
@@ -102,7 +102,11 @@ export const updateComment = (req, res, next) => __awaiter(void 0, void 0, void 
             res.sendStatus(404);
         if ((comment === null || comment === void 0 ? void 0 : comment.comments[0].author.authorId) !== req.user.id)
             return res.sendStatus(405);
-        const updatedComment = yield comment.updateOne(Object.assign({}, req.body), { new: true });
+        const updatedComment = yield comment.updateOne({
+            $set: {
+                "comments.0.description": req.body.description
+            }
+        }, { new: true });
         res.status(201).json(updatedComment);
     }
     catch (err) {
@@ -126,13 +130,20 @@ export const deleteComment = (req, res, next) => __awaiter(void 0, void 0, void 
 });
 export const replyComment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const commentId = req.params.commentId;
+    if (!commentId || commentId === "undefined")
+        return res.sendStatus(400);
     try {
         const currentUser = yield User.findOne({
             _id: req.user.id
         });
         if (!currentUser)
             res.sendStatus(404);
+        const comment = yield Comment.findById(commentId);
+        if (!comment)
+            return res.sendStatus(404);
+        let commentReply = comment.comments[0].comment_reply;
         const commentReplyObj = {
+            referenced_comment: commentId,
             user: {
                 userId: currentUser === null || currentUser === void 0 ? void 0 : currentUser._id,
                 userName: currentUser === null || currentUser === void 0 ? void 0 : currentUser.userName,
@@ -140,14 +151,62 @@ export const replyComment = (req, res, next) => __awaiter(void 0, void 0, void 0
             },
             description: req.body.description
         };
-        const comment = Comment.findByIdAndUpdate(commentId, {
+        commentReply = [...commentReply, commentReplyObj];
+        const updatedComment = yield comment.updateOne({
             $set: {
-                "comments.0.comment_reply": Object.assign({}, commentReplyObj),
+                "comments.0.comment_reply": commentReply,
             },
-        }, { new: true }).exec();
-        if (!comment)
+        }, { new: true });
+        if (!updatedComment)
             res.sendStatus(500);
-        res.status(201).json(comment);
+        res.status(201).json(updatedComment);
+    }
+    catch (err) {
+        next(err);
+    }
+});
+export const updateReplyComment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const commentId = req.params.commentId;
+    if (!commentId || commentId === "undefined")
+        return res.sendStatus(400);
+    try {
+        const comment = yield Comment.findById(commentId);
+        if (!comment)
+            return res.sendStatus(404);
+        const description = req.body.description;
+        if (!Boolean(description) || description === "undefined")
+            return res.sendStatus(400);
+        const currDate = new Date();
+        const updatedAt = currDate.toISOString();
+        const updatedComment = yield comment.updateOne({
+            $set: {
+                "comments.0.comment_reply.0.description": req.body.description,
+                "comments.0.comment_reply.0.updatedAt": updatedAt,
+            }
+        }, { new: true });
+        if (!updateComment)
+            return res.sendStatus(500);
+        res.status(201).json(updatedComment);
+    }
+    catch (err) {
+        next(err);
+    }
+});
+export const deleteReplyComment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const commentId = req.params.commentId;
+    if (!commentId || commentId === "undefined")
+        return res.sendStatus(400);
+    try {
+        const comment = yield Comment.findById(commentId);
+        if (!comment)
+            return res.sendStatus(404);
+        const findIndex = comment.comments[0].comment_reply.findIndex((reply) => reply.description === req.body.description &&
+            reply.user.userId === req.user.id);
+        if (!Boolean(findIndex))
+            return res.sendStatus(404);
+        comment.comments[0].comment_reply.splice(findIndex, 1);
+        yield comment.save();
+        res.sendStatus(204);
     }
     catch (err) {
         next(err);
@@ -162,20 +221,20 @@ export const likeComment = (req, res, next) => __awaiter(void 0, void 0, void 0,
         if (!comment)
             return res.sendStatus(400);
         if (!(comment === null || comment === void 0 ? void 0 : comment.comments[0].comment_like_count.includes(req.user.id))) {
-            yield (comment === null || comment === void 0 ? void 0 : comment.updateOne({
+            const updatedComment = yield (comment === null || comment === void 0 ? void 0 : comment.updateOne({
                 $push: {
                     "comments.0.comment_like_count": req.user.id,
                 },
             }, { new: true }));
-            res.status(201).json(comment);
+            res.status(201).json(updatedComment);
         }
         else {
-            yield comment.updateOne({
+            const updatedComment = yield comment.updateOne({
                 $pull: {
                     "comments.0.comment_like_count": req.user.id,
                 },
             }, { new: true });
-            res.status(201).json(comment);
+            res.status(201).json(updatedComment);
         }
     }
     catch (err) {

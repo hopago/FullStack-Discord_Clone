@@ -38,11 +38,11 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
                 ]
             }),
             updateComment: builder.mutation({
-                query: ({commentId, initialComment}) => ({
+                query: ({commentId, description}) => ({
                     url: `/comments/${commentId}`,
                     method: 'PUT',
                     body: {
-                        ...initialComment
+                        description
                     }
                 }),
                 invalidatesTags: (result, error, arg) => [
@@ -56,12 +56,36 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
                 }),
                 invalidatesTags: (result, error, arg) => [
                     { type: 'Comment', id: arg._id }
-                ]
+                ],
             }),
             replyComment: builder.mutation({
                 query: ({ commentId, description }) => ({
                     url: `/comments/reply/${commentId}`,
                     method: 'PUT',
+                    body: {
+                        description
+                    }
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: 'Comment', id: arg._id }
+                ]
+            }),
+            updateReplyComment: builder.mutation({
+                query: ({ commentId, description }) => ({
+                    url: `/comments/reply/edit/${commentId}`,
+                    method: 'PUT',
+                    body: {
+                        description
+                    }
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: 'Comment', id: arg._id }
+                ]
+            }),
+            deleteReplyComment: builder.mutation({
+                query: ({ commentId, description }) => ({
+                    url: `/comments/reply/edit/${commentId}`,
+                    method: 'DELETE',
                     body: {
                         description
                     }
@@ -113,5 +137,7 @@ export const {
     useUpdateCommentMutation,
     useDeleteCommentMutation,
     useReplyCommentMutation,
+    useUpdateReplyCommentMutation,
+    useDeleteReplyCommentMutation,
     useLikeCommentMutation
 } = commentsApiSlice;

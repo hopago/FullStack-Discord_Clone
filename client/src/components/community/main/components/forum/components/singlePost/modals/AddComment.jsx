@@ -2,6 +2,7 @@ import {
   ArrowDropDown,
   CancelOutlined,
   Close,
+  Delete,
   Edit,
   EmojiEmotions,
   Gif,
@@ -9,6 +10,7 @@ import {
   PhotoCamera,
   Public,
   Send,
+  Shortcut,
 } from "@mui/icons-material";
 import React, { useRef, useState } from "react";
 import "./addComment.scss";
@@ -16,9 +18,13 @@ import ReactionButtons from "../../reactionButtons/ReactionButtons";
 import { useFindUserByIdQuery } from "../../../../../../../../features/users/slice/usersApiSlice";
 import {
   useAddCommentMutation,
+  useDeleteCommentMutation,
+  useDeleteReplyCommentMutation,
   useGetCommentsQuery,
   useLikeCommentMutation,
   useReplyCommentMutation,
+  useUpdateCommentMutation,
+  useUpdateReplyCommentMutation,
 } from "../../../../../../../../features/comments/slice/commentsApiSlice";
 import { timeAgoFromNow } from "../../../../../../../../lib/moment/timeAgo";
 
@@ -49,9 +55,10 @@ const AddComment = ({
   const [showCommentEditMoreVertIcon, setShowCommentEditMoreVertIcon] =
     useState(false);
   const [currentCommentId, setCurrentCommentId] = useState("");
+  const [description, setDescription] = useState("");
   const [editComment, setEditComment] = useState(false);
   const [updatedDescription, setUpdatedDescription] = useState("");
-  const [description, setDescription] = useState("");
+  const [replyDescription, setReplyDescription] = useState("");
   const [showVerticalOptions, setShowVerticalOptions] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState("");
 
@@ -59,7 +66,9 @@ const AddComment = ({
 
   const [addComment] = useAddCommentMutation();
 
-  const handleClick = () => {
+  const handleAddComment = (e) => {
+    e.preventDefault();
+
     if (Boolean(description)) {
       addComment({
         description,
@@ -80,7 +89,31 @@ const AddComment = ({
   };
 
   const [addLike] = useLikeCommentMutation();
+  const [updateComment] = useUpdateCommentMutation();
   const [addReply] = useReplyCommentMutation();
+  const [updateReply] = useUpdateReplyCommentMutation();
+  const [deleteReply] = useDeleteReplyCommentMutation();
+  const [deleteComment] = useDeleteCommentMutation();
+
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [showReplyComment, setShowReplyComment] = useState(false);
+  const [showReplyEditIcons, setShowReplyEditIcons] = useState(false);
+  const [editCommentReply, setEditCommentReply] = useState(false);
+  const [updatedReplyDescription, setUpdatedReplyDescription] = useState("");
+  // 스키마의 잘못된 설계로 fe에서 reply.description으로 임시 식별... _id로 나노 id 생성 고려 or 스키마 분리
+  const [identifierDesc, setIdentifierDesc] = useState('');
+
+  const closeReplyState = () => {
+    setUpdatedReplyDescription("");
+    setShowReplyEditIcons(false);
+    setEditCommentReply(false);
+  };
+
+  const handleCommentDelete = (_id) => {
+    const commentId = _id;
+
+    deleteComment(commentId).unwrap();
+  };
 
   const handleCommentLike = (_id) => {
     const commentId = _id;
@@ -94,15 +127,49 @@ const AddComment = ({
     setCurrentCommentId("");
   };
 
-  const handleCommentReply = (_id) => {
+  const handleCommentUpdate = (_id) => {
     const commentId = _id;
 
-    addReply({
+    updateComment({
       commentId,
       description: updatedDescription,
     }).unwrap();
 
     setUpdatedDescription("");
+    closeEditState();
+  };
+
+  const handleCommentReply = (_id) => {
+    const commentId = _id;
+
+    const isValid = Boolean(replyDescription);
+
+    isValid &&
+      addReply({
+        commentId,
+        description: replyDescription,
+      }).unwrap();
+
+    setReplyDescription("");
+    setShowReplyForm(false);
+    setShowReplyComment(true);
+  };
+
+  const handleCommentReplyUpdate = (_id) => {
+    const commentId = _id;
+    const description = updatedReplyDescription;
+
+    updateReply({ commentId, description }).unwrap();
+
+    setUpdatedDescription("");
+    closeReplyState();
+  };
+
+  const handleCommentReplyDelete = (_id, currentDescription) => {
+    const commentId = _id;
+    const description = currentDescription;
+
+    deleteReply({ commentId, description }).unwrap();
   };
 
   const modalContents = (
@@ -215,11 +282,19 @@ const AddComment = ({
                               className="comment-top"
                               onMouseEnter={() => {
                                 setShowCommentEditMoreVertIcon(true);
-                                setCurrentCommentId(data?._id);
+                                if (showReplyForm) {
+                                  return;
+                                } else {
+                                  setCurrentCommentId(data?._id);
+                                }
                               }}
                               onMouseLeave={() => {
                                 setShowCommentEditMoreVertIcon(false);
-                                setCurrentCommentId("");
+                                if (showReplyForm) {
+                                  return;
+                                } else {
+                                  setCurrentCommentId("");
+                                }
                               }}
                             >
                               <div className="wrap">
@@ -234,7 +309,7 @@ const AddComment = ({
                                     style={{
                                       width: `${
                                         data?.comments[0]?.description.length *
-                                        9
+                                        7
                                       }px`,
                                     }}
                                     className="comment-description-edit"
@@ -255,30 +330,45 @@ const AddComment = ({
                                   currentCommentId === data?._id && (
                                     <div className="commentEdit">
                                       {showCommentEditMoreVertIcon &&
-                                      !editComment ? (
-                                        <Edit
-                                          fontSize="15px"
-                                          onClick={() => {
-                                            setEditComment(true);
-                                            setSelectedCommentId(data?._id);
-                                            setUpdatedDescription(
-                                              data?.comments[0]?.description
-                                            );
+                                      !editComment &&
+                                      !showReplyForm ? (
+                                        <>
+                                          <Edit
+                                            style={{
+                                              marginRight: "3px",
+                                              fontSize: "15px",
+                                            }}
+                                            onClick={() => {
+                                              setEditComment(true);
+                                              setSelectedCommentId(data?._id);
+                                              setUpdatedDescription(
+                                                data?.comments[0]?.description
+                                              );
 
-                                            if (inputRef.current !== null) {
-                                              inputRef.current.focus();
+                                              if (inputRef.current !== null) {
+                                                inputRef.current.focus();
+                                              }
+                                            }}
+                                          />
+                                          <Delete
+                                            fontSize="12px"
+                                            onClick={() =>
+                                              handleCommentDelete(data?._id)
                                             }
-                                          }}
-                                        />
+                                          />
+                                        </>
                                       ) : (
                                         selectedCommentId === data?._id && (
                                           <section className="editIcons">
                                             <Send
-                                              fontSize="15px"
-                                              onClick={() => {}}
+                                              style={{ fontSize: "15px" }}
+                                              onClick={() =>
+                                                handleCommentUpdate(data?._id)
+                                              }
                                               className="update_icon"
                                             />
                                             <CancelOutlined
+                                              style={{ fontSize: "18px" }}
                                               className="cancel_icon"
                                               onClick={closeEditState}
                                             />
@@ -291,24 +381,240 @@ const AddComment = ({
                             </div>
                             <div className="comment-bottom">
                               <div className="flexWrap">
-                                <span
-                                  onClick={() => {
-                                    setFetchType("latest");
-                                    handleCommentLike(data);
-                                  }}
-                                >
-                                  {!data?.comments[0].comment_like_count.includes(
-                                    currentUser._id
-                                  )
-                                    ? "좋아요"
-                                    : `좋아요 ${data?.comments[0].comment_like_count.length}개`}
-                                </span>
-                                <span
-                                  onClick={() => handleCommentReply(data._id)}
-                                >
-                                  답글 달기
-                                </span>
-                                <span>{timeAgoFromNow(data.createdAt)}</span>
+                                <div className="verticalWrapper">
+                                  <div className="top_span">
+                                    <span
+                                      onClick={() => {
+                                        setFetchType("latest");
+                                        handleCommentLike(data);
+                                      }}
+                                    >
+                                      {!data?.comments[0].comment_like_count.includes(
+                                        currentUser._id
+                                      )
+                                        ? "좋아요"
+                                        : `좋아요 ${data?.comments[0].comment_like_count.length}개`}
+                                    </span>
+                                    <span
+                                      onClick={() => {
+                                        if (currentCommentId === data?._id) {
+                                          setCurrentCommentId("");
+                                        } else {
+                                          setCurrentCommentId(data?._id);
+                                        }
+                                        setShowReplyForm((prev) => !prev);
+                                      }}
+                                    >
+                                      답글 달기
+                                    </span>
+                                    <span>
+                                      {timeAgoFromNow(data.createdAt)}
+                                    </span>
+                                  </div>
+                                  {showReplyForm &&
+                                    currentCommentId === data?._id && (
+                                      <div className="replyForm">
+                                        <div className="replyForm_flexRow">
+                                          <img
+                                            src={currentUser.avatar}
+                                            alt=""
+                                          />
+                                          <div className="replyForm_vertical">
+                                            <div className="vertical_container">
+                                              <div className="vertical_wrapper">
+                                                <input
+                                                  type="text"
+                                                  onChange={(e) =>
+                                                    setReplyDescription(
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  placeholder="답글을 입력하세요..."
+                                                />
+                                                <div className="commentInput_bottom">
+                                                  <div className="icons">
+                                                    <EmojiEmotions />
+                                                    <PhotoCamera />
+                                                    <Gif />
+                                                  </div>
+                                                  <Send
+                                                    onClick={() =>
+                                                      handleCommentReply(
+                                                        data?._id
+                                                      )
+                                                    }
+                                                    style={{
+                                                      cursor: "pointer",
+                                                    }}
+                                                  />
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+                                  {Array.isArray(
+                                    data?.comments[0].comment_reply
+                                  ) &&
+                                    Boolean(
+                                      data?.comments[0].comment_reply.length
+                                    ) && (
+                                      <div className="bottom_span">
+                                        <span>
+                                          <Shortcut
+                                            style={{ fontSize: "15px" }}
+                                            className="shortCut"
+                                          />
+                                        </span>
+                                        <span
+                                          onClick={() =>
+                                            setShowReplyComment((prev) => !prev)
+                                          }
+                                        >
+                                          답글{" "}
+                                          {
+                                            data?.comments[0].comment_reply
+                                              .length
+                                          }
+                                          개
+                                        </span>
+                                      </div>
+                                    )}
+                                </div>
+                                {showReplyComment &&
+                                  data?.comments[0].comment_reply?.map(
+                                    (reply) => (
+                                      <div
+                                        className="commentReply_container"
+                                        onMouseEnter={() => {
+                                          if (editCommentReply) {
+                                            return;
+                                          } else {
+                                            setIdentifierDesc(
+                                              reply.description
+                                            );
+                                            setShowReplyEditIcons(true);
+                                          }
+                                        }}
+                                        onMouseLeave={() => {
+                                          if (editCommentReply) {
+                                            return;
+                                          } else {
+                                            setIdentifierDesc(
+                                              reply.description
+                                            );
+                                            setShowReplyEditIcons(false);
+                                          }
+                                        }}
+                                      >
+                                        <div className="commentReply_wrapper">
+                                          <div className="commentReply_row">
+                                            <img
+                                              src={reply.user.avatar}
+                                              alt=""
+                                            />
+                                            <div className="commentReply_vertical">
+                                              <span>{reply.user.userName}</span>
+                                              {editCommentReply &&
+                                              identifierDesc ===
+                                                reply.description ? (
+                                                <input
+                                                  autoFocus
+                                                  ref={inputRef}
+                                                  style={{
+                                                    width: `${
+                                                      reply.description.length *
+                                                      7
+                                                    }px`,
+                                                  }}
+                                                  type="text"
+                                                  value={
+                                                    updatedReplyDescription
+                                                  }
+                                                  onChange={(e) =>
+                                                    setUpdatedReplyDescription(
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  className="reply_edit_input"
+                                                />
+                                              ) : (
+                                                <p>{reply.description}</p>
+                                              )}
+                                            </div>
+                                          </div>
+                                          <div className="commentReply_vertical_row">
+                                            <span>
+                                              {reply.updatedAt !==
+                                              reply.createdAt
+                                                ? timeAgoFromNow(
+                                                    reply.updatedAt
+                                                  ) + " (수정됨)"
+                                                : timeAgoFromNow(
+                                                    reply.createdAt
+                                                  )}
+                                            </span>
+                                            <span>좋아요</span>
+                                          </div>
+                                          {showReplyEditIcons &&
+                                            currentUser._id ===
+                                              reply.user.userId &&
+                                            reply.description ===
+                                              identifierDesc && (
+                                              <div className="reply_icons_wrapper">
+                                                {!editCommentReply ? (
+                                                  <Edit
+                                                    style={{
+                                                      marginRight: "3px",
+                                                      fontSize: "15px",
+                                                    }}
+                                                    onClick={() => {
+                                                      setUpdatedReplyDescription(
+                                                        reply.description
+                                                      );
+                                                      setEditCommentReply(true);
+                                                    }}
+                                                    className="reply_update"
+                                                  />
+                                                ) : (
+                                                  <Send
+                                                    style={{
+                                                      marginRight: "3px",
+                                                      fontSize: "15px",
+                                                    }}
+                                                    onClick={() =>
+                                                      handleCommentReplyUpdate(
+                                                        reply._id
+                                                      )
+                                                    }
+                                                    className="reply_update"
+                                                  />
+                                                )}
+                                                {!editCommentReply ? (
+                                                  <Delete
+                                                    fontSize="15px"
+                                                    onClick={() =>
+                                                      handleCommentReplyDelete(
+                                                        reply?._id,
+                                                        reply?.description
+                                                      )
+                                                    }
+                                                    className="reply_delete"
+                                                  />
+                                                ) : (
+                                                  <CancelOutlined
+                                                    fontSize="15px"
+                                                    onClick={closeReplyState}
+                                                    className="reply_delete"
+                                                  />
+                                                )}
+                                              </div>
+                                            )}
+                                        </div>
+                                      </div>
+                                    )
+                                  )}
                               </div>
                             </div>
                           </div>
@@ -341,7 +647,7 @@ const AddComment = ({
                             <Gif />
                           </div>
                           <Send
-                            onClick={handleClick}
+                            onClick={handleAddComment}
                             style={{ cursor: "pointer" }}
                           />
                         </div>
