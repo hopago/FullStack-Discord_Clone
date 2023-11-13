@@ -183,6 +183,8 @@ export const likePost = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         }
         else {
             const findIndex = post.reactions[reactionName].findIndex(_id => _id === req.user.id);
+            if (findIndex === -1)
+                return res.sendStatus(404);
             post.reactions[reactionName].splice(findIndex, 1);
             yield post.save();
             const updatedPost = post;

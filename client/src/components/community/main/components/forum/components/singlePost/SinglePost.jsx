@@ -26,6 +26,10 @@ import { setTime } from "../../../../../../../lib/moment/timeAgo";
 import { useGetCommentsLengthQuery } from "../../../../../../../features/comments/slice/commentsApiSlice";
 
 const SinglePost = () => {
+  {
+    /* Update or delete -> firebase url edit */
+  }
+
   const userBackGroundImg = false;
 
   const currentUser = useSelector(selectCurrentUser);

@@ -38,7 +38,7 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
                 ]
             }),
             updateComment: builder.mutation({
-                query: ({commentId, description}) => ({
+                query: ({ commentId, description }) => ({
                     url: `/comments/${commentId}`,
                     method: 'PUT',
                     body: {
@@ -71,10 +71,11 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
                 ]
             }),
             updateReplyComment: builder.mutation({
-                query: ({ commentId, description }) => ({
+                query: ({ commentId, description, originDescription }) => ({
                     url: `/comments/reply/edit/${commentId}`,
                     method: 'PUT',
                     body: {
+                        originDescription,
                         description
                     }
                 }),

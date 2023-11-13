@@ -220,6 +220,7 @@ export const likePost = async (
       res.status(201).json(updatedPost);
     } else {
       const findIndex = post.reactions[reactionName].findIndex(_id => _id === req.user.id);
+      if (findIndex === -1) return res.sendStatus(404);
       post.reactions[reactionName].splice(findIndex, 1);
       await post.save();
       const updatedPost = post;

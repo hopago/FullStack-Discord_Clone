@@ -173,18 +173,22 @@ export const updateReplyComment = (req, res, next) => __awaiter(void 0, void 0, 
         const ref_comment = yield Comment.findById(commentId);
         if (!ref_comment)
             return res.sendStatus(404);
-        const findIndex = ref_comment.comments[0].comment_reply.findIndex((replyObj) => replyObj.description === req.body.description &&
-            replyObj.user.userId === req.user.id);
+        const findIndex = ref_comment.comments[0].comment_reply.findIndex((replyObj) => replyObj.description === req.body.originDescription);
+        if (findIndex === -1)
+            return res.sendStatus(404);
+        const isVerified = ref_comment.comments[0].comment_reply[findIndex].user.userId === req.user.id;
+        if (!isVerified)
+            return res.sendStatus(401);
         const description = req.body.description;
         if (!Boolean(description) || description === "undefined")
             return res.sendStatus(400);
         const currDate = new Date();
         const updatedAt = currDate.toISOString();
         const updatedComment = ref_comment.comments[0].comment_reply[findIndex];
-        updatedComment.description = req.body.description;
-        updatedComment.updatedAt = updatedAt;
-        if (!updateComment)
+        if (!updatedComment)
             return res.sendStatus(500);
+        updatedComment.description = description;
+        updatedComment.updatedAt = updatedAt;
         ref_comment.comments[0].comment_reply.splice(findIndex, 1, updatedComment);
         yield ref_comment.save();
         res.status(201).json(ref_comment);
@@ -203,7 +207,7 @@ export const deleteReplyComment = (req, res, next) => __awaiter(void 0, void 0, 
             return res.sendStatus(404);
         const findIndex = comment.comments[0].comment_reply.findIndex((reply) => reply.description === req.body.description &&
             reply.user.userId === req.user.id);
-        if (!Boolean(findIndex))
+        if (findIndex === -1)
             return res.sendStatus(404);
         comment.comments[0].comment_reply.splice(findIndex, 1);
         yield comment.save();

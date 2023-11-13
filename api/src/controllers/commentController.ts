@@ -209,12 +209,15 @@ export const updateReplyComment = async (
   try {
     const ref_comment = await Comment.findById(commentId);
     if (!ref_comment) return res.sendStatus(404);
-    
+
     const findIndex = ref_comment.comments[0].comment_reply.findIndex(
       (replyObj) =>
-        replyObj.description === req.body.description &&
-        replyObj.user.userId === req.user.id
+        replyObj.description === req.body.originDescription
     );
+    if (findIndex === - 1) return res.sendStatus(404);
+
+    const isVerified = ref_comment.comments[0].comment_reply[findIndex].user.userId === req.user.id;
+    if (!isVerified) return res.sendStatus(401);
 
     const description = req.body.description;
     if (!Boolean(description) || description === "undefined")
@@ -224,9 +227,10 @@ export const updateReplyComment = async (
     const updatedAt = currDate.toISOString();
 
     const updatedComment = ref_comment.comments[0].comment_reply[findIndex];
-    updatedComment.description = req.body.description;
+    if (!updatedComment) return res.sendStatus(500);
+
+    updatedComment.description = description;
     updatedComment.updatedAt = updatedAt;
-    if (!updateComment) return res.sendStatus(500);
 
     ref_comment.comments[0].comment_reply.splice(findIndex, 1, updatedComment);
 
@@ -254,7 +258,7 @@ export const deleteReplyComment = async (
         reply.description === req.body.description &&
         reply.user.userId === req.user.id
     );
-    if (!Boolean(findIndex)) return res.sendStatus(404);
+    if (findIndex === - 1) return res.sendStatus(404);
 
     comment.comments[0].comment_reply.splice(findIndex, 1);
 
