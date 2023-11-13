@@ -24,7 +24,7 @@ const MoreVertical = ({ currentUser, author, setShowModal, setShowMoreVert, post
     <div className="singlePost-moreVertical">
       <div className="wrapper">
         <div className="item" onClick={() => setShowModal(true)}>
-          <span onClick={author._id === currentUser._id && handleUpdate}>
+          <span>
             {author._id === currentUser._id ? "수정" : "공유하기"}
           </span>
         </div>

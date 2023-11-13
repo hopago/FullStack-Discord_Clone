@@ -22,7 +22,7 @@
         align-items: center;
         justify-content: center;
         z-index: 999;
-        opacity: 0.91;
+        opacity: 0.94;
         background-color: #111111;
         position: sticky;
 
@@ -32,9 +32,8 @@
             justify-content: center;
 
             .postModal-modal-container {
-                width: 570px;
+                width: 800px;
                 height: max-content;
-                padding-bottom: 5rem;
 
                 .postModal-modal-wrapper {
                     width: 100%;
@@ -56,7 +55,7 @@
                         opacity: 1;
 
                         .createPost {
-                            width: 440px;
+                            width: 100%;
                             height: max-content;
 
                             .createPost-flexVertical {
@@ -83,19 +82,6 @@
                                     flex-direction: column;
                                     gap: 1rem;
 
-                                    label {
-                                        width: 100%;
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        cursor: pointer;
-                                        margin-bottom: 1rem;
-                                    }
-
-                                    .createPost-img {
-                                        display: none;
-                                    }
-
                                     input {
                                         border: 1px solid lightgray;
                                         background-color: white;
@@ -115,27 +101,18 @@
                                         }
                                     }
 
-                                    textarea {
-                                        border: 1px solid lightgray;
+                                    .ql-toolbar.ql-snow {
                                         background-color: white;
-                                        display: flex;
-                                        align-items: center;
-                                        width: 100%;
-                                        padding: 8px;
-                                        border-radius: 8px;
-                                        outline: none;
-                                        font-size: 20px;
                                         color: #313338;
 
-                                        &::-webkit-scrollbar {
+                                        input {
                                             display: none;
                                         }
+                                    }
 
-                                        &::placeholder {
-                                            font-size: 20px;
-                                            color: #777777;
-                                            font-weight: bold;
-                                        }
+                                    .quill > .ql-container > .ql-editor.ql-blank::before {
+                                        color: #fff;
+                                        font-size: 16px;
                                     }
 
                                     select {
@@ -154,6 +131,8 @@
                                     }
 
                                     .buttons {
+                                        z-index: 999;
+                                        padding-top: 4.9rem;
                                         width: 100%;
                                         display: flex;
                                         align-items: center;

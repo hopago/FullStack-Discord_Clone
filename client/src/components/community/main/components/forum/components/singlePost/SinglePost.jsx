@@ -24,6 +24,7 @@ import AddComment from "./modals/AddComment";
 import MoreVertical from "./components/MoreVertical";
 import { setTime } from "../../../../../../../lib/moment/timeAgo";
 import { useGetCommentsLengthQuery } from "../../../../../../../features/comments/slice/commentsApiSlice";
+import DOMPurify from 'isomorphic-dompurify';
 
 const SinglePost = () => {
   {
@@ -48,9 +49,7 @@ const SinglePost = () => {
     error,
   } = useGetPostQuery(postId);
 
-  const {
-    data
-  } = useGetCommentsLengthQuery(postId);
+  const { data } = useGetCommentsLengthQuery(postId);
 
   const authorId = post?.author.authorId;
 
@@ -157,13 +156,16 @@ const SinglePost = () => {
                       </div>
                     </div>
                     <div className="center">
-                      <div className="postBody" onMouseEnter={() => setShowMoreVert(false)}>
-                        <div className="postBody_text">
-                          <span>{post.description}</span>
-                        </div>
-                        <div className="postBody_img">
-                          <img src={post.imgUrl} alt="" />
-                        </div>
+                      <div
+                        className="postBody"
+                        onMouseEnter={() => setShowMoreVert(false)}
+                      >
+                        <div
+                          className="view ql-editor"
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(post.description),
+                          }}
+                        />
                       </div>
                     </div>
                     <div className="bottom">
@@ -172,8 +174,17 @@ const SinglePost = () => {
                           <div className="buttonsWrapper">
                             <ReactionButtons post={post} />
                           </div>
-                          <div className="col-up-texts" onClick={() => setShowCommentForm(true)}>
-                            <span>{data?.length && `댓글 ${data?.length}개`}</span>
+                          <div
+                            className="col-up-texts"
+                            onClick={() => setShowCommentForm(true)}
+                          >
+                            <span>
+                              {data?.length ? (
+                                `댓글 ${data?.length}개`
+                              ) : (
+                                "댓글이 아직 없네요..."
+                              )}
+                            </span>
                           </div>
                         </div>
                         <div className="col-down">
@@ -215,7 +226,11 @@ const SinglePost = () => {
                   )}
                   <div className="profilePictureWrapper">
                     {author?.avatar ? (
-                      <img src={author?.avatar} className="profileImg" alt={author?.avatar} />
+                      <img
+                        src={author?.avatar}
+                        className="profileImg"
+                        alt={author?.avatar}
+                      />
                     ) : (
                       <img src={defaultAvatar} alt="default-pp" />
                     )}

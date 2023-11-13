@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
 
 import "./editPost.scss";
 import { Done, Image } from "@mui/icons-material";
 
-import { setCurrentUser } from "../../../../../../../../features/users/slice/userSlice";
 import { postCardCategories } from "../../constants";
 import { useUpdatePostMutation } from "../../../../../../../../features/post/slice/postsApiSlice";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -21,7 +19,7 @@ const EditPost = ({
   const [post, setPost] = useState({
     title: `${currPost.title}`,
     description: `${currPost.description}`,
-    category: `${currPost.category}`
+    category: `${currPost.category}`,
   });
   const [file, setFile] = useState("");
 
@@ -37,24 +35,21 @@ const EditPost = ({
     e.preventDefault();
 
     const title = post.title;
-    const description = post.description;
     const category = post.category;
 
     if (!file) {
       const imgUrl = currPost.imgUrl;
       const post = {
         title,
-        description,
         category,
-        imgUrl
+        imgUrl,
       };
 
       updatePost(post).unwrap();
 
       setPost({
         title: "",
-        description: "",
-        category: ""
+        category: "",
       });
       setFile("");
       setShowModal(false);
@@ -70,7 +65,6 @@ const EditPost = ({
             if (canSave && url) {
               const post = {
                 title,
-                description,
                 category,
                 imgUrl: url,
               };
@@ -78,7 +72,6 @@ const EditPost = ({
 
               setPost({
                 title: "",
-                description: "",
                 category: "",
               });
               setFile("");
@@ -89,8 +82,6 @@ const EditPost = ({
       });
     }
   };
-
-
 
   const canSave =
     Object.keys(post)

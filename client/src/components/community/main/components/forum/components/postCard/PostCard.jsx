@@ -16,11 +16,10 @@ const PostCard = ({ post }) => {
     >
       <div className="forum-postCard-wrapper">
         <div className="img">
-          <img src={post?.imgUrl} alt="" />
+          <img src={post?.imgUrl || post?.representativeImgUrl} alt="" />
         </div>
         <div className="texts">
           <h1>{post?.title}</h1>
-          <p>{post?.description.substring(0, 50)}...</p>
         </div>
       </div>
     </Link>

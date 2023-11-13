@@ -1,4 +1,4 @@
-import { deleteObject, getStorage } from "firebase/storage";
+import { deleteObject, getStorage, ref } from "firebase/storage";
 
 const storage = getStorage();
 
