@@ -38,6 +38,7 @@ const SinglePost = () => {
   const navigate = useNavigate();
 
   const [showMoreVert, setShowMoreVert] = useState(false);
+  const [editState, setEditState] = useState(false);
 
   const {
     data: post,
@@ -138,6 +139,8 @@ const SinglePost = () => {
                         />
                         {showMoreVert && (
                           <MoreVertical
+                            setEditState={setEditState}
+                            post={post}
                             setShowModal={setShowModal}
                             currentUser={currentUser}
                             author={author}
