@@ -27,6 +27,7 @@ import {
   useUpdateReplyCommentMutation,
 } from "../../../../../../../../features/comments/slice/commentsApiSlice";
 import { timeAgoFromNow } from "../../../../../../../../lib/moment/timeAgo";
+import DOMPurify from "isomorphic-dompurify";
 
 const AddComment = ({
   setShowCommentForm: setShowModal,
@@ -49,7 +50,7 @@ const AddComment = ({
 
   const { data: author } = useFindUserByIdQuery(post.author.authorId);
 
-  const { data, isLoading, isSuccess, isError, error } =
+  const { data, isSuccess, isError } =
     useGetCommentsQuery(params);
 
   const [showCommentEditMoreVertIcon, setShowCommentEditMoreVertIcon] =
@@ -211,10 +212,12 @@ const AddComment = ({
             )}
           </div>
           <div className="postBody">
-            <div className="postBody_text">
-              <span>{post.description}</span>
-            </div>
-            <img src={post.imgUrl} alt="" />
+            <div
+              className="view ql-editor"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(post?.description),
+              }}
+            />
           </div>
         </div>
         <div className="bottom">
@@ -266,8 +269,13 @@ const AddComment = ({
               </div>
               {/* fetch point */}
               <div className="comment_scrollWrap">
-                {isSuccess &&
-                  data.map((data) => (
+                {isError ? (
+                  <span>데이터를 불러오지 못했어요...</span>
+                ) : (
+                  isSuccess &&
+                  Array.isArray(data) &&
+                  data.length &&
+                  data?.map((data) => (
                     <ul key={data._id}>
                       <li>
                         <div className="commentWrap">
@@ -622,7 +630,8 @@ const AddComment = ({
                         </div>
                       </li>
                     </ul>
-                  ))}
+                  ))
+                )}
               </div>
               <div className="commentForm">
                 <div className="leftWrap">

@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./createPost.scss";
 import CreatedEditor from "../../../../../../../lib/react-quill/CreatePost";
 
-const CreatePost = ({ modalRef, modalOutsideClick, setShowModal }) => {
+const CreatePost = ({ modalRef, setShowModal }) => {
   const modalContents = (
     <section className="createPost">
       <div className="createPost-flexVertical">
@@ -23,7 +23,6 @@ const CreatePost = ({ modalRef, modalOutsideClick, setShowModal }) => {
       <div
         className="postModal-layer"
         ref={modalRef}
-        onClick={(e) => modalOutsideClick(e)}
       >
         <div className="postModal-modal">
           <div className="postModal-modal-container">

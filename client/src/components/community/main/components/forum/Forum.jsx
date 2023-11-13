@@ -14,12 +14,6 @@ const Forum = () => {
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
 
-  const modalOutsideClick = (e) => {
-    if (modalRef.current === e.target) {
-      setShowModal(false);
-    }
-  };
-
   return (
     <div className="community-forum">
       <section className="forum-nav">
@@ -95,7 +89,6 @@ const Forum = () => {
         <CreatePost
           setShowModal={setShowModal}
           modalRef={modalRef}
-          modalOutsideClick={modalOutsideClick}
         />
       )}
     </div>

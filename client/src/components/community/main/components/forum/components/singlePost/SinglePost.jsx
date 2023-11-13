@@ -276,7 +276,6 @@ const SinglePost = () => {
           <EditPost
             setShowModal={setShowModal}
             modalRef={modalRef}
-            modalOutsideClick={modalOutsideClick}
             currPost={post}
           />
         )}

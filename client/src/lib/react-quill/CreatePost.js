@@ -6,7 +6,7 @@ import { storage } from '../firebase/config/firebase';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useAddNewPostMutation } from '../../features/post/slice/postsApiSlice';
 
-const CreatedEditor = ({ post, setShowModal }) => {
+const CreatedEditor = ({ setShowModal }) => {
     const quillRef = useRef();
     const [content, setContent] = useState("");
     const [representativeImgUrl, setRepresentativeImgUrl] = useState([]);
@@ -184,7 +184,10 @@ const CreatedEditor = ({ post, setShowModal }) => {
                 formats={formats}
             />
             <div className="buttons">
-                <button onClick={() => setShowModal(false)}>취소</button>
+                <button onClick={() => {
+                    setShowModal(false);
+                    
+                }}>취소</button>
                 <button type='submit' disabled={!canSave}>등록</button>
             </div>
         </form>

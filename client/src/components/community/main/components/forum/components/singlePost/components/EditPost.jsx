@@ -10,7 +10,6 @@ import storage from "redux-persist/lib/storage";
 
 const EditPost = ({
   modalRef,
-  modalOutsideClick,
   setShowModal,
   currPost,
 }) => {
@@ -154,7 +153,6 @@ const EditPost = ({
       <div
         className="postModal-layer"
         ref={modalRef}
-        onClick={(e) => modalOutsideClick(e)}
       >
         <div className="postModal-modal">
           <div className="postModal-modal-container">
