@@ -11,6 +11,9 @@ const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 
 const Register = () => {
+  {
+    /* Register => email 중복 체크 client에게 알려준다 */
+  }
   const [register, { isLoading }] = useRegisterMutation();
   
   const navigate = useNavigate();

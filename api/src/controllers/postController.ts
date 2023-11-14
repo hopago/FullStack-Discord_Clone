@@ -149,6 +149,8 @@ export const updatePost = async (
   res: Response,
   next: NextFunction
 ) => {
+  const postId = req.params.postId;
+  if (postId === "undefined" || !postId) return res.sendStatus(400);
   try {
     const post = await Post.findById(req.params.postId);
     if (!post) throw new HttpException(404, "Could not found this post...");

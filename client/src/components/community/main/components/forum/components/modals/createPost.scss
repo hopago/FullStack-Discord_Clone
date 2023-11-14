@@ -115,6 +115,23 @@
                                         font-size: 16px;
                                     }
 
+                                    .editorImageWrap {
+                                        position: relative;
+                                        transition: all .15s ease;
+
+                                        .uploadedImg {
+                                            margin: 0.25rem;
+                                            cursor: pointer;
+                                        }
+
+                                        .representativeImg {
+                                            margin: 0.25rem;
+                                            border-radius: 1rem;
+                                            border: 3px solid #46954A;
+                                            padding: 0.5rem;
+                                        }
+                                    }
+
                                     select {
                                         border: 1px solid lightgray;
                                         background-color: white;

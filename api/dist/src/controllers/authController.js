@@ -8,9 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { HttpException } from "../middleware/error/utils.js";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 import User from "../models/User.js";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/jwt.js";
 export const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -18,7 +18,7 @@ export const register = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!userName || !password || !email)
             throw new HttpException(400, "UserName, Email, Password are required...");
         const duplicate = yield User.findOne({
-            userName
+            userName,
         });
         if (duplicate)
             throw new HttpException(409, "");
@@ -38,7 +38,7 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         if (!userName || !password)
             throw new HttpException(400, "UserName and Password are required...");
         const user = yield User.findOne({
-            userName
+            userName,
         });
         if (!user)
             throw new HttpException(404, "User not found...");
@@ -52,12 +52,12 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                     isVerified: user.isVerified,
                     type: user.type,
                 },
-            }, ACCESS_TOKEN_SECRET, { expiresIn: '3h' });
+            }, ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
             const newRefreshToken = jwt.sign({
                 userInfo: {
                     id: user._id,
                 },
-            }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+            }, REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
             let newRefreshTokenArray = !(cookies === null || cookies === void 0 ? void 0 : cookies.jwt)
                 ? user.refreshToken
                 : user.refreshToken.filter((rt) => rt !== cookies.jwt);
@@ -67,19 +67,20 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 if (!foundToken) {
                     newRefreshTokenArray = [];
                 }
-                res.clearCookie('jwt', {
+                res.clearCookie("jwt", {
                     httpOnly: true,
-                    sameSite: 'none',
+                    sameSite: "none",
                     secure: true,
                 });
             }
             user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+            yield user.save();
             res
                 .cookie("jwt", newRefreshToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
-                maxAge: 7 * 24 * 60 * 60 * 1000
+                maxAge: 7 * 24 * 60 * 60 * 1000,
             })
                 .status(200)
                 .json({ accessToken });
@@ -96,18 +97,23 @@ export const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             throw new HttpException(204, "");
         const refreshToken = cookies.jwt;
         const user = yield User.findOne({
-            refreshToken
+            refreshToken,
         }).exec();
         if (!user) {
-            res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
+            res.clearCookie("jwt", {
+                httpOnly: true,
+                sameSite: "none",
+                secure: true,
+            });
             return res.sendStatus(204);
         }
-        user.refreshToken = user.refreshToken.filter(rt => rt !== refreshToken);
+        user.refreshToken = user.refreshToken.filter((rt) => rt !== refreshToken);
         yield user.save();
-        res.clearCookie('jwt', {
+        res
+            .clearCookie("jwt", {
             httpOnly: true,
-            sameSite: 'none',
-            secure: true
+            sameSite: "none",
+            secure: true,
         })
             .sendStatus(204);
     }
@@ -122,12 +128,16 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
     const refreshToken = cookies.jwt;
     res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
     try {
+        console.log(refreshToken);
         const user = yield User.findOne({ refreshToken }).exec();
+        console.log(user);
         if (!user) {
             jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
                 if (err)
                     res.sendStatus(403);
-                const hackedUser = yield User.findOne({ _id: decoded.userInfo.id }).exec();
+                const hackedUser = yield User.findOne({
+                    _id: decoded.userInfo.id,
+                }).exec();
                 if (hackedUser) {
                     hackedUser.refreshToken = [];
                     yield (hackedUser === null || hackedUser === void 0 ? void 0 : hackedUser.save());
@@ -135,33 +145,35 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
             }));
             return res.sendStatus(403);
         }
-        const newRefreshTokenArray = user.refreshToken.filter(rt => rt !== refreshToken);
+        const newRefreshTokenArray = user.refreshToken.filter((rt) => rt !== refreshToken);
         jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
             if (err) {
                 user.refreshToken = [...newRefreshTokenArray];
                 yield user.save();
             }
             if (err || user._id !== decoded.userInfo.id)
-                throw new HttpException(403, "Something went wrong...");
+                res
+                    .status(403)
+                    .json({ decodedId: decoded.userInfo.id, userId: user._id }); // for dev
             const accessToken = jwt.sign({
                 userInfo: {
                     id: user._id,
                     isVerified: user.isVerified,
                     type: user.type,
-                }
-            }, ACCESS_TOKEN_SECRET, { expiresIn: '3h' });
+                },
+            }, ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
             const newRefreshToken = jwt.sign({
                 userInfo: {
                     id: user._id,
                 },
-            }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+            }, REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
             user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
             yield user.save();
-            res.cookie('jwt', newRefreshToken, {
+            res.cookie("jwt", newRefreshToken, {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'none',
-                maxAge: 24 * 60 * 60 * 1000
+                sameSite: "none",
+                maxAge: 24 * 60 * 60 * 1000,
             });
             res.status(200).json({ accessToken });
         }));

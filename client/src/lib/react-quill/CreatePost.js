@@ -1,23 +1,41 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { postCardCategories } from '../../components/community/main/components/forum/components/constants';
 import { storage } from '../firebase/config/firebase';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useAddNewPostMutation } from '../../features/post/slice/postsApiSlice';
+import { deleteImage } from '../../components/community/main/components/forum/components/singlePost/components/hooks/deleteImage';
 
 const CreatedEditor = ({ setShowModal }) => {
     const quillRef = useRef();
+
     const [content, setContent] = useState("");
     const [representativeImgUrl, setRepresentativeImgUrl] = useState([]);
+    const [imgUrlArr, setImgUrlArr] = useState([]);
     const [error, setError] = useState("");
-
-    const [addNewPost, { isLoading }] = useAddNewPostMutation();
-
     const [currPost, setCurrPost] = useState({
         title: "",
         category: "",
     });
+
+    useEffect(() => {
+        const images = document.querySelectorAll('image');
+        images.forEach(image => image.parentElement.classList.add('editorImageWrap'));
+        images.forEach(image => image.classList.add('uploadedImg'));
+        images.forEach(image => image.addEventListener('click', () => {
+            image.classList.add('representativeImg');
+            const currRepresentativeImgSrc = representativeImgUrl[0];
+            const selectedImgSrc = image.src;
+            setRepresentativeImgUrl(prev => prev.filter(url => url !== selectedImgSrc));
+            setImgUrlArr(prev =>
+                prev.filter(url => url !== selectedImgSrc)
+                    .map(newUrlArr => [...newUrlArr, currRepresentativeImgSrc])
+            );
+        }));
+    }, [representativeImgUrl, imgUrlArr]);
+
+    const [addNewPost, { isLoading }] = useAddNewPostMutation();
 
     const handleInput = (e) =>
         setCurrPost((prev) => ({
@@ -35,23 +53,53 @@ const CreatedEditor = ({ setShowModal }) => {
         const imgUrl = representativeImgUrl[0];
 
         if (canSave) {
-            const post = {
+            let post;
+
+            post = {
                 title,
                 category,
                 description,
-                representativeImgUrl: imgUrl
+                representativeImgUrl,
+                imgUrlArr
+            };
+
+            if (Array.isArray(imgUrlArr) && !imgUrlArr.length) {
+                post = {
+                    title,
+                    category,
+                    description,
+                    representativeImgUrl
+                };
+            }
+
+            if (Array.isArray(representativeImgUrl) &&
+                Array.isArray(imgUrlArr) &&
+                !representativeImgUrl.length &&
+                !imgUrlArr.length) {
+                post = {
+                    title,
+                    category,
+                    description,
+                };
             };
 
             try {
                 addNewPost(post).unwrap();
             } catch (err) {
                 if (error) {
+                    if (representativeImgUrl[0] && !imgUrlArr.length) {
+                        deleteImage(representativeImgUrl[0]);
+                    } else {
+                        setImgUrlArr(prev => [representativeImgUrl, ...prev]);
+                        deleteImage(imgUrlArr);
+                    }
                     setError(error);
                     setCurrPost({
                         title: "",
                         category: ""
                     });
                     setRepresentativeImgUrl([]);
+                    setImgUrlArr([]);
                     return;
                 }
             }
@@ -115,17 +163,31 @@ const CreatedEditor = ({ setShowModal }) => {
             );
 
             try {
-                await uploadBytes(imageRef, file)
-                    .then(snapshot => {
-                        getDownloadURL(snapshot.ref)
-                            .then(url => {
-                                setRepresentativeImgUrl(prev => ([...prev, url]));
-                                editor.insertEmbed(range.index, "image", url);
-                                editor.setSelection(range.index + 1);
-                            })
-                            .catch(err => console.error(err));
-                    })
-                    .catch(err => console.error(err));
+                if (representativeImgUrl[0]) {
+                    await uploadBytes(imageRef, file)
+                        .then(snapshot => {
+                            getDownloadURL(snapshot.ref)
+                                .then(url => {
+                                    setImgUrlArr(prev => [...prev, url]);
+                                    editor.insertEmbed(range.index, "image", url);
+                                    editor.setSelection(range.index + 1);
+                                })
+                                .catch(err => console.error(err));
+                        })
+                        .catch(err => console.error(err));
+                } else {
+                    await uploadBytes(imageRef, file)
+                        .then(snapshot => {
+                            getDownloadURL(snapshot.ref)
+                                .then(url => {
+                                    setRepresentativeImgUrl(prev => ([...prev, url]));
+                                    editor.insertEmbed(range.index, "image", url);
+                                    editor.setSelection(range.index + 1);
+                                })
+                                .catch(err => console.error(err));
+                        })
+                        .catch(err => console.error(err));
+                }
             } catch (err) {
                 console.error(err);
             }
@@ -156,6 +218,28 @@ const CreatedEditor = ({ setShowModal }) => {
             .every(Boolean) &&
         !isLoading;
 
+    const handleCloseModal = () => {
+        if (representativeImgUrl.length >= 1) {
+            if (window.confirm("변경 사항이 저장되지 않을 수 있어요. 나가시겠어요?")) {
+                if (representativeImgUrl[0] && !imgUrlArr.length) {
+                    deleteImage(representativeImgUrl[0]);
+                } else {
+                    setImgUrlArr(prev => [representativeImgUrl, ...prev]);
+                    deleteImage(imgUrlArr);
+                }
+
+                setContent("");
+                setCurrPost("");
+                setError("");
+                setRepresentativeImgUrl([]);
+                setImgUrlArr([]);
+                setShowModal(false);
+            } else {
+                return;
+            }
+        }
+    };
+
     return (
         <form onSubmit={handleSubmit}>
             <select
@@ -175,7 +259,7 @@ const CreatedEditor = ({ setShowModal }) => {
             />
             <ReactQuill
                 style={{ width: "100%", height: "500px", maxHeight: "500px" }}
-                placeholder={!error ? "게시글 내용을 남겨주세요. 첫 번째 사진은 게시글을 대표해요." : JSON.stringify(error)}
+                placeholder={!error ? "게시글 내용을 남겨주세요. 대표이미지를 클릭해서 선택해요!" : error}
                 theme="snow"
                 ref={quillRef}
                 value={content}
@@ -184,10 +268,7 @@ const CreatedEditor = ({ setShowModal }) => {
                 formats={formats}
             />
             <div className="buttons">
-                <button onClick={() => {
-                    setShowModal(false);
-                    
-                }}>취소</button>
+                <button onClick={handleCloseModal}>취소</button>
                 <button type='submit' disabled={!canSave}>등록</button>
             </div>
         </form>

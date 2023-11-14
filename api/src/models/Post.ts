@@ -26,9 +26,6 @@ const postSchema: Schema = new Schema(
             type: String,
             required: true
         },
-        imgUrl: {
-            type: String
-        },
         category: {
             type: [String],
             default: [],
@@ -37,6 +34,12 @@ const postSchema: Schema = new Schema(
         views: {
             type: Number,
             default: 0
+        },
+        representativeImgUrl: {
+            type: String,
+        },
+        imgUrlArr: {
+            type: [String],
         },
         reactions: {
             thumbsUp: {

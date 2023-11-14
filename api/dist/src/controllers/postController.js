@@ -129,6 +129,9 @@ export const getPost = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 export const updatePost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const postId = req.params.postId;
+    if (postId === "undefined" || !postId)
+        return res.sendStatus(400);
     try {
         const post = yield Post.findById(req.params.postId);
         if (!post)

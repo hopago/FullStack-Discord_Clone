@@ -1,209 +1,242 @@
 import { Request, Response, NextFunction } from "express";
 import { HttpException } from "../middleware/error/utils.js";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 import User from "../models/User.js";
-import jwt, { Secret, VerifyErrors } from 'jsonwebtoken';
+import jwt, { Secret, VerifyErrors } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/jwt.js";
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { userName, password, email } = req.body;
-        if (!userName || !password || !email) throw new  HttpException(400, "UserName, Email, Password are required...");
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { userName, password, email } = req.body;
+    if (!userName || !password || !email)
+      throw new HttpException(400, "UserName, Email, Password are required...");
 
-        const duplicate = await User.findOne({
-            userName
-        });
-        if (duplicate) throw new HttpException(409, "");
+    const duplicate = await User.findOne({
+      userName,
+    });
+    if (duplicate) throw new HttpException(409, "");
 
-        const hash = bcrypt.hashSync(req.body.password, 10);
-        const newUser = new User({
-            ...req.body,
-            password: hash,
-        });
-        await newUser.save();
-        res.status(201).json("User has been created...");
-    } catch (err) {
-        next(err);
-    }
+    const hash = bcrypt.hashSync(req.body.password, 10);
+    const newUser = new User({
+      ...req.body,
+      password: hash,
+    });
+    await newUser.save();
+    res.status(201).json("User has been created...");
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
-    const cookies = req.cookies;
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const cookies = req.cookies;
 
-    try {
-        const { userName, password } = req.body;
-        if (!userName || !password) throw new HttpException(400, "UserName and Password are required...");
+  try {
+    const { userName, password } = req.body;
+    if (!userName || !password)
+      throw new HttpException(400, "UserName and Password are required...");
 
-        const user = await User.findOne({
-            userName
-        });
-        if (!user) throw new HttpException(404, "User not found...");
+    const user = await User.findOne({
+      userName,
+    });
+    if (!user) throw new HttpException(404, "User not found...");
 
-        const isCorrect = bcrypt.compareSync(req.body.password, user.password);
-        if (!isCorrect) return res.sendStatus(401);
+    const isCorrect = bcrypt.compareSync(req.body.password, user.password);
+    if (!isCorrect) return res.sendStatus(401);
 
-        if (isCorrect) {
-          const accessToken = jwt.sign(
-            {
-              userInfo: {
-                id: user._id,
-                isVerified: user.isVerified,
-                type: user.type,
-              },
-            },
-            ACCESS_TOKEN_SECRET,
-            { expiresIn: '3h' }
-          );
+    if (isCorrect) {
+      const accessToken = jwt.sign(
+        {
+          userInfo: {
+            id: user._id,
+            isVerified: user.isVerified,
+            type: user.type,
+          },
+        },
+        ACCESS_TOKEN_SECRET,
+        { expiresIn: "3h" }
+      );
 
-          const newRefreshToken = jwt.sign(
-            {
-              userInfo: {
-                id: user._id,
-              },
-            },
-            REFRESH_TOKEN_SECRET,
-            { expiresIn: '7d' }
-          );
+      const newRefreshToken = jwt.sign(
+        {
+          userInfo: {
+            id: user._id,
+          },
+        },
+        REFRESH_TOKEN_SECRET,
+        { expiresIn: "7d" }
+      );
 
-        let newRefreshTokenArray =
-            !cookies?.jwt
-                ? user.refreshToken
-                : user.refreshToken.filter((rt: string) => rt !== cookies.jwt);
+      let newRefreshTokenArray = !cookies?.jwt
+        ? user.refreshToken
+        : user.refreshToken.filter((rt: string) => rt !== cookies.jwt);
 
-        if (cookies?.jwt) {
-            const refreshToken = cookies.jwt;
-            const foundToken = await User.findOne({ refreshToken }).exec();
+      if (cookies?.jwt) {
+        const refreshToken = cookies.jwt;
+        const foundToken = await User.findOne({ refreshToken }).exec();
 
-            if (!foundToken) {
-                newRefreshTokenArray = [];
-            }
-
-            res.clearCookie('jwt', {
-                httpOnly: true,
-                sameSite: 'none',
-                secure: true,
-            });
+        if (!foundToken) {
+          newRefreshTokenArray = [];
         }
 
-        user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+        res.clearCookie("jwt", {
+          httpOnly: true,
+          sameSite: "none",
+          secure: true,
+        });
+      }
 
-        res
+      user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+
+      await user.save();
+
+      res
         .cookie("jwt", newRefreshToken, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            maxAge: 7 * 24 * 60 * 60 * 1000
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+          maxAge: 7 * 24 * 60 * 60 * 1000,
         })
         .status(200)
         .json({ accessToken });
-        }
-    } catch (err) {
-        next(err);
     }
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const logout = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const cookies = req.cookies;
-        if (!cookies?.jwt) throw new HttpException(204, "");
-        const refreshToken = cookies.jwt;
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const cookies = req.cookies;
+    if (!cookies?.jwt) throw new HttpException(204, "");
+    const refreshToken = cookies.jwt;
 
-        const user = await User.findOne({
-            refreshToken
-        }).exec();
-        if (!user) {
-            res.clearCookie('jwt', { httpOnly: true, sameSite: 'none', secure: true });
-            return res.sendStatus(204);
+    const user = await User.findOne({
+      refreshToken,
+    }).exec();
+    if (!user) {
+      res.clearCookie("jwt", {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
+      return res.sendStatus(204);
+    }
+
+    user.refreshToken = user.refreshToken.filter((rt) => rt !== refreshToken);
+    await user.save();
+
+    res
+      .clearCookie("jwt", {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      })
+      .sendStatus(204);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) res.sendStatus(401);
+  const refreshToken = cookies.jwt;
+  res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
+
+  try {
+    console.log(refreshToken);
+    const user = await User.findOne({ refreshToken }).exec();
+    console.log(user);
+
+    if (!user) {
+      jwt.verify(
+        refreshToken,
+        REFRESH_TOKEN_SECRET as Secret,
+        async (err: VerifyErrors | null, decoded: any): Promise<void> => {
+          if (err) res.sendStatus(403);
+
+          const hackedUser = await User.findOne({
+            _id: decoded.userInfo.id,
+          }).exec();
+          if (hackedUser) {
+            hackedUser.refreshToken = [];
+            await hackedUser?.save();
+          }
         }
+      );
+      return res.sendStatus(403);
+    }
 
-        user.refreshToken = user.refreshToken.filter(rt => rt !== refreshToken);
+    const newRefreshTokenArray = user.refreshToken.filter(
+      (rt) => rt !== refreshToken
+    );
+
+    jwt.verify(
+      refreshToken as string,
+      REFRESH_TOKEN_SECRET as Secret,
+      async (err: VerifyErrors | null, decoded: any): Promise<void> => {
+        if (err) {
+          user.refreshToken = [...newRefreshTokenArray];
+          await user.save();
+        }
+        if (err || user._id !== decoded.userInfo.id)
+          res
+            .status(403)
+            .json({ decodedId: decoded.userInfo.id, userId: user._id }); // for dev
+
+        const accessToken = jwt.sign(
+          {
+            userInfo: {
+              id: user._id,
+              isVerified: user.isVerified,
+              type: user.type,
+            },
+          },
+          ACCESS_TOKEN_SECRET,
+          { expiresIn: "3h" }
+        );
+
+        const newRefreshToken = jwt.sign(
+          {
+            userInfo: {
+              id: user._id,
+            },
+          },
+          REFRESH_TOKEN_SECRET,
+          { expiresIn: "7d" }
+        );
+
+        user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
         await user.save();
 
-        res.clearCookie('jwt', {
-            httpOnly: true,
-            sameSite: 'none',
-            secure: true
-        })
-        .sendStatus(204);
-    } catch (err) {
-        next(err);
-    }
-};
+        res.cookie("jwt", newRefreshToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+          maxAge: 24 * 60 * 60 * 1000,
+        });
 
-export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
-    const cookies = req.cookies;
-    if (!cookies?.jwt) res.sendStatus(401);
-    const refreshToken = cookies.jwt;
-    res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
-
-    try {
-        const user = await User.findOne({ refreshToken }).exec();
-
-        if (!user) {
-            jwt.verify(
-                refreshToken,
-                REFRESH_TOKEN_SECRET as Secret,
-                async (err: VerifyErrors | null, decoded: any): Promise<void> => {
-                    if (err) res.sendStatus(403);
-
-                    const hackedUser = await User.findOne({ _id: decoded.userInfo.id }).exec();
-                    if (hackedUser) {
-                        hackedUser.refreshToken = [];
-                        await hackedUser?.save();
-                    }
-                }
-            )
-            return res.sendStatus(403);
-        }
-
-        const newRefreshTokenArray = user.refreshToken.filter(rt => rt !== refreshToken);
-
-        jwt.verify(
-            refreshToken as string,
-            REFRESH_TOKEN_SECRET as Secret,
-            async (err: VerifyErrors | null, decoded: any): Promise<void> => {
-                if (err) {
-                    user.refreshToken = [...newRefreshTokenArray];
-                    await user.save();
-                }
-                if (err || user._id !== decoded.userInfo.id) throw new HttpException(403, "Something went wrong...");
-
-                const accessToken = jwt.sign(
-                    {
-                        userInfo: {
-                            id: user._id,
-                            isVerified: user.isVerified,
-                            type: user.type,
-                        }
-                    },
-                    ACCESS_TOKEN_SECRET,
-                    { expiresIn: '3h' }
-                );
-
-                const newRefreshToken = jwt.sign(
-                    {
-                        userInfo: {
-                            id: user._id,
-                          },
-                    },
-                    REFRESH_TOKEN_SECRET,
-                    { expiresIn: '7d' }
-                );
-
-                user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
-                await user.save();
-
-                res.cookie('jwt', newRefreshToken, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: 'none',
-                    maxAge: 24 * 60 * 60 * 1000
-                });
-
-                res.status(200).json({ accessToken });
-            }
-        );
-    } catch (err) {
-        next(err);
-    }
+        res.status(200).json({ accessToken });
+      }
+    );
+  } catch (err) {
+    next(err);
+  }
 };
