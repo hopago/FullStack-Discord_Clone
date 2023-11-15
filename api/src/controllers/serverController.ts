@@ -172,20 +172,43 @@ export const getMembers = async (req: Request, res: Response, next: NextFunction
 };
 
 export const updateMembers = async (req: Request, res: Response, next: NextFunction) => {
-    const joinUserId = req.query.joinUserId;
-    try {
-        const server = await Server.findByIdAndUpdate(
-            req.params.serverId,
-            {
-                $push: {
-                    members: joinUserId
-                }
-            }
-        );
+    const joinedUserId = req.query.joinedUserId;
+    const removedUserId = req.query.removedUserId;
 
-        res.status(200).json(server);
-    } catch (err) {
-        next(err);
+    if (joinedUserId === "undefined" && removedUserId === "undefined") return res.sendStatus(400);
+
+    if (!joinedUserId) {
+        try {
+            const server = await Server.findByIdAndUpdate(
+                req.params.serverId,
+                {
+                    $pull: {
+                        members: removedUserId
+                    }
+                }
+            );
+            if (!server) return res.sendStatus(500);
+
+            res.status(201).json(server);
+        } catch (err) {
+            next(err);
+        }
+    } else {
+        try {
+            const server = await Server.findByIdAndUpdate(
+                req.params.serverId,
+                {
+                    $push: {
+                        members: joinedUserId
+                    }
+                }
+            );
+            if (!server) return res.sendStatus(505);
+    
+            res.status(201).json(server);
+        } catch (err) {
+            next(err);
+        }
     }
 };
 
@@ -224,7 +247,7 @@ export const likeServer = async (req: Request, res: Response, next: NextFunction
 };
 
 export const searchServer = async (req: Request, res: Response, next: NextFunction) => {
-    const query = req.query.search;
+    const query = req.query.searchTerm;
     try {
         const servers = await Server.find({
             title: {

@@ -40,7 +40,7 @@ router
   .put(updateMembers)
 
 router
-  .route("/likes/:serverId")
+  .route("/like/:serverId")
   .put(likeServer)
 
 router

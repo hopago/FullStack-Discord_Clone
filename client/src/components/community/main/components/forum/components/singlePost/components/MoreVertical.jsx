@@ -10,14 +10,14 @@ const MoreVertical = ({ currentUser, author, setShowModal, setShowMoreVert, post
 
   const url = post.imgUrl;
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     deleteImage(url);
 
-    deletePost()
+    deletePost(post)
       .unwrap()
       .then(() => setShowMoreVert(false))
       .then(() => navigate("/community/forum", { replace: true }))
-      .catch((err) => console.error(err));
+      .catch(err => console.error(err));
   };
 
   return (

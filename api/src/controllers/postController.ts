@@ -2,6 +2,7 @@ import Post from "../models/Post.js";
 import User, { IUser } from "../models/User.js";
 import { HttpException } from "../middleware/error/utils.js";
 import { Response, Request, NextFunction } from "express";
+import Comment from "../models/Comment.js";
 
 export const getPostsBySortOptions = async (
   req: Request,
@@ -70,10 +71,10 @@ export const getPostsBySortOptions = async (
           next(err);
         }
       } else {
-        throw new HttpException(400, "Bad request...");
+        return res.sendStatus(400);
       }
     } else {
-      throw new HttpException(400, "Bad request...");
+      return res.sendStatus(400);
     }
   }
 };
@@ -86,7 +87,7 @@ export const addPost = async (
   try {
     const author = await User.findById(req.user.id);
     if (author === null || !author)
-      throw new HttpException(401, "Something went wrong in verifyToken...");
+      return res.sendStatus(401);
 
     const newPost = new Post({
       author: {
@@ -183,7 +184,11 @@ export const deletePost = async (
     if (!post) throw new HttpException(404, "Could not found post...");
 
     if (req.user.id === post.author.authorId) {
-      await Post.findByIdAndDelete(req.params.postId);
+      await Comment.find({
+        "comments.0.postId": post._id,
+      }).deleteMany();
+      
+      await post.deleteOne();
 
       res.sendStatus(204);
     } else {

@@ -21,7 +21,7 @@ router
     .get(getMembers)
     .put(updateMembers);
 router
-    .route("/likes/:serverId")
+    .route("/like/:serverId")
     .put(likeServer);
 router
     .route("/search")

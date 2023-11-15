@@ -50,8 +50,7 @@ const AddComment = ({
 
   const { data: author } = useFindUserByIdQuery(post.author.authorId);
 
-  const { data, isSuccess, isError } =
-    useGetCommentsQuery(params);
+  const { data, isSuccess, isError } = useGetCommentsQuery(params);
 
   const [showCommentEditMoreVertIcon, setShowCommentEditMoreVertIcon] =
     useState(false);
@@ -102,7 +101,7 @@ const AddComment = ({
   const [editCommentReply, setEditCommentReply] = useState(false);
   const [updatedReplyDescription, setUpdatedReplyDescription] = useState("");
   // 스키마의 잘못된 설계로 fe에서 reply.description으로 임시 식별... _id로 나노 id 생성 고려 or 스키마 분리
-  const [identifierDesc, setIdentifierDesc] = useState('');
+  const [identifierDesc, setIdentifierDesc] = useState("");
 
   const closeReplyState = () => {
     setUpdatedReplyDescription("");
@@ -281,7 +280,7 @@ const AddComment = ({
                         <div className="commentWrap">
                           <div className="userProfile">
                             <img
-                              src={data?.comments[0]?.author?.avatar}
+                              src={data?.comments?.[0]?.author?.avatar}
                               alt=""
                             />
                           </div>
@@ -307,7 +306,7 @@ const AddComment = ({
                             >
                               <div className="wrap">
                                 <span className="comment_userName">
-                                  {data?.comments[0]?.author?.userName}
+                                  {data?.comments?.[0]?.author?.userName}
                                 </span>
                                 {editComment &&
                                 selectedCommentId === data?._id ? (
@@ -316,7 +315,7 @@ const AddComment = ({
                                     ref={inputRef}
                                     style={{
                                       width: `${
-                                        data?.comments[0]?.description.length *
+                                        data?.comments?.[0]?.description.length *
                                         7
                                       }px`,
                                     }}
@@ -329,11 +328,11 @@ const AddComment = ({
                                   />
                                 ) : (
                                   <p className="comment-description">
-                                    {data?.comments[0]?.description}
+                                    {data?.comments?.[0]?.description}
                                   </p>
                                 )}
                                 {showCommentEditMoreVertIcon &&
-                                  data?.comments[0]?.author.authorId ===
+                                  data?.comments?.[0]?.author.authorId ===
                                     currentUser._id &&
                                   currentCommentId === data?._id && (
                                     <div className="commentEdit">
@@ -350,7 +349,7 @@ const AddComment = ({
                                               setEditComment(true);
                                               setSelectedCommentId(data?._id);
                                               setUpdatedDescription(
-                                                data?.comments[0]?.description
+                                                data?.comments?.[0]?.description
                                               );
 
                                               if (inputRef.current !== null) {
@@ -394,14 +393,14 @@ const AddComment = ({
                                     <span
                                       onClick={() => {
                                         setFetchType("latest");
-                                        handleCommentLike(data);
+                                        handleCommentLike(data?._id);
                                       }}
                                     >
-                                      {!data?.comments[0].comment_like_count.includes(
+                                      {!data?.comments?.[0].comment_like_count.includes(
                                         currentUser._id
                                       )
                                         ? "좋아요"
-                                        : `좋아요 ${data?.comments[0].comment_like_count.length}개`}
+                                        : `좋아요 ${data?.comments?.[0].comment_like_count.length}개`}
                                     </span>
                                     <span
                                       onClick={() => {
@@ -463,10 +462,10 @@ const AddComment = ({
                                       </div>
                                     )}
                                   {Array.isArray(
-                                    data?.comments[0].comment_reply
+                                    data?.comments?.[0].comment_reply
                                   ) &&
                                     Boolean(
-                                      data?.comments[0].comment_reply.length
+                                      data?.comments?.[0].comment_reply.length
                                     ) && (
                                       <div className="bottom_span">
                                         <span>
@@ -482,7 +481,7 @@ const AddComment = ({
                                         >
                                           답글{" "}
                                           {
-                                            data?.comments[0].comment_reply
+                                            data?.comments?.[0].comment_reply
                                               .length
                                           }
                                           개
@@ -491,7 +490,7 @@ const AddComment = ({
                                     )}
                                 </div>
                                 {showReplyComment &&
-                                  data?.comments[0].comment_reply?.map(
+                                  data?.comments?.[0].comment_reply?.map(
                                     (reply) => (
                                       <div
                                         className="commentReply_container"

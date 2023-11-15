@@ -286,11 +286,6 @@ const EditPostEditor = ({ setShowModal, post }) => {
         setImgUrlArr([]);
         setShowModal(false);
       } else {
-        setContent("");
-        setCurrPost("");
-        setError("");
-        setRepresentativeImgUrl([]);
-        setImgUrlArr([]);
         setShowModal(true);
         return;
       }

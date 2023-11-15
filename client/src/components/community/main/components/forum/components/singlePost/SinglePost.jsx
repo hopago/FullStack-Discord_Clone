@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { selectCurrentUser } from "../../../../../../../features/users/slice/userSlice";
 import { useRef, useState } from "react";
 import EditPost from "./components/EditPost";
-import { useGetPostQuery } from "../../../../../../../features/post/slice/postsApiSlice";
+import { useGetPostQuery, useLikePostMutation } from "../../../../../../../features/post/slice/postsApiSlice";
 import "moment/locale/ko";
 import defaultAvatar from "../../../../assets/default-profile-pic-e1513291410505.jpg";
 import logo from "../../../../../../home/navbar/assets/free-icon-computer-settings-2888694.png";
@@ -27,19 +27,10 @@ import { useGetCommentsLengthQuery } from "../../../../../../../features/comment
 import DOMPurify from 'isomorphic-dompurify';
 
 const SinglePost = () => {
-  {
-    /* Update or delete -> firebase url edit */
-  }
-
   const userBackGroundImg = false;
-
-  const currentUser = useSelector(selectCurrentUser);
 
   const { postId } = useParams();
   const navigate = useNavigate();
-
-  const [showMoreVert, setShowMoreVert] = useState(false);
-  const [editState, setEditState] = useState(false);
 
   const {
     data: post,
@@ -48,21 +39,18 @@ const SinglePost = () => {
     isError,
     error,
   } = useGetPostQuery(postId);
-
   const { data } = useGetCommentsLengthQuery(postId);
-
   const authorId = post?.author.authorId;
 
   const { data: author } = useFindUserByIdQuery(authorId);
 
+  const currentUser = useSelector(selectCurrentUser);
+
+  const [showMoreVert, setShowMoreVert] = useState(false);
+  const [editState, setEditState] = useState(false);
+
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
-
-  const modalOutsideClick = (e) => {
-    if (modalRef.current === e.target) {
-      setShowModal(false);
-    }
-  };
 
   const commentModalRef = useRef();
   const [showCommentForm, setShowCommentForm] = useState(false);
@@ -71,6 +59,10 @@ const SinglePost = () => {
     if (commentModalRef.current === e.target) {
       setShowCommentForm(false);
     }
+  };
+
+  const handleLikePost = () => {
+
   };
 
   if (isLoading) {
@@ -189,7 +181,7 @@ const SinglePost = () => {
                         </div>
                         <div className="col-down">
                           <div className="addLike">
-                            <ThumbUp fontSize="20px" />
+                            <ThumbUp fontSize="20px" onClick={handleLikePost} />
                             <span>좋아요</span>
                           </div>
                           <div

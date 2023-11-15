@@ -10,7 +10,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
                     return [
                         { type: 'Post', id: "LIST" },
                         ...result.map(({ _id }) => ({
-                            type: 'Post', _id
+                            type: 'Post', id: _id
                         }))
                     ];
                 },
@@ -18,7 +18,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
             getPostsByAuthorId: builder.query({
                 query: id => `/posts/author/${id}`,
                 providesTags: (result, error, arg) => [
-                    ...result.map(({ _id }) => ({ type: 'Post', _id }))
+                    ...result.map(({ _id }) => ({ type: 'Post', id: _id }))
                 ]
             }),
             getPost: builder.query({
@@ -47,11 +47,11 @@ export const postsApiSlice = apiSlice.injectEndpoints({
                 ]
             }),
             updatePost: builder.mutation({
-                query: initialPost => ({
-                    url: `/posts/${initialPost._id}`,
+                query: updatedPost => ({
+                    url: `/posts/${updatedPost._id}`,
                     method: 'PUT',
                     body: {
-                        ...initialPost,
+                        ...updatedPost,
                     }
                 }),
                 invalidatesTags: (result, error, arg) => [
@@ -59,8 +59,8 @@ export const postsApiSlice = apiSlice.injectEndpoints({
                 ]
             }),
             deletePost: builder.mutation({
-                query: initialPost => ({
-                    url: `/posts/${initialPost._id}`,
+                query: deletedPost => ({
+                    url: `/posts/${deletedPost._id}`,
                     method: 'DELETE',
                 }),
                 invalidatesTags: (result, error, arg) => [
@@ -81,7 +81,6 @@ export const postsApiSlice = apiSlice.injectEndpoints({
 
                     const patchResult = dispatch(
                         postsApiSlice.util.updateQueryData('getPost', _id, draftPost => {
-                            console.log(current(draftPost));
                             const findIndex = draftPost.reactions[reactionName].findIndex(_id => _id === currentUser._id);
                             const isExist = draftPost.reactions[reactionName].includes(currentUser._id);
 

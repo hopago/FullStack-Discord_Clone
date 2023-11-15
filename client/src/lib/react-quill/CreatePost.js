@@ -275,11 +275,6 @@ const CreatedEditor = ({ setShowModal }) => {
                 setImgUrlArr([]);
                 setShowModal(false);
             } else {
-                setContent("");
-                setCurrPost("");
-                setError("");
-                setRepresentativeImgUrl([]);
-                setImgUrlArr([]);
                 setShowModal(true);
                 return;
             }

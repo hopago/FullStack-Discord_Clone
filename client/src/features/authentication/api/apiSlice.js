@@ -19,13 +19,9 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
     const isPersisted = JSON.parse(localStorage.getItem("persist"));
 
     if (result?.error?.originalStatus === 403) {
-        console.log('Sending refresh token...');
-        
         if (!isPersisted) return api.dispatch(logOut());
 
         const refreshResult = await baseQuery('/auth/refresh', api, extraOptions);
-
-        console.log(refreshResult);
 
         if (refreshResult?.data) {
             const user = api.getState().auth.user;

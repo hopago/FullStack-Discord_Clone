@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import Post from "../models/Post.js";
 import User from "../models/User.js";
 import { HttpException } from "../middleware/error/utils.js";
+import Comment from "../models/Comment.js";
 export const getPostsBySortOptions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const fetchType = req.query.sort;
     const checkFetchType = Boolean(fetchType);
@@ -73,11 +74,11 @@ export const getPostsBySortOptions = (req, res, next) => __awaiter(void 0, void 
                 }
             }
             else {
-                throw new HttpException(400, "Bad request...");
+                return res.sendStatus(400);
             }
         }
         else {
-            throw new HttpException(400, "Bad request...");
+            return res.sendStatus(400);
         }
     }
 });
@@ -85,7 +86,7 @@ export const addPost = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     try {
         const author = yield User.findById(req.user.id);
         if (author === null || !author)
-            throw new HttpException(401, "Something went wrong in verifyToken...");
+            return res.sendStatus(401);
         const newPost = new Post(Object.assign({ author: {
                 authorId: author._id,
                 userName: author.userName,
@@ -156,7 +157,10 @@ export const deletePost = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         if (!post)
             throw new HttpException(404, "Could not found post...");
         if (req.user.id === post.author.authorId) {
-            yield Post.findByIdAndDelete(req.params.postId);
+            yield Comment.find({
+                "comments.0.postId": post._id,
+            }).deleteMany();
+            yield post.deleteOne();
             res.sendStatus(204);
         }
         else {

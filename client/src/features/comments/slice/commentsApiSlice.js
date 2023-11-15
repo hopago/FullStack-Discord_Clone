@@ -10,7 +10,7 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
                     return [
                         { type: 'Comment', id: "LIST" },
                         ...result.map(({ _id }) => ({
-                            type: 'Comment', _id
+                            type: 'Comment', id: _id
                         }))
                     ];
                 }
@@ -104,18 +104,19 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
                 async onQueryStarted({ fetchCount, fetchType, postId, currentUserId, commentId }, { dispatch, queryFulfilled }) {
                     const patchResult = dispatch(
                         commentsApiSlice.util.updateQueryData('getComments', { fetchCount, fetchType, postId }, draftComment => {
-                            console.log(current(draftComment));
+                            draftComment.map(comment => {
+                                if (comment._id === commentId) {
+                                    const isExist = comment.comments[0].comment_reply.includes(currentUserId);
+                                    if (!isExist) return comment.comments[0].comment_like_count.push(currentUserId);
 
-                            const currentComment = draftComment.filter(comment => comment._id === commentId);
+                                    const findIndex = comment.comments[0].comment_reply.findIndex(userId => userId === currentUserId);
+                                    if (findIndex === - 1) return console.log("Something went wrong in commentsApiSlice..."); // for dev
 
-                            const findIndex = currentComment.comments[0].comment_like_count.findIndex(_id => _id === currentUserId);
-                            const isExist = currentComment.comments[0].comment_like_count.includes(currentUserId);
-
-                            if (!isExist) {
-                                currentComment.comments[0].comment_like_count.push(currentUserId);
-                            } else {
-                                currentComment.comments[0].comment_like_count.splice(findIndex, 1);
-                            }
+                                    return comment.comments[0].comment_like_count.splice(findIndex, 1);
+                                } else {
+                                    return;
+                                }
+                            })
                         })
                     );
 

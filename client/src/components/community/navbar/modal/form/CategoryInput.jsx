@@ -4,7 +4,7 @@ import { categories } from '../../../../home/discover/utils/data';
 
 const CategoryInput = () => {
   return (
-    <>
+    <section className='serverCreateModal-1'>
       <div className="top">
         <h1>서버 만들기</h1>
         <div className="topText">
@@ -17,7 +17,9 @@ const CategoryInput = () => {
         {categories.map((category) => (
           <button key={`server-${category.category}-button`}>
             {category.icon}
-            {category.category}
+            <div className="grow">
+              {category.category}
+            </div>
             <img src={arrow} alt="" />
           </button>
         ))}
@@ -26,7 +28,7 @@ const CategoryInput = () => {
         <h2>이미 초대장을 받으셨나요?</h2>
         <button>서버 참가하기</button>
       </div>
-    </>
+    </section>
   );
 }
 

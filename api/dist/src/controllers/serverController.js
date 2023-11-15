@@ -160,17 +160,39 @@ export const getMembers = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 export const updateMembers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const joinUserId = req.query.joinUserId;
-    try {
-        const server = yield Server.findByIdAndUpdate(req.params.serverId, {
-            $push: {
-                members: joinUserId
-            }
-        });
-        res.status(200).json(server);
+    const joinedUserId = req.query.joinedUserId;
+    const removedUserId = req.query.removedUserId;
+    if (joinedUserId === "undefined" && removedUserId === "undefined")
+        return res.sendStatus(400);
+    if (!joinedUserId) {
+        try {
+            const server = yield Server.findByIdAndUpdate(req.params.serverId, {
+                $pull: {
+                    members: removedUserId
+                }
+            });
+            if (!server)
+                return res.sendStatus(500);
+            res.status(201).json(server);
+        }
+        catch (err) {
+            next(err);
+        }
     }
-    catch (err) {
-        next(err);
+    else {
+        try {
+            const server = yield Server.findByIdAndUpdate(req.params.serverId, {
+                $push: {
+                    members: joinedUserId
+                }
+            });
+            if (!server)
+                return res.sendStatus(505);
+            res.status(201).json(server);
+        }
+        catch (err) {
+            next(err);
+        }
     }
 });
 export const likeServer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -200,7 +222,7 @@ export const likeServer = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 export const searchServer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const query = req.query.search;
+    const query = req.query.searchTerm;
     try {
         const servers = yield Server.find({
             title: {
