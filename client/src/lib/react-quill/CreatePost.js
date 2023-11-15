@@ -20,19 +20,60 @@ const CreatedEditor = ({ setShowModal }) => {
     });
 
     useEffect(() => {
-        const images = document.querySelectorAll('image');
-        images.forEach(image => image.parentElement.classList.add('editorImageWrap'));
-        images.forEach(image => image.classList.add('uploadedImg'));
-        images.forEach(image => image.addEventListener('click', () => {
-            image.classList.add('representativeImg');
-            const currRepresentativeImgSrc = representativeImgUrl[0];
-            const selectedImgSrc = image.src;
-            setRepresentativeImgUrl(prev => prev.filter(url => url !== selectedImgSrc));
-            setImgUrlArr(prev =>
-                prev.filter(url => url !== selectedImgSrc)
-                    .map(newUrlArr => [...newUrlArr, currRepresentativeImgSrc])
-            );
-        }));
+        const images = document.querySelectorAll("img");
+
+        images.forEach((image) =>
+            image.parentElement.classList.add("editorImageWrap")
+        );
+
+        images.forEach((image) => {
+            image.src === representativeImgUrl?.[0]
+                ? image.classList.add("representativeImg")
+                : image.classList.add("uploadedImg");
+        });
+
+        if (images.length === 1) {
+            images.forEach(image => {
+                image.classList.add("representativeImg");
+                setRepresentativeImgUrl(image.src);
+            });
+            return;
+        };
+
+        images.forEach((image) =>
+            image.addEventListener("click", () => {
+                if (image.src === representativeImgUrl?.[0]) return;
+
+                image.classList.remove("uploadedImg");
+                image.classList.add("representativeImg");
+
+                let currRepresentativeImgSrc;
+
+                if (
+                    Array.isArray(representativeImgUrl) &&
+                    representativeImgUrl.length
+                ) {
+                    currRepresentativeImgSrc = representativeImgUrl?.[0];
+                }
+
+                const selectedImgSrc = image.src;
+
+                setRepresentativeImgUrl((prev) => {
+                    prev.push(selectedImgSrc);
+                    prev.filter((url) => url !== currRepresentativeImgSrc);
+                });
+                setImgUrlArr((prev) => {
+                    prev.push(currRepresentativeImgSrc);
+                    prev.filter((url) => url !== selectedImgSrc);
+                });
+
+                images.forEach((image) => {
+                    if (image.src === currRepresentativeImgSrc) {
+                        image.classList.remove("representativeImg");
+                    }
+                });
+            })
+        );
     }, [representativeImgUrl, imgUrlArr]);
 
     const [addNewPost, { isLoading }] = useAddNewPostMutation();
@@ -50,7 +91,6 @@ const CreatedEditor = ({ setShowModal }) => {
         const title = currPost.title;
         const category = currPost.category;
         const description = content;
-        const imgUrl = representativeImgUrl[0];
 
         if (canSave) {
             let post;
@@ -59,7 +99,7 @@ const CreatedEditor = ({ setShowModal }) => {
                 title,
                 category,
                 description,
-                representativeImgUrl,
+                representativeImgUrl: representativeImgUrl[0],
                 imgUrlArr
             };
 
@@ -68,7 +108,7 @@ const CreatedEditor = ({ setShowModal }) => {
                     title,
                     category,
                     description,
-                    representativeImgUrl
+                    representativeImgUrl: representativeImgUrl[0],
                 };
             }
 
@@ -219,9 +259,9 @@ const CreatedEditor = ({ setShowModal }) => {
         !isLoading;
 
     const handleCloseModal = () => {
-        if (representativeImgUrl.length >= 1) {
+        if (representativeImgUrl?.length >= 1) {
             if (window.confirm("변경 사항이 저장되지 않을 수 있어요. 나가시겠어요?")) {
-                if (representativeImgUrl[0] && !imgUrlArr.length) {
+                if (representativeImgUrl?.[0] && !imgUrlArr.length) {
                     deleteImage(representativeImgUrl[0]);
                 } else {
                     setImgUrlArr(prev => [representativeImgUrl, ...prev]);
@@ -235,6 +275,12 @@ const CreatedEditor = ({ setShowModal }) => {
                 setImgUrlArr([]);
                 setShowModal(false);
             } else {
+                setContent("");
+                setCurrPost("");
+                setError("");
+                setRepresentativeImgUrl([]);
+                setImgUrlArr([]);
+                setShowModal(true);
                 return;
             }
         }

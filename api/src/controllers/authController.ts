@@ -192,14 +192,10 @@ export const refreshToken = async (
       refreshToken as string,
       REFRESH_TOKEN_SECRET as Secret,
       async (err: VerifyErrors | null, decoded: any): Promise<void> => {
-        if (err) {
+        if (err || decoded.userInfo.id !== user._id) {
           user.refreshToken = [...newRefreshTokenArray];
           await user.save();
         }
-        if (err || user._id !== decoded.userInfo.id)
-          res
-            .status(403)
-            .json({ decodedId: decoded.userInfo.id, userId: user._id }); // for dev
 
         const accessToken = jwt.sign(
           {

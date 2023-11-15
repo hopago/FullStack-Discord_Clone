@@ -19,32 +19,53 @@ const EditPostEditor = ({ setShowModal, post }) => {
     title: post.title,
     category: post.category,
   });
+  const [alreadyExistedUrl, setAlreadyExistedUrl] = useState([...post.imgUrlArr, post.representativeImgUrl]);
 
   useEffect(() => {
     const images = document.querySelectorAll("img");
+
     images.forEach((image) =>
       image.parentElement.classList.add("editorImageWrap")
     );
+
     images.forEach((image) => {
-      image.src === representativeImgUrl[0]
+      image.src === representativeImgUrl?.[0]
         ? image.classList.add("representativeImg")
         : image.classList.add("uploadedImg");
     });
+
     images.forEach((image) =>
       image.addEventListener("click", () => {
+        if (image.src === representativeImgUrl?.[0]) return;
+
+        image.classList.remove("uploadedImg");
         image.classList.add("representativeImg");
-        const currRepresentativeImgSrc = representativeImgUrl[0];
+
+        let currRepresentativeImgSrc;
+
+        if (
+          Array.isArray(representativeImgUrl) &&
+          representativeImgUrl.length
+        ) {
+          currRepresentativeImgSrc = representativeImgUrl?.[0];
+        }
+
         const selectedImgSrc = image.src;
-        setRepresentativeImgUrl((prev) =>
-          prev
-            .push(selectedImgSrc)
-            .filter((url) => url !== representativeImgUrl[0])
-        );
-        setImgUrlArr((prev) =>
-          prev
-            .push(currRepresentativeImgSrc)
-            .filter((url) => url !== selectedImgSrc)
-        );
+
+        setRepresentativeImgUrl((prev) => {
+          prev.push(selectedImgSrc);
+          prev.filter((url) => url !== currRepresentativeImgSrc);
+        });
+        setImgUrlArr((prev) => {
+          prev.push(currRepresentativeImgSrc);
+          prev.filter((url) => url !== selectedImgSrc);
+        });
+
+        images.forEach((image) => {
+          if (image.src === currRepresentativeImgSrc) {
+            image.classList.remove("representativeImg");
+          }
+        });
       })
     );
   }, [representativeImgUrl, imgUrlArr]);
@@ -246,18 +267,15 @@ const EditPostEditor = ({ setShowModal, post }) => {
       ) {
         if (
           representativeImgUrl[0] &&
-          Array.isArray(imgUrlArr) &&
+          representativeImgUrl[0] !== post.representativeImgUrl &&
           !imgUrlArr.length
         ) {
-          if (representativeImgUrl[0] === post.representativeImgUrl) return;
           deleteImage(representativeImgUrl[0]);
         } else {
           setImgUrlArr((prev) => [...representativeImgUrl, ...prev]);
-          const alreadyExistedUrl = [...representativeImgUrl, ...imgUrlArr];
           imgUrlArr.filter((url) =>
             alreadyExistedUrl.filter((existedUrl) => existedUrl !== url)
           );
-          console.log(imgUrlArr);
           deleteImage(imgUrlArr);
         }
 
@@ -268,6 +286,12 @@ const EditPostEditor = ({ setShowModal, post }) => {
         setImgUrlArr([]);
         setShowModal(false);
       } else {
+        setContent("");
+        setCurrPost("");
+        setError("");
+        setRepresentativeImgUrl([]);
+        setImgUrlArr([]);
+        setShowModal(true);
         return;
       }
     }

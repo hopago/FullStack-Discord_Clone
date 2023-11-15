@@ -147,14 +147,10 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
         }
         const newRefreshTokenArray = user.refreshToken.filter((rt) => rt !== refreshToken);
         jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, decoded) => __awaiter(void 0, void 0, void 0, function* () {
-            if (err) {
+            if (err || decoded.userInfo.id !== user._id) {
                 user.refreshToken = [...newRefreshTokenArray];
                 yield user.save();
             }
-            if (err || user._id !== decoded.userInfo.id)
-                res
-                    .status(403)
-                    .json({ decodedId: decoded.userInfo.id, userId: user._id }); // for dev
             const accessToken = jwt.sign({
                 userInfo: {
                     id: user._id,
