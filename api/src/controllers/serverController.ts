@@ -41,11 +41,12 @@ export const getAllServers = async (req: Request, res: Response, next: NextFunct
 export const getAllUserServers = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user: IUser | null = await User.findById(req.user.id);
-        let userIdArr: string[] = [user?._id];
 
         const servers = await Server.find({
             members: {
-                $in: userIdArr
+                $elemMatch: {
+                    $eq: req.user.id
+                }
             }
         });
         if (Array.isArray(servers) && !servers.length) {

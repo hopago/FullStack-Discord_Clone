@@ -46,10 +46,11 @@ export const getAllServers = (req, res, next) => __awaiter(void 0, void 0, void 
 export const getAllUserServers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield User.findById(req.user.id);
-        let userIdArr = [user === null || user === void 0 ? void 0 : user._id];
         const servers = yield Server.find({
             members: {
-                $in: userIdArr
+                $elemMatch: {
+                    $eq: req.user.id
+                }
             }
         });
         if (Array.isArray(servers) && !servers.length) {

@@ -4,23 +4,76 @@ import './navbar.scss';
 
 import CreateModal from './modal/CreateModal';
 
-import serverImg from './assets/kisspng-community-of-practice-organization-social-group-on-stakeholder-management-5b03c46322fe96.2547190115269735391434.png';
-import serverImg2 from './assets/community-icon-29131.png';
-
 import ExploreIcon from '@mui/icons-material/Explore';
 import AddIcon from '@mui/icons-material/Add';
 
 import { Link } from 'react-router-dom';
 
-import { selectCurrentUser } from '../../../features/users/slice/userSlice';
-import { useSelector } from 'react-redux';
-
 import { useRef, useState } from 'react';
+import { useGetUserServersQuery } from '../../../features/server/slice/serversApiSlice';
+
+import ArrowRight from './assets/ArrowRight';
 
 const Navbar = () => {
-  const dummyServerId = "dummyServerId";
-  
-  const currentUser = useSelector(state => selectCurrentUser(state));
+  const {
+    data: servers,
+    isSuccess,
+  } = useGetUserServersQuery();
+
+  const [showServerName, setShowServerName] = useState(false);
+  const [currentServerId, setCurrentServerId] = useState("");
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [currentActive, setCurrentActive] = useState(false);
+
+  const handleServerContextMenu = (e) => {
+    e.preventDefault();
+    setShowContextMenu(true);
+  };
+
+  const serverInfo = (serverName) => (
+    <div className="serverNameBox">
+      <div className="wrapper">
+        <span>{serverName}</span>
+      </div>
+    </div>
+  );
+
+  const serverContextMenu = () => (
+    <section>
+      <div className="wrapper">
+        <div className="flexCol">
+          <div className="itemContainer">
+            <span className='invite'>초대하기</span>
+          </div>
+          <div className="itemContainer">
+            <div className="item">
+              <div className="text">
+                <span>서버 알림 끄기</span>
+                <ArrowRight />
+              </div>
+              <div className="text">
+                <div className="text_flexCol">
+                  <span>알림 설정</span>
+                  <span className="thin">
+                    모든 메시지
+                  </span>
+                </div>
+                <ArrowRight />
+              </div>
+              <div className="text">
+                <span>서버 알림 끄기</span>
+                <ArrowRight />
+              </div>
+            </div>
+          </div>
+          <div className="itemContainer">
+            <span>채널 만들기</span>
+            <span>카테고리 만들기</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
@@ -47,30 +100,42 @@ const Navbar = () => {
           </div>
           <hr />
           <div aria-label="server" className="server">
-            <div className="flex-col">
-              {/* fetch server later... & memoization */}
-              <Link to={`/community/server/${dummyServerId}`}>
-                <div className="server-items">
-                  <div className="pill"></div>
-                  <div className="server-itemWrapper">
-                    <img src={serverImg} alt="" />
-                  </div>
-                </div>
-              </Link>
-              <Link to={`/community/server/${dummyServerId}`}>
-                <div className="server-items">
-                  <div className="pill"></div>
-                  <div className="server-itemWrapper">
-                    <img src={serverImg2} alt="" />
-                  </div>
-                </div>
-              </Link>
-            </div>
+            {isSuccess && (
+              <div className="flex-col">
+                {servers.map((server) => (
+                  <Link to={`/community/server/${server._id}`}>
+                    <div
+                      className="server-items"
+                      onMouseEnter={() => {
+                        setCurrentServerId(server._id);
+                        setShowServerName(true);
+                      }}
+                      onMouseLeave={() => {
+                        setCurrentServerId("");
+                        setShowServerName(false);
+                      }}
+                      onContextMenu={handleServerContextMenu}
+                    >
+                      <div className="pill"></div>
+                      <div className="server-itemWrapper">
+                        <img src={server.embeds.thumbnail} alt="" />
+                      </div>
+                      {showServerName &&
+                        currentServerId === server._id &&
+                        serverInfo(server.embeds.title)}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
           <hr />
           <div className="tutorialContainer-2">
             <div className="flex-col">
-              <div className="tut-itemWrapper" onClick={() => setShowModal(true)}>
+              <div
+                className="tut-itemWrapper"
+                onClick={() => setShowModal(true)}
+              >
                 <AddIcon className="icon" />
               </div>
               <Link to="/community/server" className="link">
@@ -83,7 +148,11 @@ const Navbar = () => {
         </div>
       </nav>
       {showModal && (
-        <CreateModal modalRef={modalRef} modalOutsideClick={modalOutsideClick} setShowModal={setShowModal} />
+        <CreateModal
+          modalRef={modalRef}
+          modalOutsideClick={modalOutsideClick}
+          setShowModal={setShowModal}
+        />
       )}
     </div>
   );
