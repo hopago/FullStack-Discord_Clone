@@ -1,4 +1,3 @@
-import { current } from '@reduxjs/toolkit';
 import { apiSlice } from '../../authentication/api/apiSlice';
 
 export const postsApiSlice = apiSlice.injectEndpoints({

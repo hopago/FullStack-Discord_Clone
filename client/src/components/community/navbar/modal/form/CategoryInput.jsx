@@ -2,9 +2,14 @@ import './categoryInput.scss';
 import arrow from '../assets/ebd4163d89c2d849ec54.svg';
 import { categories } from '../../../../home/discover/utils/data';
 
-const CategoryInput = () => {
+const CategoryInput = ({ setCurrPage, handleInputs }) => {
+  const handleClick = (e) => {
+    handleInputs(e);
+    setCurrPage(1);
+  };
+
   return (
-    <section className='serverCreateModal-1'>
+    <section className="serverCreateModal-1">
       <div className="top">
         <h1>서버 만들기</h1>
         <div className="topText">
@@ -15,12 +20,17 @@ const CategoryInput = () => {
       <div className="center">
         <div className="text">카테고리 고르기</div>
         {categories.map((category) => (
-          <button key={`server-${category.category}-button`}>
+          <button
+            onClick={handleClick}
+            name="server_category"
+            value={category.category}
+            key={`server-${category.category}-button`}
+          >
             {category.icon}
-            <div className="grow">
+            <div name="server_category" className="grow">
               {category.category}
             </div>
-            <img src={arrow} alt="" />
+            <img name="server_category" src={arrow} alt="" />
           </button>
         ))}
       </div>

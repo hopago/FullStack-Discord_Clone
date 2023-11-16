@@ -12,6 +12,7 @@ export const register = async (
 ) => {
   try {
     const { userName, password, email } = req.body;
+
     if (!userName || !password || !email)
       throw new HttpException(400, "UserName, Email, Password are required...");
 

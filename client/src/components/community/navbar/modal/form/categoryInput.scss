@@ -75,7 +75,7 @@
 
         button {
             width: 100%;
-            padding: 0.5rem;
+            padding: 0.75rem 0.5rem;
             border: none;
             color: #EAEBED;
             background-color: #4F5660;
@@ -83,6 +83,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.15s ease;
+            border-radius: 8px;
 
             &:hover {
                 background-color: #22272E;

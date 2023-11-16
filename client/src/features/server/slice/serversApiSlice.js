@@ -46,7 +46,9 @@ export const serversApiSlice = apiSlice.injectEndpoints({
                     url: '/servers',
                     method: 'POST',
                     body: {
-                        ...initialServer
+                        embeds: {
+                            ...initialServer
+                        }
                     }
                 }),
                 invalidatesTags: [
@@ -104,3 +106,16 @@ export const serversApiSlice = apiSlice.injectEndpoints({
         }
     )
 });
+
+export const {
+    useGetUserServersQuery,
+    useGetSingleServerQuery,
+    useGetMembersQuery,
+    useSearchServerQuery,
+    useCreateServerMutation,
+    useDeleteServerMutation,
+    useUpdateServerMutation,
+    useDeleteUserServerMutation,
+    useUpdatedMembersMutation,
+    useLikeServerMutation
+} = serversApiSlice;

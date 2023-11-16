@@ -83,7 +83,7 @@ const Navbar = () => {
         </div>
       </nav>
       {showModal && (
-        <CreateModal modalRef={modalRef} modalOutsideClick={modalOutsideClick} />
+        <CreateModal modalRef={modalRef} modalOutsideClick={modalOutsideClick} setShowModal={setShowModal} />
       )}
     </div>
   );
