@@ -19,9 +19,9 @@ import { useRef, useState } from 'react';
 
 const Navbar = () => {
   const dummyServerId = "dummyServerId";
-
-  const currentUser = useSelector(state => selectCurrentUser(state));
   
+  const currentUser = useSelector(state => selectCurrentUser(state));
+
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
 

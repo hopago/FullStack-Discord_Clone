@@ -42,12 +42,13 @@ export const serversApiSlice = apiSlice.injectEndpoints({
                 }
             }),
             createServer: builder.mutation({
-                query: () => initialServer => ({
+                query: ({ initialServer, thumbnail }) => ({
                     url: '/servers',
                     method: 'POST',
                     body: {
                         embeds: {
-                            ...initialServer
+                            ...initialServer,
+                            thumbnail
                         }
                     }
                 }),

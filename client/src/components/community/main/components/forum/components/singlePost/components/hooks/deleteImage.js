@@ -16,15 +16,15 @@ export const deleteImage = (deletedImgUrl) => {
           console.error(err);
           return;
         });
-      
+
       promises.push(promise);
     });
 
     Promise.all(promises)
-    .then((res) => {
-      console.log(res);
-    })
-    .catch(err => console.error(err));
+      .then((res) => {
+        console.log(res);
+      })
+      .catch(err => console.error(err));
   } else {
     const deleteRef = ref(storage, `images/${deletedImgUrl}`);
 
@@ -37,4 +37,17 @@ export const deleteImage = (deletedImgUrl) => {
         return;
       });
   }
+};
+
+export const serverThumbnailDelete = (deletedImgUrl) => {
+  const deleteRef = ref(storage, `servers/images/${deletedImgUrl}`);
+
+  deleteObject(deleteRef)
+    .then(() => {
+      console.log("File Deleted...");
+    })
+    .catch(err => {
+      console.error(err);
+      return;
+    });
 };

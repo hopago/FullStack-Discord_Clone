@@ -34,10 +34,10 @@ app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/friends', friendRouter);
 app.use('/blackList', blockRouter);
-app.use('/server', serverRouter);
+app.use('/servers', serverRouter);
 app.use('/conversation', conversationRouter);
 app.use('/private/messages', privateMessageRouter);
-app.use('/server/conversation', serverConversationRouter);
+app.use('/servers/conversation', serverConversationRouter);
 app.use('/posts', postRouter);
 app.use('/comments', commentRouter);
 
