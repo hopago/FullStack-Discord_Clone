@@ -137,7 +137,7 @@ const Friend = () => {
                     <div className="iconWrap">
                       <ChatBubble style={{ fontSize: "14px" }} />
                     </div>
-                    <div className="iconWrap" tyle={{ fontSize: "14px" }}>
+                    <div className="iconWrap" style={{ fontSize: "14px" }}>
                       <MoreVert />
                     </div>
                   </div>

@@ -1,49 +1,55 @@
-import { Link, useParams } from 'react-router-dom';
-import './scss/sidebar.scss';
+import { Link, useParams } from "react-router-dom";
+import "./scss/sidebar.scss";
 import {
-    Group,
-    Forum,
-    Explore,
-    Settings,
-    Help,
-    AccountCircle,
-    Verified,
-    Star,
-    Computer,
-    School,
-    Work,
-    Science,
-    AccountTree
-} from '@mui/icons-material';
-import profile from './assets/default-profile-pic-e1513291410505.jpg';
-import { useEffect, useRef, useState } from 'react';
-import NavModal from './modal/NavModal';
-import UserServerSideBar from './UserServerSideBar';
+  Group,
+  Forum,
+  Explore,
+  Settings,
+  Help,
+  AccountCircle,
+  Verified,
+  Star,
+  Computer,
+  School,
+  Work,
+  Science,
+  AccountTree,
+} from "@mui/icons-material";
+import profile from "./assets/default-profile-pic-e1513291410505.jpg";
+import { useEffect, useRef, useState } from "react";
+import NavModal from "./modal/NavModal";
+import UserServerSideBar from "./UserServerSideBar";
+import { selectCurrentUser } from "../../../features/users/slice/userSlice";
+import { useSelector } from "react-redux";
+import js from "./assets/language/js_lang.png";
+import react from "./assets/language/react.png";
+import next from "./assets/language/next.png";
+import Profile from "./popout/Profile";
 
 export const categories = [
   {
-      icon: <Explore />,
-      category: "All"
+    icon: <Explore />,
+    category: "All",
   },
   {
-      icon: <Computer />,
-      category: "Programming"
+    icon: <Computer />,
+    category: "Programming",
   },
   {
-      icon: <School />,
-      category: "Education"
+    icon: <School />,
+    category: "Education",
   },
   {
-      icon: <Work />,
-      category: "Job"
+    icon: <Work />,
+    category: "Job",
   },
   {
-      icon: <Science />,
-      category: "Tech"
+    icon: <Science />,
+    category: "Tech",
   },
   {
-      icon: <AccountTree />,
-      category: "Project"
+    icon: <AccountTree />,
+    category: "Project",
   },
 ];
 
@@ -57,6 +63,7 @@ const ServerSideBar = () => {
           <h2 className="community-serverSidebar-heading">찾기</h2>
           {categories.map((cat) => (
             <div
+              key={`serverSidebar_${cat.category}`}
               className={
                 active === cat.category
                   ? "community-serverSidebar-list active"
@@ -109,40 +116,50 @@ const ServerSideBar = () => {
 };
 
 const SideBar = ({ type: basePathName }) => {
-    const modalRef = useRef();
-    const [showModal, setShowModal] = useState(false);
+  const currentUser = useSelector(selectCurrentUser);
+  console.log(currentUser);
 
-    const modalOutsideClick = (e) => {
-        if (modalRef.current === e.target) {
-            setShowModal(false);
-        }
-    };
+  const modalRef = useRef();
+  const [showModal, setShowModal] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
-    const params = useParams();
-    const pathName = Object.values(params)[0];
+  const modalOutsideClick = (e) => {
+    if (modalRef.current === e.target) {
+      setShowModal(false);
+    }
+  };
 
-    const [activeArray, setActiveArray] = useState([]);
+  const params = useParams();
+  const pathName = Object.values(params)[0];
 
-    useEffect(() => {
-      switch (pathName) {
-        case '':
-          setActiveArray([0]);
-          break;
-        case 'forum':
-          setActiveArray([1]);
-          break;
-        case 'server':
-          setActiveArray([2]);
-          break;
-        default:
-          break;
-      }
-    }, [pathName]);
+  const [activeArray, setActiveArray] = useState([]);
 
-    if (basePathName === 'server') return <ServerSideBar />;
+  useEffect(() => {
+    switch (pathName) {
+      case "":
+        setActiveArray([0]);
+        break;
+      case "forum":
+        setActiveArray([1]);
+        break;
+      case "server":
+        setActiveArray([2]);
+        break;
+      default:
+        break;
+    }
+  }, [pathName]);
 
-    if (pathName.split("/")[0] === "server" && pathName.split("/")[1] !== "")
-      return <UserServerSideBar />;
+  if (basePathName === "server") return <ServerSideBar />;
+
+  if (pathName.split("/")[0] === "server" && pathName.split("/")[1] !== "")
+    return <UserServerSideBar />;
+
+  const LanguageImg = () => {
+    if (currentUser.language === "javascript") return <img src={js} />;
+    if (currentUser.language === "react") return <img src={react} />;
+    if (currentUser.language === "next") return <img src={next} />;
+  };
 
   return (
     <div className="community-sidebar">
@@ -213,14 +230,20 @@ const SideBar = ({ type: basePathName }) => {
       </div>
       <section className="community-sidebar-user">
         <div className="wrapper">
-          <img src={profile} alt="" />
-          <div className="texts">
-            <h4>hopago</h4>
-            <div className="user-icons">
-              <Verified style={{ color: "#248046", fontSize: "16px" }} />
-              <Star style={{ color: "#FFD33E", fontSize: "16px" }} />
+          <div
+            className="currUserProfileWrapper"
+            onClick={() => setShowProfile(true)}
+          >
+            <img src={currentUser.avatar} alt="" />
+            <div className="texts">
+              <h4>{currentUser.userName}</h4>
+              <div className="user-icons">
+                <Verified style={{ color: "#248046", fontSize: "16px" }} />
+                <LanguageImg />
+              </div>
             </div>
           </div>
+          {showProfile && <Profile currentUser={currentUser} />}
           <div className="icons">
             <div className="iconWrap">
               <AccountCircle className="profile-btn" />
@@ -239,6 +262,6 @@ const SideBar = ({ type: basePathName }) => {
       )}
     </div>
   );
-}
+};
 
-export default SideBar
+export default SideBar;

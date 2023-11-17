@@ -7,6 +7,7 @@ export type TUser = {
     isVerified: boolean,
     userName: string,
     avatar: string,
+    banner: string,
     friends: [],
     blackList: [],
     refreshToken: string[]

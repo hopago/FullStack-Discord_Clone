@@ -1,0 +1,99 @@
+.accountProfile {
+    position: absolute;
+    top: -397px;
+    left: -33px;
+
+    .wrapper {
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        #popoutImg {
+            position: absolute;
+            top: 17px;
+            left: 29.5px;
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            outline: 5px solid #232428;
+            background-color: white;
+            border-radius: 50%;
+        }    
+
+        .userInfo {
+            width: 340px;
+            background-color: #232428;
+            border-radius: 0px 0px 8px 8px;
+
+            .userInfoWrapper {
+                width: 100%;
+                padding: 0.5rem;
+                margin-top: 1.9rem;
+                display: flex;
+                flex-direction: column;
+
+                .top {
+                    padding: 0.5rem;
+                    background-color: #111214;
+
+                    .col {
+                        display: flex;
+                        flex-direction: column;
+
+                        h2 {
+                            font-size: 20px;
+                            font-weight: bold;
+                            color: #f2f3f5;
+                        }
+
+                        p {
+                            font-size: 16px;
+                            font-weight: 400;
+                            color: #f2f3f5;
+                        }
+                    }
+                }
+
+                .center {
+                    padding: 0.5rem;
+                    background-color: #111214;
+
+                    .description {
+                        
+                        h2 {
+
+                        }
+
+                        p {
+
+                        }
+                    }
+
+                    .date {
+
+                        h2 {
+
+                        }
+
+                        p {
+                            
+                        }
+                    }
+                }
+
+                .bottom {
+                    padding: 0.5rem;
+                    background-color: #111214;
+                }
+
+                .divider {
+                    margin-top: 12px;
+                    height: 1px;
+                    opacity: 0.1;
+                    width: 100%;
+                }
+            }
+        }
+    }
+}

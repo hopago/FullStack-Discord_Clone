@@ -16,6 +16,9 @@ const userSchema: Schema = new Schema({
     avatar: {
         type: String
     },
+    banner: {
+        type: String,
+    },
     email: {
         type: String,
         required: true,
