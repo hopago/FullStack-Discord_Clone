@@ -6,9 +6,10 @@ const ArrowRight = () => {
       class="caret_ce50ce"
       aria-hidden="true"
       role="img"
-      width="24"
-      height="24"
+      width="11"
+      height="11"
       viewBox="0 0 24 24"
+      style={{ color: "#b5bac1" }}
     >
       <g fill="none" fill-rule="evenodd">
         <polygon
