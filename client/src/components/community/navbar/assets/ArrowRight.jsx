@@ -1,6 +1,6 @@
 import React from 'react'
 
-const ArrowRight = ({ showSelectForm }) => {
+const ArrowRight = ({ showSelectForm, setShowSelectForm }) => {
   return (
     <svg
       class="caret_ce50ce"
@@ -9,6 +9,7 @@ const ArrowRight = ({ showSelectForm }) => {
       width="11"
       height="11"
       viewBox="0 0 24 24"
+      onClick={() => setShowSelectForm(false)}
       style={
         showSelectForm
           ? { color: "#b5bac1", cursor: "pointer", transform: "rotate(180deg)" }
@@ -25,6 +26,6 @@ const ArrowRight = ({ showSelectForm }) => {
       </g>
     </svg>
   );
-}
+};
 
 export default ArrowRight;

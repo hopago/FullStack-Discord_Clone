@@ -115,11 +115,7 @@ const ServerSideBar = () => {
 };
 
 const SideBar = ({ type: basePathName }) => {
-  const {
-    data: currentUser
-  } = useGetCurrentUserQuery();
-
-  console.log(currentUser);
+  const { data: currentUser } = useGetCurrentUserQuery();
 
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
@@ -245,7 +241,13 @@ const SideBar = ({ type: basePathName }) => {
               </div>
             </div>
           </div>
-          {showProfile && <Profile currentUser={currentUser} />}
+          {showProfile && (
+            <Profile
+              showProfile={showProfile}
+              setShowProfile={setShowProfile}
+              currentUser={currentUser}
+            />
+          )}
           <div className="icons">
             <div className="iconWrap">
               <AccountCircle className="profile-btn" />

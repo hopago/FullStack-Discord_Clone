@@ -7,13 +7,14 @@ const DefaultBanner = ({
   setEditUserProfile,
   editUserProfile,
   handleBannerChanged,
+  handleInputsUpdate
 }) => {
   const [showBannerEditLabel, setShowBannerEditLabel] = useState(false);
 
   const editButtons = (
     <div className="absoluteContainer">
       <div className="wrapper">
-        <button className="update">수정하기</button>
+        <button className="update" onClick={handleInputsUpdate}>수정하기</button>
         <button
           className="cancel"
           onClick={() => setTimeout(function () {

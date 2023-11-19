@@ -5,13 +5,16 @@ import "./profile.scss";
 import js from "../assets/language/js_lang.png";
 import react from "../assets/language/react.png";
 import next from "../assets/language/next.png";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUpdateUserMutation } from "../../../../features/users/slice/usersApiSlice";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "../../../../lib/firebase/config/firebase";
 
-const Profile = ({ currentUser }) => {
+const Profile = ({ currentUser, setShowProfile, showProfile }) => {
   const inputRef = useRef();
+
+  const description =
+    currentUser.description ?? "소개글을 아직 작성하지 않았어요.";
 
   const [showProfileEditLabel, setShowProfileEditLabel] = useState(false);
   const [editUserProfile, setEditUserProfile] = useState(false);
@@ -22,6 +25,7 @@ const Profile = ({ currentUser }) => {
     description: currentUser.description ?? null,
     language: currentUser.language,
   });
+  const [height, setHeight] = useState();
   const [updatedAvatar, setUpdatedAvatar] = useState({ avatar: null });
   const [updatedBanner, setUpdatedBanner] = useState({ banner: null });
 
@@ -34,14 +38,16 @@ const Profile = ({ currentUser }) => {
 
     const imageRef = ref(
       storage,
-      `users/images/${file.name + new Date().getSeconds() + new Date().getTime()}`
+      `users/images/${
+        file.name + new Date().getSeconds() + new Date().getTime()
+      }`
     );
 
     uploadBytes(imageRef, file)
       .then((snapshot) => {
         getDownloadURL(snapshot.ref)
           .then((url) => {
-              updateUserInfo({ ...updatedUserInfo, avatar: url })
+            updateUserInfo({ ...updatedUserInfo, avatar: url })
               .unwrap()
               .then(setUpdatedAvatar({ avatar: null }))
               .catch((err) => {
@@ -59,7 +65,6 @@ const Profile = ({ currentUser }) => {
         setUpdatedAvatar({ avatar: null });
       });
   };
-
   const updateUserBanner = () => {
     let { banner: file } = updatedBanner;
 
@@ -69,14 +74,16 @@ const Profile = ({ currentUser }) => {
 
     const imageRef = ref(
       storage,
-      `users/images/${file.name + new Date().getSeconds() + new Date().getTime()}`
+      `users/images/${
+        file.name + new Date().getSeconds() + new Date().getTime()
+      }`
     );
 
     uploadBytes(imageRef, file)
       .then((snapshot) => {
         getDownloadURL(snapshot.ref)
           .then((url) => {
-              updateUserInfo({ ...updatedUserInfo, banner: url })
+            updateUserInfo({ ...updatedUserInfo, banner: url })
               .unwrap()
               .then(setUpdatedBanner({ banner: null }))
               .catch((err) => {
@@ -94,16 +101,41 @@ const Profile = ({ currentUser }) => {
         setUpdatedBanner({ banner: null });
       });
   };
+  const handleInputsUpdate = () => {
+    const currentUserAvatarUrl = currentUser.avatar ?? null;
+    const currentUserBanner = currentUser.banner ?? null;
 
-  const handleInputsUpdate = () => {};
+    updateUserInfo({
+      ...updatedUserInfo,
+      avatar: currentUserAvatarUrl,
+      banner: currentUserBanner,
+    })
+      .unwrap()
+      .then(
+        setUpdatedUserInfo({
+          _id: currentUser._id,
+          userName: currentUser.userName,
+          description: currentUser.description ?? null,
+          language: currentUser.language,
+        })
+      )
+      .catch((err) => {
+        console.error(err);
+        setUpdatedUserInfo({
+          _id: currentUser._id,
+          userName: currentUser.userName,
+          description: currentUser.description ?? null,
+          language: currentUser.language,
+        });
+      });
+  };
 
   const handleBannerChanged = (e) => {
-    setUpdatedBanner(prev => ({ ...prev, banner: e.target.files[0] }))
+    setUpdatedBanner((prev) => ({ ...prev, banner: e.target.files[0] }));
     if (updatedBanner.banner) {
       updateUserBanner();
     }
   };
-
   const handleAvatarChanged = (e) => {
     setUpdatedAvatar((prev) => ({ ...prev, avatar: e.target.files[0] }));
     if (updatedAvatar.avatar) {
@@ -119,7 +151,6 @@ const Profile = ({ currentUser }) => {
     if (currentUser.language === "next")
       return <img src={next} alt="" className="language" />;
   };
-
   const ProfileEditLabel = (
     <div className="profileEditLabel">
       <div className="editLabelWrapper">
@@ -127,7 +158,6 @@ const Profile = ({ currentUser }) => {
       </div>
     </div>
   );
-
   const EditUserLanguage = () => {
     const [showSelectForm, setShowSelectForm] = useState(false);
 
@@ -151,7 +181,7 @@ const Profile = ({ currentUser }) => {
           </p>
           <ArrowRight
             showSelectForm={showSelectForm}
-            onClick={() => setShowSelectForm((prev) => !prev)}
+            setShowSelectForm={setShowSelectForm}
           />
         </div>
         {showSelectForm && (
@@ -195,7 +225,6 @@ const Profile = ({ currentUser }) => {
       </div>
     );
   };
-
   const avatarEditLabel = (
     <div className="avatarEditText">
       <span>
@@ -206,14 +235,83 @@ const Profile = ({ currentUser }) => {
     </div>
   );
 
+  const handleProfilePopoutOutsideClicked = (e) => {
+    const screenX = e.screenX;
+    const screenY = e.screenY;
+
+    if (editUserProfile) {
+      if (
+        Boolean(
+          (screenX > 2325 || screenX < 1985) ||
+            (screenY < 630)
+        )
+      ) {
+        setUpdatedUserInfo({
+          _id: currentUser._id,
+          userName: currentUser.userName,
+          description: currentUser.description ?? null,
+          language: currentUser.language,
+        });
+        setShowProfileEditLabel(false);
+        setEditUserProfile(false);
+        setShowAvatarEditLabel(false);
+        setShowProfile(false);
+      }
+    } else {
+      if (
+        Boolean(
+          (screenX > 2325 || screenX < 1985) ||
+            (screenY < 630 + height)
+        )
+      ) {
+        setUpdatedUserInfo({
+          _id: currentUser._id,
+          userName: currentUser.userName,
+          description: currentUser.description ?? null,
+          language: currentUser.language,
+        });
+        setShowProfileEditLabel(false);
+        setEditUserProfile(false);
+        setShowAvatarEditLabel(false);
+        setShowProfile(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("click", handleProfilePopoutOutsideClicked);
+
+    return () => {
+      window.removeEventListener("click", handleProfilePopoutOutsideClicked);
+    };
+  }, [showProfile]);
+
+  useEffect(() => {
+    if (description.length <= 24) {
+      return setHeight(20);
+    } else if (description.length <= 48) {
+      return setHeight(40);
+    } else {
+      return setHeight(60);
+    }
+  }, [description]);
+
   return (
-    <div className="accountProfile">
+    <div
+      className="accountProfile"
+      style={
+        editUserProfile
+          ? { top: `-465px` }
+          : { top: `-${(395 + height).toString()}px` }
+      }
+    >
       <div className="wrapper">
         <DefaultBanner
           setShowProfileEditLabel={setShowProfileEditLabel}
           setEditUserProfile={setEditUserProfile}
           editUserProfile={editUserProfile}
           handleBannerChanged={handleBannerChanged}
+          handleInputsUpdate={handleInputsUpdate}
         />
         <label
           className="avatarImageWrapper"
