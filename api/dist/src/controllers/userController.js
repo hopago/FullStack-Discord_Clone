@@ -20,7 +20,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 import { HttpException } from "../middleware/error/utils.js";
 import User from "../models/User.js";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 export const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.user.id;
     try {
@@ -38,23 +38,27 @@ export const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void
 export const updateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.user.id;
     try {
-        const { userName, description, language, avatar, password } = req.body;
-        if (!userName || !description || !language)
-            throw new HttpException(400, "All fields except avatar&password are required...");
+        const { userName, description, language, avatar, password, banner } = req.body;
+        if (!userName)
+            return res.sendStatus(400);
         const user = yield User.findById(userId).exec();
         if (!user)
-            throw new HttpException(404, "User has not founded...");
+            return res.sendStatus(404);
         user.userName = userName;
         user.description = description;
         user.language = language;
         if (avatar) {
             user.avatar = avatar;
         }
+        if (banner) {
+            user.banner = banner;
+        }
         if (password) {
             user.password = bcrypt.hashSync(password, 10);
         }
         const updatedUser = yield user.save();
-        res.status(201).json(`${updatedUser.userName} has been updated...`);
+        const _a = updatedUser._doc, { password: sortedPassword, refreshToken, type } = _a, updatedUserInfo = __rest(_a, ["password", "refreshToken", "type"]);
+        res.status(201).json(updatedUserInfo);
     }
     catch (err) {
         next(err);
@@ -83,8 +87,10 @@ export const findUserById = (req, res, next) => __awaiter(void 0, void 0, void 0
         if (!userId || userId === "undefined")
             return res.sendStatus(400);
         const user = yield User.findOne({
-            _id: userId
-        }).select('-password').lean();
+            _id: userId,
+        })
+            .select("-password")
+            .lean();
         if (!user)
             res.sendStatus(404);
         res.status(200).json(user);
@@ -125,7 +131,7 @@ export const getSingleFriend = (req, res, next) => __awaiter(void 0, void 0, voi
         const friend = user.friends.filter((friend) => {
             return friend._id === friendId;
         });
-        const _a = friend[0], { password } = _a, friendInfo = __rest(_a, ["password"]);
+        const _b = friend[0], { password } = _b, friendInfo = __rest(_b, ["password"]);
         res.status(200).json(friendInfo);
     }
     catch (err) {
@@ -133,9 +139,9 @@ export const getSingleFriend = (req, res, next) => __awaiter(void 0, void 0, voi
     }
 });
 export const removeFriend = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
+    var _c;
     const currentUserId = req.user.id;
-    const friendId = (_b = req.params) === null || _b === void 0 ? void 0 : _b.friendId;
+    const friendId = (_c = req.params) === null || _c === void 0 ? void 0 : _c.friendId;
     try {
         const currentUser = yield User.findById(currentUserId);
         const friend = yield User.findById(friendId);

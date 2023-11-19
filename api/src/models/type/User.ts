@@ -10,5 +10,6 @@ export type TUser = {
     banner: string,
     friends: [],
     blackList: [],
-    refreshToken: string[]
+    refreshToken: string[],
+    _doc: any
 };

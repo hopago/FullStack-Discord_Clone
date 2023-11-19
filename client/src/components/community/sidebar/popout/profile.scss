@@ -1,6 +1,11 @@
 .accountProfile {
     position: absolute;
-    top: -397px;
+    top: -415px;
+    /* 몇 줄인지에 따라 변동 
+      기본값: -415px;
+      editState: 50;
+      description: 한 줄당 20; 최대 3줄로 산정
+    */
     left: -33px;
 
     .wrapper {
@@ -9,17 +14,166 @@
         flex-direction: column;
         align-items: center;
 
-        #popoutImg {
+        .avatarImageWrapper {
             position: absolute;
-            top: 17px;
+            top: 18px;
             left: 29.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 80px;
             height: 80px;
-            object-fit: cover;
             outline: 5px solid #232428;
-            background-color: white;
             border-radius: 50%;
-        }    
+            transition: all .15s ease;
+            background-color: #000000;
+
+            .popout_userAvatar {
+                position: absolute;
+                object-fit: cover;
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                transition: all .15s ease;
+            }
+
+            .avatarEditText {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 999;
+
+                span {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 11px;
+                    color: #f2f3f5;
+                    font-weight: 700;
+                    text-align: center;
+                    text-wrap: balance;
+                }
+            }
+
+            &:hover {
+
+                .popout_userAvatar {
+                    opacity: 0.4;
+                }
+
+                .avatarEditText {
+                    opacity: 1;
+                }
+            }
+        }
+
+        #popoutImg {
+            display: none;
+        }
+
+        .languageWrapper {
+            display: flex;
+            transition: all .15s ease;
+            
+            .row {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 3px;
+
+                p {
+                    margin-bottom: 3px;
+                }
+
+                .caret_ce50ce {
+                    
+                    &:hover {
+                        color: #f2f3f5;
+                    }
+                }
+            }
+
+            .selectForm {
+                width: 100%;
+                height: 100%;
+                
+                .wrapper {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-start;
+                    align-items: flex-start;
+                    padding: 0px;
+                    padding-left: 3px;
+
+                    span {
+                        font-size: 14px;
+                        font-weight: 400;
+                        color: #B3B6B9;
+                        margin: 0.5rem 0px;
+                        cursor: pointer;
+
+                        &:hover {
+                            font-weight: bold;
+                            color: #f2f3f5;
+                            text-shadow: 0 0 0.01px #f2f3f5;
+                        }
+                    }
+                }
+            }
+        }
+
+        .userNameInput {
+            width: 100%;
+            height: 29px;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            outline: none;
+            background-color: transparent;
+            color: #f2f3f5;
+        }
+
+        .languageImgWrapper {
+            position: absolute;
+            top: 73px;
+            left: 92px;
+            z-index: 999;
+
+            .language {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        .profileEditLabel {
+            position: absolute;
+            top: -1.5rem;
+            right: -1.5rem;
+
+            .editLabelWrapper {
+                padding: 0.5rem 1rem;
+                background-color: #111214;
+                border-radius: 1rem;
+
+                span {
+                    font-size: 16px;
+                    font-weight: 400;
+                    color: #f2f3f5;
+                }
+            }
+        }
 
         .userInfo {
             width: 340px;
@@ -60,24 +214,64 @@
                     background-color: #111214;
 
                     .description {
-                        
-                        h2 {
+                        transition: all .15s ease;
+                        cursor: pointer;
+                        padding: 0.5rem;
+                        border-radius: 0.5rem;
 
+                        h2 {
+                            font-size: 12px;
+                            font-weight: bold;
+                            color: #f2f3f5;
                         }
 
                         p {
+                            font-size: 14px;
+                            font-weight: 400;
+                            color: #B3B6B9;
+                            margin: 0.5rem 0px;
+                        }
 
+                        textarea {
+                            padding: 0.5rem;
+                            width: 100%;
+                            height: max-content;
+                            border: none;
+                            outline: none;
+                            background-color: transparent;
+                            font-size: 14px;
+                            font-weight: 400;
+                            color: #B3B6B9;
+                            margin: 0.5rem 0px;
+                            border-bottom: 0.5px solid #B3B6B9;
+                            border-radius: 4px;
+                        }
+
+                        &:hover {
+                            background-color: #232528;
                         }
                     }
 
                     .date {
+                        transition: all .15s ease;
+                        cursor: pointer;
+                        padding: 0.5rem;
+                        border-radius: 0.5rem;
 
                         h2 {
-
+                            font-size: 12px;
+                            color: #f2f3f5;
+                            font-weight: 400;
                         }
 
                         p {
-                            
+                            font-size: 14px;
+                            font-weight: 400;
+                            color: #B3B6B9;
+                        }
+
+                        &:hover {
+                            background-color: #232528;
                         }
                     }
                 }
@@ -85,6 +279,37 @@
                 .bottom {
                     padding: 0.5rem;
                     background-color: #111214;
+
+                    .row {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        transition: all .15s ease;
+                        cursor: pointer;
+                        padding: 0.5rem;
+                        border-radius: 0.5rem;
+
+                        .fill {
+                            width: 12px;
+                            height: 12px;
+                            border-radius: 50%;
+                            background-color: #23A55A;
+                        }
+
+                        .grow {
+                            width: 100%;
+                            padding-left: 0.5rem;
+                            font-size: 14px;
+                            font-weight: 400;
+                            color: #DBDEE1;
+                            display: flex;
+                            justify-content: flex-start;
+                        }
+
+                        &:hover {
+                            background-color: #232528;
+                        }
+                    }
                 }
 
                 .divider {

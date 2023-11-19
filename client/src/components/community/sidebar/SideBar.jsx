@@ -19,12 +19,11 @@ import profile from "./assets/default-profile-pic-e1513291410505.jpg";
 import { useEffect, useRef, useState } from "react";
 import NavModal from "./modal/NavModal";
 import UserServerSideBar from "./UserServerSideBar";
-import { selectCurrentUser } from "../../../features/users/slice/userSlice";
-import { useSelector } from "react-redux";
 import js from "./assets/language/js_lang.png";
 import react from "./assets/language/react.png";
 import next from "./assets/language/next.png";
 import Profile from "./popout/Profile";
+import { useGetCurrentUserQuery } from "../../../features/users/slice/usersApiSlice";
 
 export const categories = [
   {
@@ -116,7 +115,10 @@ const ServerSideBar = () => {
 };
 
 const SideBar = ({ type: basePathName }) => {
-  const currentUser = useSelector(selectCurrentUser);
+  const {
+    data: currentUser
+  } = useGetCurrentUserQuery();
+
   console.log(currentUser);
 
   const modalRef = useRef();
@@ -156,9 +158,9 @@ const SideBar = ({ type: basePathName }) => {
     return <UserServerSideBar />;
 
   const LanguageImg = () => {
-    if (currentUser.language === "javascript") return <img src={js} />;
-    if (currentUser.language === "react") return <img src={react} />;
-    if (currentUser.language === "next") return <img src={next} />;
+    if (currentUser.language === "javascript") return <img alt="" src={js} />;
+    if (currentUser.language === "react") return <img alt="" src={react} />;
+    if (currentUser.language === "next") return <img alt="" src={next} />;
   };
 
   return (

@@ -1,6 +1,6 @@
 import React from 'react'
 
-const ArrowRight = () => {
+const ArrowRight = ({ showSelectForm }) => {
   return (
     <svg
       class="caret_ce50ce"
@@ -9,7 +9,11 @@ const ArrowRight = () => {
       width="11"
       height="11"
       viewBox="0 0 24 24"
-      style={{ color: "#b5bac1" }}
+      style={
+        showSelectForm
+          ? { color: "#b5bac1", cursor: "pointer", transform: "rotate(180deg)" }
+          : { color: "#b5bac1", cursor: "pointer" }
+      }
     >
       <g fill="none" fill-rule="evenodd">
         <polygon

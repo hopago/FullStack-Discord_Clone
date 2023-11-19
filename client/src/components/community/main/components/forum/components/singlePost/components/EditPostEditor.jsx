@@ -199,7 +199,7 @@ const EditPostEditor = ({ setShowModal, post }) => {
 
       const imageRef = ref(
         storage,
-        `images/${file.name + new Date().getSeconds() + new Date().getTime()}`
+        `posts/images/${file.name + new Date().getSeconds() + new Date().getTime()}`
       );
 
       try {
