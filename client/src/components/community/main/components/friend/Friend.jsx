@@ -1,29 +1,59 @@
-import './scss/friend.scss';
+import "./scss/friend.scss";
 import {
-    Group,
-    MapsUgc,
-    Help,
-    Notifications,
-    Search,
-    ChatBubble,
-    MoreVert
-} from '@mui/icons-material';
-import defaultProfile from '../../assets/default-profile-pic-e1513291410505.jpg';
-import { useState } from 'react';
+  Group,
+  MapsUgc,
+  Help,
+  Notifications,
+  Search,
+} from "@mui/icons-material";
+import defaultProfile from "../../assets/default-profile-pic-e1513291410505.jpg";
+import { useEffect, useState } from "react";
+import UserInfo from "./components/UserInfo";
+import { useLazyGetAllFriendsQuery } from "../../../../../features/users/slice/usersApiSlice";
+import { useLazyGetAllFriendRequestQuery } from "../../../../../features/friends/slice/friendRequestApiSlice";
 
 const Friend = () => {
   const [active, setActive] = useState(0);
+  const [fetchType, setFetchType] = useState("온라인");
+  const [friends, setFriends] = useState([]);
+
   const handleActiveClass = (e) => {
-    if (e.target.innerText === '온라인') {
+    if (e.target.innerText === "온라인") {
       setActive(0);
-    } else if (e.target.innerText === '모두') {
+    } else if (e.target.innerText === "모두") {
       setActive(1);
-    } else if (e.target.innerText === '차단 목록') {
+    } else if (e.target.innerText === "대기 중") {
       setActive(2);
+    } else if (e.target.innerText === "차단 목록") {
+      setActive(3);
     }
   };
 
-  {/* fetch type online, all, block */}
+  const handleFetchType = (e) => {
+    handleActiveClass(e);
+    setFetchType(e.target.innerText);
+  };
+
+  const [getAllFriends, { data: allFriends }] = useLazyGetAllFriendsQuery();
+  const [getAllFriendRequest, { data: allFriendRequest }] =
+    useLazyGetAllFriendRequestQuery();
+
+  useEffect(() => {
+    switch (fetchType) {
+      case "모두":
+        getAllFriends();
+        setFriends([...allFriends]);
+        break;
+      case "대기 중":
+        getAllFriendRequest();
+        setFriends([...allFriendRequest.table.members]);
+        break;
+      case "차단 목록":
+        break;
+      default:
+        break;
+    }
+  }, [fetchType]);
 
   return (
     <div className="friend">
@@ -41,7 +71,7 @@ const Friend = () => {
                   className={
                     active === 0 ? "active friend-opt-list" : "friend-opt-list"
                   }
-                  onClick={(e) => handleActiveClass(e)}
+                  onClick={handleFetchType}
                 >
                   온라인
                 </div>
@@ -49,7 +79,7 @@ const Friend = () => {
                   className={
                     active === 1 ? "active friend-opt-list" : "friend-opt-list"
                   }
-                  onClick={(e) => handleActiveClass(e)}
+                  onClick={handleFetchType}
                 >
                   모두
                 </div>
@@ -57,7 +87,15 @@ const Friend = () => {
                   className={
                     active === 2 ? "active friend-opt-list" : "friend-opt-list"
                   }
-                  onClick={(e) => handleActiveClass(e)}
+                  onClick={handleFetchType}
+                >
+                  대기 중
+                </div>
+                <div
+                  className={
+                    active === 3 ? "active friend-opt-list" : "friend-opt-list"
+                  }
+                  onClick={handleFetchType}
                 >
                   차단 목록
                 </div>
@@ -100,50 +138,9 @@ const Friend = () => {
             <span>온라인</span>
           </div>
           <div className="friendList-col">
-            {/* user data */}
-            <div className="peopleList">
-              <div className="listItemWrapper">
-                <div className="contents">
-                  <div className="userInfo">
-                    <img src={defaultProfile} alt="" />
-                    <div className="texts">
-                      <span className="friend-userName">UserName</span>
-                      <span className="friend-userRole">UserRole</span>
-                    </div>
-                  </div>
-                  <div className="actions">
-                    <div className="iconWrap">
-                      <ChatBubble style={{ fontSize: "14px" }} />
-                    </div>
-                    <div className="iconWrap" style={{ fontSize: "14px" }}>
-                      <MoreVert />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* user data */}
-            <div className="peopleList">
-              <div className="listItemWrapper">
-                <div className="contents">
-                  <div className="userInfo">
-                    <img src={defaultProfile} alt="" />
-                    <div className="texts">
-                      <span className="friend-userName">UserName</span>
-                      <span className="friend-userRole">UserRole</span>
-                    </div>
-                  </div>
-                  <div className="actions">
-                    <div className="iconWrap">
-                      <ChatBubble style={{ fontSize: "14px" }} />
-                    </div>
-                    <div className="iconWrap" style={{ fontSize: "14px" }}>
-                      <MoreVert />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {friends.map((friend) => (
+              <UserInfo defaultProfile={defaultProfile} friend={friend} />
+            ))}
           </div>
         </div>
         <div className="body-right">
@@ -176,6 +173,6 @@ const Friend = () => {
       </div>
     </div>
   );
-}
+};
 
-export default Friend
+export default Friend;

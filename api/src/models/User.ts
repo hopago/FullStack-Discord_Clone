@@ -48,6 +48,10 @@ const userSchema: Schema = new Schema({
     },
     refreshToken: {
         type: [String],
+    },
+    tag: {
+        type: Number,
+        default: Math.floor(Math.random() * 90000) + 10000
     }
 }, {timestamps: true});
 

@@ -31,39 +31,26 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
 
   const [updateUserInfo] = useUpdateUserMutation();
 
-  const updateUserAvatar = () => {
-    let { avatar: file } = updatedAvatar;
-
-    console.log(file.name);
-
-    const imageRef = ref(
-      storage,
-      `users/images/${
-        file.name + new Date().getSeconds() + new Date().getTime()
-      }`
-    );
-
-    uploadBytes(imageRef, file)
-      .then((snapshot) => {
-        getDownloadURL(snapshot.ref)
-          .then((url) => {
-            updateUserInfo({ ...updatedUserInfo, avatar: url })
-              .unwrap()
-              .then(setUpdatedAvatar({ avatar: null }))
-              .catch((err) => {
-                console.error(err);
-                setUpdatedAvatar({ avatar: null });
-              });
-          })
-          .catch((err) => {
-            console.error(err);
-            setUpdatedAvatar({ avatar: null });
-          });
-      })
-      .catch((err) => {
-        console.error(err);
-        setUpdatedAvatar({ avatar: null });
-      });
+  const updateUserAvatar = async () => {
+    try {
+      let { avatar: file } = updatedAvatar;
+      console.log(file.name);
+  
+      const imageRef = ref(
+        storage,
+        `users/images/${
+          file.name + new Date().getSeconds() + new Date().getTime()
+        }`
+      );
+  
+      const snapshot = await uploadBytes(imageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      await updateUserInfo({ ...updatedUserInfo, avatar: url }).unwrap();
+      setUpdatedAvatar({ avatar: null });
+    } catch (err) {
+      console.error(err);
+      setUpdatedAvatar({ avatar: null });
+    }
   };
   const updateUserBanner = () => {
     let { banner: file } = updatedBanner;
@@ -236,45 +223,23 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
   );
 
   const handleProfilePopoutOutsideClicked = (e) => {
-    const screenX = e.screenX;
-    const screenY = e.screenY;
-
-    if (editUserProfile) {
-      if (
-        Boolean(
-          (screenX > 2325 || screenX < 1985) ||
-            (screenY < 630)
-        )
-      ) {
-        setUpdatedUserInfo({
-          _id: currentUser._id,
-          userName: currentUser.userName,
-          description: currentUser.description ?? null,
-          language: currentUser.language,
-        });
-        setShowProfileEditLabel(false);
-        setEditUserProfile(false);
-        setShowAvatarEditLabel(false);
-        setShowProfile(false);
-      }
-    } else {
-      if (
-        Boolean(
-          (screenX > 2325 || screenX < 1985) ||
-            (screenY < 630 + height)
-        )
-      ) {
-        setUpdatedUserInfo({
-          _id: currentUser._id,
-          userName: currentUser.userName,
-          description: currentUser.description ?? null,
-          language: currentUser.language,
-        });
-        setShowProfileEditLabel(false);
-        setEditUserProfile(false);
-        setShowAvatarEditLabel(false);
-        setShowProfile(false);
-      }
+    const { screenX, screenY } = e;
+  
+    const isOutsideClick = (screenX > 2325 || screenX < 1985) || (screenY < (editUserProfile ? 630 : 630 + height));
+  
+    if (isOutsideClick) {
+      const updatedUserInfo = {
+        _id: currentUser._id,
+        userName: currentUser.userName,
+        description: currentUser.description ?? null,
+        language: currentUser.language,
+      };
+  
+      setUpdatedUserInfo(updatedUserInfo);
+      setShowProfileEditLabel(false);
+      setEditUserProfile(false);
+      setShowAvatarEditLabel(false);
+      setShowProfile(false);
     }
   };
 
@@ -371,6 +336,7 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
                           description: e.target.value,
                         }))
                       }
+                      maxLength="72"
                       value={updatedUserInfo.description}
                     />
                   ) : (

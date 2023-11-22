@@ -315,8 +315,8 @@ const AddComment = ({
                                     ref={inputRef}
                                     style={{
                                       width: `${
-                                        data?.comments?.[0]?.description.length *
-                                        7
+                                        data?.comments?.[0]?.description
+                                          .length * 7
                                       }px`,
                                     }}
                                     className="comment-description-edit"

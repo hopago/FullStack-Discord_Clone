@@ -2,20 +2,21 @@ import FriendAcceptReject from "../models/FriendRequestTable.js";
 import { Request, Response, NextFunction } from "express";
 import { HttpException } from "../middleware/error/utils.js";
 import User from "../models/User.js";
+import PrivateConversation from "../models/PrivateConversation.js";
 
 export const getAllFriendRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = await User.findById(req.user.id);
-        const requestList = await FriendAcceptReject.findOne({
+        if (!user) return res.sendStatus(403);
+
+        const requestList = await FriendAcceptReject.find({
             referenced_user: user?._id
         });
-
-        const requestListArr = requestList?.table.members;
-        if (Array.isArray(requestListArr) && !requestListArr?.length) {
-            throw new HttpException(400, "No request founded...");
+        if (Array.isArray(requestList) && !requestList?.length) {
+            return res.sendStatus(404);
         }
 
-        res.status(200).json(requestListArr);
+        res.status(200).json(requestList);
     } catch (err) {
         next(err);
     }
@@ -23,12 +24,18 @@ export const getAllFriendRequest = async (req: Request, res: Response, next: Nex
 
 export const sendFriend = async (req: Request, res: Response, next:NextFunction) => {
     const currentUserId = req.user.id;
-    const receiverId: string = req.params.receiverId as string;
+    const { userName, tag } = req.query; 
     try {
         const currentUser = await User.findById(currentUserId);
+        if (!currentUser) return res.sendStatus(404);
+        const receiver = await User.findOne({
+          userName,
+          tag
+        });
+        if (!receiver) return res.sendStatus(404);
 
         const requestTable = await FriendAcceptReject.findOne({
-          referenced_user: receiverId,
+          referenced_user: receiver._id,
         });
         if (!requestTable?.table.members.includes(currentUserId as never)) {
             try {
@@ -39,11 +46,13 @@ export const sendFriend = async (req: Request, res: Response, next:NextFunction)
                         }
                     }
                 });
-                res.status(201).json("Friend request sended successfully...");
+                return res.status(201).json({ _id: requestTable?._id });
             } catch (err) {
-                throw new HttpException(400, "You've been already sended request...");
+                next(err);
             }
-        };
+        } else {
+          return res.status(407).json("Friend request already sended...");
+        }
     } catch (err) {
         next(err);
     }
@@ -75,7 +84,24 @@ export const handleRequestFriend = async (
             await currentUser?.updateOne({
               $push: { friends: sender },
             });
-            res.sendStatus(201);
+            await requestTable.updateOne({
+              $pull: {
+                table: {
+                  members: sender,
+                },
+              },
+            });
+
+            const newConversation = new PrivateConversation({
+              members: [sender, currentUser],
+              senderId: sender?._id,
+              receiverId: currentUser?._id,
+              readBySender: false,
+              readByReceiver: true,
+            });
+            await newConversation.save();
+
+            res.status(201).json({ newConversation, currentUser });
           } catch (err) {
             next(err);
           }

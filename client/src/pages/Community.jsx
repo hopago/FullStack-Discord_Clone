@@ -8,6 +8,8 @@ import { useGetCurrentUserQuery } from '../features/users/slice/usersApiSlice';
 import Spinner from '../lib/react-loader-spinner/Spinner';
 import { useDispatch } from 'react-redux';
 import { setCurrentUser } from '../features/users/slice/userSlice';
+import { useEffect, useState } from 'react';
+import { io } from 'socket.io-client';
 
 const Community = () => {
   const dispatch = useDispatch();
@@ -22,6 +24,16 @@ const Community = () => {
   if (currentUser) {
     dispatch(setCurrentUser(currentUser));
   }
+
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    setSocket(io("http://localhost:5000"));
+  }, [socket, currentUser]);
+
+  useEffect(() => {
+    socket.emit("activateUser", currentUser);
+  }, [socket, currentUser]);
 
   let content;
   if (isLoading) {

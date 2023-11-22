@@ -35,7 +35,7 @@ app.use('/users', userRouter);
 app.use('/friends', friendRouter);
 app.use('/blackList', blockRouter);
 app.use('/servers', serverRouter);
-app.use('/conversation', conversationRouter);
+app.use('/conversations', conversationRouter);
 app.use('/private/messages', privateMessageRouter);
 app.use('/servers/conversation', serverConversationRouter);
 app.use('/posts', postRouter);

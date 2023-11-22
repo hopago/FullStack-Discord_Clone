@@ -103,7 +103,7 @@ export const getFriends = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     const userId = req.user.id;
     try {
         if (!userId)
-            throw new HttpException(400, "User Id required...");
+            throw new HttpException(403, "Something went wrong in verifying...");
         const user = yield User.findById(userId).exec();
         if (!user)
             throw new HttpException(404, "User not found...");

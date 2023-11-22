@@ -116,7 +116,8 @@ export const getFriends = async (
 ) => {
   const userId = req.user.id;
   try {
-    if (!userId) throw new HttpException(400, "User Id required...");
+    if (!userId)
+      throw new HttpException(403, "Something went wrong in verifying...");
 
     const user = await User.findById(userId).exec();
     if (!user) throw new HttpException(404, "User not found...");

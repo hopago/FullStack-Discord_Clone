@@ -30,10 +30,7 @@ router
 
 router
   .route("/friends/:friendId")
-  .get(getSingleFriend);
-
-router
-  .route("/friends/remove/:friendId")
+  .get(getSingleFriend)
   .delete(removeFriend);
 
 export default router;

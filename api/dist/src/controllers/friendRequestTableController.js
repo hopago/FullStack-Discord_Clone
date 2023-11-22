@@ -8,19 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import FriendAcceptReject from "../models/FriendRequestTable.js";
-import { HttpException } from "../middleware/error/utils.js";
 import User from "../models/User.js";
+import PrivateConversation from "../models/PrivateConversation.js";
 export const getAllFriendRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield User.findById(req.user.id);
-        const requestList = yield FriendAcceptReject.findOne({
+        if (!user)
+            return res.sendStatus(403);
+        const requestList = yield FriendAcceptReject.find({
             referenced_user: user === null || user === void 0 ? void 0 : user._id
         });
-        const requestListArr = requestList === null || requestList === void 0 ? void 0 : requestList.table.members;
-        if (Array.isArray(requestListArr) && !(requestListArr === null || requestListArr === void 0 ? void 0 : requestListArr.length)) {
-            throw new HttpException(400, "No request founded...");
+        if (Array.isArray(requestList) && !(requestList === null || requestList === void 0 ? void 0 : requestList.length)) {
+            return res.sendStatus(404);
         }
-        res.status(200).json(requestListArr);
+        res.status(200).json(requestList);
     }
     catch (err) {
         next(err);
@@ -28,11 +29,19 @@ export const getAllFriendRequest = (req, res, next) => __awaiter(void 0, void 0,
 });
 export const sendFriend = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const currentUserId = req.user.id;
-    const receiverId = req.params.receiverId;
+    const { userName, tag } = req.query;
     try {
         const currentUser = yield User.findById(currentUserId);
+        if (!currentUser)
+            return res.sendStatus(404);
+        const receiver = yield User.findOne({
+            userName,
+            tag
+        });
+        if (!receiver)
+            return res.sendStatus(404);
         const requestTable = yield FriendAcceptReject.findOne({
-            referenced_user: receiverId,
+            referenced_user: receiver._id,
         });
         if (!(requestTable === null || requestTable === void 0 ? void 0 : requestTable.table.members.includes(currentUserId))) {
             try {
@@ -43,13 +52,15 @@ export const sendFriend = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                         }
                     }
                 }));
-                res.status(201).json("Friend request sended successfully...");
+                return res.status(201).json({ _id: requestTable === null || requestTable === void 0 ? void 0 : requestTable._id });
             }
             catch (err) {
-                throw new HttpException(400, "You've been already sended request...");
+                next(err);
             }
         }
-        ;
+        else {
+            return res.status(407).json("Friend request already sended...");
+        }
     }
     catch (err) {
         next(err);
@@ -75,7 +86,22 @@ export const handleRequestFriend = (req, res, next) => __awaiter(void 0, void 0,
                         yield (currentUser === null || currentUser === void 0 ? void 0 : currentUser.updateOne({
                             $push: { friends: sender },
                         }));
-                        res.sendStatus(201);
+                        yield requestTable.updateOne({
+                            $pull: {
+                                table: {
+                                    members: sender,
+                                },
+                            },
+                        });
+                        const newConversation = new PrivateConversation({
+                            members: [sender, currentUser],
+                            senderId: sender === null || sender === void 0 ? void 0 : sender._id,
+                            receiverId: currentUser === null || currentUser === void 0 ? void 0 : currentUser._id,
+                            readBySender: false,
+                            readByReceiver: true,
+                        });
+                        yield newConversation.save();
+                        res.status(201).json({ newConversation, currentUser });
                     }
                     catch (err) {
                         next(err);

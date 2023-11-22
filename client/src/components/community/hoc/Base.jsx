@@ -12,6 +12,8 @@ const Base = () => {
   const params = useParams();
   const pathName = Object.values(params)[0];
 
+  {/* 친구 데이터 fetch point */}
+
   return (
     <div className="community-base">
       <div className="community-content">

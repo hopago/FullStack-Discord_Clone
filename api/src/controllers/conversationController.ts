@@ -1,6 +1,7 @@
 import PrivateConversation from "../models/PrivateConversation.js";
 import { Request, Response, NextFunction } from "express";
 import { HttpException } from "../middleware/error/utils.js";
+import User from "../models/User.js";
 
 export const createConversation = async (req: Request, res: Response, next: NextFunction) => {
     const friendId = req.query.friendId;
@@ -26,6 +27,10 @@ export const getConversations = async (req: Request, res: Response, next: NextFu
             receiverId: req.user.id
         })
         .sort({ updatedAt: - 1 });
+        if (
+          !conversations ||
+          (Array.isArray(conversations) && !conversations.length)
+        ) return res.sendStatus(404);
 
         res.status(200).json(conversations);
     } catch (err) {

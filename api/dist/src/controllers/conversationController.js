@@ -32,6 +32,9 @@ export const getConversations = (req, res, next) => __awaiter(void 0, void 0, vo
             receiverId: req.user.id
         })
             .sort({ updatedAt: -1 });
+        if (!conversations ||
+            (Array.isArray(conversations) && !conversations.length))
+            return res.sendStatus(404);
         res.status(200).json(conversations);
     }
     catch (err) {

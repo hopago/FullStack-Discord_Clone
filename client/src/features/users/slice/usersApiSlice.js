@@ -15,6 +15,22 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                     { type: 'User', id: arg }
                 ],
             }),
+            getAllFriends: builder.query({
+                query: "/users/friends",
+                providesTags: (result, err, arg) => {
+                    return [
+                        ...result.map(({ _id }) => ({
+                            type: 'User', id: _id
+                        }))
+                    ]
+                }
+            }),
+            getSingleFriend: builder.query({
+                query: (friendId) => `/users/friends/${friendId}`,
+                providesTags: (result, error, arg) => [
+                    { type: 'User', id: arg }
+                ]
+            }),
             updateUser: builder.mutation({
                 query: updatedUserInfo => ({
                     url: '/users',
@@ -26,7 +42,16 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 invalidatesTags: (result, error, arg) => [
                     { type: 'User', id: result._id }
                 ],
-            })
+            }),
+            removeFriend: builder.mutation({
+                query: (friendId) => ({
+                    url: `/users/friends/${friendId}`,
+                    method: 'DELETE'
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: 'User', id: arg }
+                ]
+            }),
         }
     )
 });
@@ -34,5 +59,8 @@ export const usersApiSlice = apiSlice.injectEndpoints({
 export const {
     useGetCurrentUserQuery,
     useFindUserByIdQuery,
+    useLazyGetAllFriendsQuery,
+    useGetSingleFriendQuery,
     useUpdateUserMutation,
+    useRemoveFriendMutation
 } = usersApiSlice;

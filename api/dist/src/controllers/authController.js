@@ -12,6 +12,7 @@ import bcrypt from "bcrypt";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/jwt.js";
+import FriendAcceptReject from "../models/FriendRequestTable.js";
 export const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userName, password, email } = req.body;
@@ -25,6 +26,12 @@ export const register = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         const hash = bcrypt.hashSync(req.body.password, 10);
         const newUser = new User(Object.assign(Object.assign({}, req.body), { password: hash }));
         yield newUser.save();
+        const newFriendRequestTable = new FriendAcceptReject({
+            table: {
+                referenced_user: newUser._id
+            }
+        });
+        yield newFriendRequestTable.save();
         res.status(201).json("User has been created...");
     }
     catch (err) {

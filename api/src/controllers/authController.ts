@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import User from "../models/User.js";
 import jwt, { Secret, VerifyErrors } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/jwt.js";
+import FriendAcceptReject from "../models/FriendRequestTable.js";
 
 export const register = async (
   req: Request,
@@ -27,6 +28,14 @@ export const register = async (
       password: hash,
     });
     await newUser.save();
+
+    const newFriendRequestTable = new FriendAcceptReject({
+      table: {
+        referenced_user: newUser._id
+      }
+    });
+    await newFriendRequestTable.save();
+
     res.status(201).json("User has been created...");
   } catch (err) {
     next(err);
