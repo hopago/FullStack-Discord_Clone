@@ -18,15 +18,16 @@ const io = new Server(expressServer, {
 
 const UsersState = {
     users: [],
-    setUsers: function (newUsersArray) {
-        this.users = newUsersArray;
-    },
 };
 
 io.on('connection', socket => {
-    console.log(`User ${socket.id.substring(0, 5)} connected...`);
+    socket.emit(undefined, (user) => {
+        console.log(`${user.userName}#${user.tag} connected...`);
+        socket.emit(undefined, socket.id);
+    });
 
     socket.on("activateUser", (user) => {
+        console.log(user);
         const { friends, ...currentUser } = user;
 
         activateUser(currentUser, friends, socket.id);
@@ -37,43 +38,46 @@ io.on('connection', socket => {
         const onlineFriends = getOnlineFriends(_id);
 
         if (currentUser) {
-            io.to(currentUser).emit('onlineFriendList', onlineFriends);
+            io.to(currentUser.socketId).emit('onlineFriendList', onlineFriends);
         } else {
             console.log("Something went wrong in getOnlineFriends...");
         }
     });
 
-    socket.on('sendNotification', ({ senderId, receiverId, type }) => {
+    socket.on('sendNotification', ({ senderId, receiverId, requestType }) => {
         const receiver = findUserById(receiverId);
 
-        io.to(receiver._id).emit("getNotification", {
+        io.to(receiver.socketId).emit("getNotification", {
             senderId,
-            type
+            requestType
         });
     });
 
-    socket.on("onlineFriends", (_id) => {
+    socket.on("getOnlineFriends", (_id) => {
+        const receiver = findUserById(_id);
         const onlineFriends = getOnlineFriends(_id);
 
+        io.to(receiver.socketId).emit("sendOnlineFriends", onlineFriends);
+    });
+
+    socket.on("disconnect", (_id) => {
+        disconnectUser(_id);
     });
 });
 
 function activateUser(user, friends, socketId) {
     const activateUser = {
         ...user,
-        friendsInfoArray: friends
+        friendsInfoArray: friends,
+        socketId
     };
 
     !UsersState.users.some((user) => user._id === activateUser._id) &&
-      UsersState.setUsers([
-        ...UsersState.users.push({ ...activateUser, socketId })
-      ]);
+      UsersState.users.push(activateUser);
 }
 
 function disconnectUser(_id) {
-    UsersState.setUsers(
-        UsersState.users.filter((user) => user._id !== _id)
-    );
+    UsersState.users.filter((user) => user._id !== _id);
 }
 
 function findUserById(_id) {

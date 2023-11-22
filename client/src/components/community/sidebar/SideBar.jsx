@@ -121,8 +121,6 @@ const SideBar = ({ type: basePathName }) => {
   const [showModal, setShowModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
-  console.log(showProfile);
-
   const modalOutsideClick = (e) => {
     if (modalRef.current === e.target) {
       setShowModal(false);
@@ -160,8 +158,6 @@ const SideBar = ({ type: basePathName }) => {
     if (currentUser.language === "react") return <img alt="" src={react} />;
     if (currentUser.language === "next") return <img alt="" src={next} />;
   };
-
-  console.log(Math.floor(Math.random() * 90000) + 10000);
 
   return (
     <div className="community-sidebar">

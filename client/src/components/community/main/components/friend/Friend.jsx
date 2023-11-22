@@ -14,8 +14,7 @@ import { useLazyGetAllFriendRequestQuery } from "../../../../../features/friends
 
 const Friend = () => {
   const [active, setActive] = useState(0);
-  const [fetchType, setFetchType] = useState("온라인");
-  const [friends, setFriends] = useState([]);
+  const [friends, setFriends] = useState(null);
 
   const handleActiveClass = (e) => {
     if (e.target.innerText === "온라인") {
@@ -29,31 +28,54 @@ const Friend = () => {
     }
   };
 
-  const handleFetchType = (e) => {
+  const [
+    getAllFriends,
+    { data: allFriends, isFetching: isAllFriendsFetching },
+  ] = useLazyGetAllFriendsQuery();
+  const [
+    getAllFriendRequest,
+    { data: allFriendRequest, isFetching: isAllFriendRequestFetching },
+  ] = useLazyGetAllFriendRequestQuery();
+
+  let friendList;
+
+  const fetchAllFriends = (e) => {
     handleActiveClass(e);
-    setFetchType(e.target.innerText);
+    getAllFriends();
+    if (
+      Array.isArray(allFriends) &&
+      allFriends.length &&
+      !isAllFriendsFetching
+    ) {
+      setFriends(allFriends);
+    }
+    friendList = (
+      <>
+        {friends?.map((friend) => (
+          <UserInfo defaultProfile={defaultProfile} friend={friend} />
+        ))}
+      </>
+    );
   };
 
-  const [getAllFriends, { data: allFriends }] = useLazyGetAllFriendsQuery();
-  const [getAllFriendRequest, { data: allFriendRequest }] =
-    useLazyGetAllFriendRequestQuery();
-
-  useEffect(() => {
-    switch (fetchType) {
-      case "모두":
-        getAllFriends();
-        setFriends([...allFriends]);
-        break;
-      case "대기 중":
-        getAllFriendRequest();
-        setFriends([...allFriendRequest.table.members]);
-        break;
-      case "차단 목록":
-        break;
-      default:
-        break;
+  const fetchFriendRequest = (e) => {
+    handleActiveClass(e);
+    getAllFriendRequest();
+    if (
+      Array.isArray(allFriendRequest) &&
+      allFriendRequest.length &&
+      !isAllFriendRequestFetching
+    ) {
+      setFriends(allFriendRequest?.table?.members);
     }
-  }, [fetchType]);
+    friendList = (
+      <>
+        {friends?.map((friend) => (
+          <UserInfo defaultProfile={defaultProfile} friend={friend} />
+        ))}
+      </>
+    );
+  };
 
   return (
     <div className="friend">
@@ -71,7 +93,7 @@ const Friend = () => {
                   className={
                     active === 0 ? "active friend-opt-list" : "friend-opt-list"
                   }
-                  onClick={handleFetchType}
+                  onClick={() => {}}
                 >
                   온라인
                 </div>
@@ -79,7 +101,7 @@ const Friend = () => {
                   className={
                     active === 1 ? "active friend-opt-list" : "friend-opt-list"
                   }
-                  onClick={handleFetchType}
+                  onClick={fetchAllFriends}
                 >
                   모두
                 </div>
@@ -87,7 +109,7 @@ const Friend = () => {
                   className={
                     active === 2 ? "active friend-opt-list" : "friend-opt-list"
                   }
-                  onClick={handleFetchType}
+                  onClick={fetchFriendRequest}
                 >
                   대기 중
                 </div>
@@ -95,7 +117,7 @@ const Friend = () => {
                   className={
                     active === 3 ? "active friend-opt-list" : "friend-opt-list"
                   }
-                  onClick={handleFetchType}
+                  onClick={() => {}}
                 >
                   차단 목록
                 </div>
@@ -137,11 +159,7 @@ const Friend = () => {
           <div className="section-title">
             <span>온라인</span>
           </div>
-          <div className="friendList-col">
-            {friends.map((friend) => (
-              <UserInfo defaultProfile={defaultProfile} friend={friend} />
-            ))}
-          </div>
+          <div className="friendList-col">{friendList && friendList}</div>
         </div>
         <div className="body-right">
           <div className="wrapper">
