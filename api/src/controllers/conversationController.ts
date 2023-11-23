@@ -30,7 +30,7 @@ export const getConversations = async (req: Request, res: Response, next: NextFu
         if (
           !conversations ||
           (Array.isArray(conversations) && !conversations.length)
-        ) return res.sendStatus(404);
+        ) return res.status(400).json("No comment found yet...");
 
         res.status(200).json(conversations);
     } catch (err) {
@@ -41,7 +41,7 @@ export const getConversations = async (req: Request, res: Response, next: NextFu
 export const getSingleConversation = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const conversation = await PrivateConversation.findById(req.params.conversationId);
-        if (!conversation) throw new HttpException(404, "Could not found this chat room...");
+        if (!conversation) throw new HttpException(400, "Could not found this chat room...");
 
         res.status(200).json(conversation);
     } catch (err) {

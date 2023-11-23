@@ -13,7 +13,7 @@ export const getAllFriendRequest = async (req: Request, res: Response, next: Nex
             referenced_user: user?._id
         });
         if (Array.isArray(requestList) && !requestList?.length) {
-            return res.sendStatus(404);
+            return res.status(400).json("No friend yet...");
         }
 
         res.status(200).json(requestList);
@@ -27,12 +27,12 @@ export const sendFriend = async (req: Request, res: Response, next:NextFunction)
     const { userName, tag } = req.query; 
     try {
         const currentUser = await User.findById(currentUserId);
-        if (!currentUser) return res.sendStatus(404);
+        if (!currentUser) return res.status(400).json("Something went wrong in verifying...");
         const receiver = await User.findOne({
           userName,
           tag
         });
-        if (!receiver) return res.sendStatus(404);
+        if (!receiver) return res.status(400).json("Could not found receiver...");
 
         const requestTable = await FriendAcceptReject.findOne({
           referenced_user: receiver._id,

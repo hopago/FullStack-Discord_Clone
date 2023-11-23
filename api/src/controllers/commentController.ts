@@ -101,7 +101,7 @@ export const getComment = async (
   const commentId = req.params.commentId;
   try {
     const comment = await Comment.findById(commentId);
-    if (!comment) res.sendStatus(404);
+    if (!comment) res.status(400).json("No comment found yet...");
 
     res.status(200).json(comment);
   } catch (err) {
@@ -117,7 +117,7 @@ export const updateComment = async (
   const commentId = req.params.commentId;
   try {
     const comment = await Comment.findById(commentId);
-    if (!comment) res.sendStatus(404);
+    if (!comment) res.status(400).json("No comment found yet...");
 
     if (comment?.comments[0].author.authorId !== req.user.id) return res.sendStatus(405);
     
@@ -164,10 +164,10 @@ export const replyComment = async (
     const currentUser = await User.findOne({
       _id: req.user.id
     });
-    if (!currentUser) res.sendStatus(404);
+    if (!currentUser) res.status(400).json("Cannot found that user...");
 
     const comment = await Comment.findById(commentId);
-    if (!comment) return res.sendStatus(404);
+    if (!comment) return res.status(400).json("Cannot found comment...");
 
     let commentReply: object[] = comment.comments[0].comment_reply;
 
@@ -208,13 +208,13 @@ export const updateReplyComment = async (
   if (!commentId || commentId === "undefined") return res.sendStatus(400);
   try {
     const ref_comment = await Comment.findById(commentId);
-    if (!ref_comment) return res.sendStatus(404);
+    if (!ref_comment) return res.status(400).json("Could not found referenced comment...");
 
     const findIndex = ref_comment.comments[0].comment_reply.findIndex(
       (replyObj) =>
         replyObj.description === req.body.originDescription
     );
-    if (findIndex === - 1) return res.sendStatus(404);
+    if (findIndex === - 1) return res.sendStatus(400);
 
     const isVerified = ref_comment.comments[0].comment_reply[findIndex].user.userId === req.user.id;
     if (!isVerified) return res.sendStatus(401);
@@ -251,14 +251,14 @@ export const deleteReplyComment = async (
   if (!commentId || commentId === "undefined") return res.sendStatus(400);
   try {
     const comment = await Comment.findById(commentId);
-    if (!comment) return res.sendStatus(404);
+    if (!comment) return res.status(400).json("Comment could not found...");
 
     const findIndex = comment.comments[0].comment_reply.findIndex(
       (reply) =>
         reply.description === req.body.description &&
         reply.user.userId === req.user.id
     );
-    if (findIndex === - 1) return res.sendStatus(404);
+    if (findIndex === - 1) return res.sendStatus(400);
 
     comment.comments[0].comment_reply.splice(findIndex, 1);
 

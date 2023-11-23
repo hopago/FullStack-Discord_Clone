@@ -53,7 +53,16 @@ export const categories = [
 ];
 
 const ServerSideBar = () => {
+  const { data: currentUser } = useGetCurrentUserQuery();
+
+  const [showProfile, setShowProfile] = useState(false);
   const [active, setActive] = useState("All");
+
+  const LanguageImg = () => {
+    if (currentUser.language === "javascript") return <img alt="" src={js} />;
+    if (currentUser.language === "react") return <img alt="" src={react} />;
+    if (currentUser.language === "next") return <img alt="" src={next} />;
+  };
 
   return (
     <>
@@ -87,15 +96,27 @@ const ServerSideBar = () => {
         </div>
         {/* memoization */}
         <section className="community-sidebar-user">
-          <div className="wrapper">
-            <img src={profile} alt="" />
-            <div className="texts">
-              <h4>hopago</h4>
-              <div className="user-icons">
-                <Verified style={{ color: "#248046", fontSize: "16px" }} />
-                <Star style={{ color: "#FFD33E", fontSize: "16px" }} />
+          <div className="serverSidebar-wrapper">
+            <div
+              className="currUserProfileWrapper"
+              onClick={() => setShowProfile(!showProfile)}
+            >
+              <img src={currentUser.avatar} alt="" />
+              <div className="texts">
+                <h4>{currentUser.userName}</h4>
+                <div className="user-icons">
+                  <Verified style={{ color: "#248046", fontSize: "16px" }} />
+                  <LanguageImg />
+                </div>
               </div>
             </div>
+            {showProfile && (
+              <Profile
+                showProfile={showProfile}
+                setShowProfile={setShowProfile}
+                currentUser={currentUser}
+              />
+            )}
             <div className="icons">
               <div className="iconWrap">
                 <AccountCircle className="profile-btn" />

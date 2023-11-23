@@ -11,22 +11,18 @@ import { useEffect, useState } from "react";
 import UserInfo from "./components/UserInfo";
 import { useLazyGetAllFriendsQuery } from "../../../../../features/users/slice/usersApiSlice";
 import { useLazyGetAllFriendRequestQuery } from "../../../../../features/friends/slice/friendRequestApiSlice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../../../../../features/users/slice/userSlice";
+import { socket } from "../../../../..";
+import SendFriendForm from "./components/SendFriendForm";
 
 const Friend = () => {
+  const currentUser = useSelector(selectCurrentUser);
+
   const [active, setActive] = useState(0);
   const [friends, setFriends] = useState(null);
-
-  const handleActiveClass = (e) => {
-    if (e.target.innerText === "온라인") {
-      setActive(0);
-    } else if (e.target.innerText === "모두") {
-      setActive(1);
-    } else if (e.target.innerText === "대기 중") {
-      setActive(2);
-    } else if (e.target.innerText === "차단 목록") {
-      setActive(3);
-    }
-  };
+  const [fetchType, setFetchType] = useState("온라인");
+  const [showSendFriendForm, setShowFriendForm] = useState(false);
 
   const [
     getAllFriends,
@@ -39,9 +35,30 @@ const Friend = () => {
 
   let friendList;
 
+  const fetchOnlineFriends = (e) => {
+    handleActiveClass(e);
+    socket?.emit("getOnlineFriends", currentUser?._id);
+    socket?.on("onlineFriendList", (onlineFriends) => {
+      setFriends(onlineFriends);
+    });
+    if (Array.isArray(friends) && friends.length) {
+      friendList = (
+        <>
+          {friends?.map((friend) => (
+            <UserInfo
+              key={friend._id}
+              defaultProfile={defaultProfile}
+              friend={friend}
+            />
+          ))}
+        </>
+      );
+    }
+  };
+
   const fetchAllFriends = (e) => {
     handleActiveClass(e);
-    getAllFriends();
+    getAllFriends(currentUser?._id);
     if (
       Array.isArray(allFriends) &&
       allFriends.length &&
@@ -52,7 +69,11 @@ const Friend = () => {
     friendList = (
       <>
         {friends?.map((friend) => (
-          <UserInfo defaultProfile={defaultProfile} friend={friend} />
+          <UserInfo
+            key={friend._id}
+            defaultProfile={defaultProfile}
+            friend={friend}
+          />
         ))}
       </>
     );
@@ -71,11 +92,66 @@ const Friend = () => {
     friendList = (
       <>
         {friends?.map((friend) => (
-          <UserInfo defaultProfile={defaultProfile} friend={friend} />
+          <UserInfo
+            key={friend._id}
+            defaultProfile={defaultProfile}
+            friend={friend}
+          />
         ))}
       </>
     );
   };
+
+  useEffect(() => {
+    try {
+      socket?.emit("activateUser", currentUser);
+      socket?.emit("getOnlineFriends", currentUser?._id);
+      socket?.on("onlineFriendList", (onlineFriends) => {
+        setFriends(onlineFriends);
+      });
+      if (Array.isArray(friends) && friends.length) {
+        friendList = (
+          <>
+            {friends?.map((friend) => (
+              <UserInfo
+                key={friend._id}
+                defaultProfile={defaultProfile}
+                friend={friend}
+              />
+            ))}
+          </>
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+
+    return () => {
+      socket?.off("onlineFriendList");
+    };
+  }, [socket, currentUser]);
+
+  const handleActiveClass = (e) => {
+    if (e.target.innerText === "온라인") {
+      setActive(0);
+      setFetchType("온라인");
+    } else if (e.target.innerText === "모두") {
+      setActive(1);
+      setFetchType("모두");
+    } else if (e.target.innerText === "대기 중") {
+      setActive(2);
+      setFetchType("대기 중");
+    } else if (e.target.innerText === "차단 목록") {
+      setActive(3);
+      setFetchType("차단 목록");
+    }
+    setShowFriendForm(false);
+  };
+
+  const handleShowFriendForm = () => {
+    setShowFriendForm(true);
+    setActive(4);
+  }
 
   return (
     <div className="friend">
@@ -93,7 +169,7 @@ const Friend = () => {
                   className={
                     active === 0 ? "active friend-opt-list" : "friend-opt-list"
                   }
-                  onClick={() => {}}
+                  onClick={fetchOnlineFriends}
                 >
                   온라인
                 </div>
@@ -121,7 +197,16 @@ const Friend = () => {
                 >
                   차단 목록
                 </div>
-                <div className="friend-opt-list last-child">친구 추가하기</div>
+                <div
+                  className={
+                    active === 4
+                      ? "friend-opt-list last-child active"
+                      : "friend-opt-list last-child"
+                  }
+                  onClick={handleShowFriendForm}
+                >
+                  친구 추가하기
+                </div>
               </div>
             </div>
             <div className="friend-option-right">
@@ -144,22 +229,28 @@ const Friend = () => {
       <hr />
       <div className="friend-body">
         <div className="body-left">
-          <div className="friend-searchBar">
-            <div className="wrapper">
-              <div className="innerForm">
-                <form>
-                  <input type="text" placeholder="검색하기" />
-                </form>
+          {showSendFriendForm ? (
+            <SendFriendForm />
+          ) : (
+            <>
+              <div className="friend-searchBar">
+                <div className="wrapper">
+                  <div className="innerForm">
+                    <form>
+                      <input type="text" placeholder="검색하기" />
+                    </form>
+                  </div>
+                  <div className="icon">
+                    <Search />
+                  </div>
+                </div>
               </div>
-              <div className="icon">
-                <Search />
+              <div className="section-title">
+                <span>{fetchType}</span>
               </div>
-            </div>
-          </div>
-          <div className="section-title">
-            <span>온라인</span>
-          </div>
-          <div className="friendList-col">{friendList && friendList}</div>
+              <div className="friendList-col">{friendList && friendList}</div>
+            </>
+          )}
         </div>
         <div className="body-right">
           <div className="wrapper">

@@ -34,7 +34,7 @@ export const updateUser = async (
     if (!userName) return res.sendStatus(400);
 
     const user = await User.findById(userId).exec();
-    if (!user) return res.sendStatus(404);
+    if (!user) return res.status(400).json("Could not found user...");
 
     user.userName = userName;
     user.description = description;
@@ -75,7 +75,7 @@ export const deleteUser = async (
     if (!userId) throw new HttpException(400, "User Id required...");
 
     const user = await User.findById(userId).exec();
-    if (!user) throw new HttpException(404, "User not found...");
+    if (!user) throw new HttpException(400, "User not found...");
 
     const result = await user.deleteOne();
 
@@ -101,7 +101,7 @@ export const findUserById = async (
     })
       .select("-password")
       .lean();
-    if (!user) res.sendStatus(404);
+    if (!user) res.status(400).json("Could not found this user...");
 
     res.status(200).json(user);
   } catch (err) {
@@ -114,28 +114,15 @@ export const getFriends = async (
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.user.id;
+  const userId = req.params.userId;
+  if (!userId) return res.sendStatus(400);
   try {
-    if (!userId)
-      throw new HttpException(403, "Something went wrong in verifying...");
-
     const user = await User.findById(userId).exec();
-    if (!user) throw new HttpException(404, "User not found...");
+    if (!user) return res.status(400).json("Could not found user...");
 
-    const getAllPromise = <T>(promises: Promise<T>[]) => Promise.all(promises);
-    const getAllFriends = user?.friends.map((friendId: string) =>
-      User.findById(friendId)
-    );
-    const friends = await getAllPromise(getAllFriends);
+    if (Array.isArray(user?.friends) && !user?.friends) return res.status(400).json("No friends found yet...");
 
-    let friendList: object[] = [];
-    friends.map((friend) => {
-      const { _id, userName, avatar, description, language } =
-        friend as IFriends;
-      friendList.push({ _id, userName, avatar, description, language });
-    });
-
-    res.status(200).json(friendList);
+    res.status(200).json(user?.friends);
   } catch (err) {
     next(err);
   }
@@ -146,11 +133,12 @@ export const getSingleFriend = async (
   res: Response,
   next: NextFunction
 ) => {
-  const currentUserId = req.user.id;
+  const currentUserId = req.params.userId;
   const friendId = req.params.friendId;
+  if (!currentUserId || !friendId) return res.sendStatus(400);
   try {
     const user = await User.findById(currentUserId);
-    if (!user) throw new HttpException(404, "User not found...");
+    if (!user) throw new HttpException(400, "User not found...");
 
     const friend: IUser[] = user.friends.filter((friend: IFriends) => {
       return friend._id === friendId;

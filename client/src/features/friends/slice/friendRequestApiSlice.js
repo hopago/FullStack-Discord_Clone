@@ -1,17 +1,13 @@
 import { apiSlice } from "../../authentication/api/apiSlice";
 
 export const friendRequestApiSlice = apiSlice.injectEndpoints({
-    endpoints: builder => (
+    endpoints: (builder) => (
         {
             getAllFriendRequest: builder.query({
                 query: () => '/friends',
-                provideTags: (result, error, arg) => {
-                    return [
-                        ...result.map(({ _id }) => ({
-                            type: "FriendRequest", id: _id
-                        }))
-                    ]
-                }
+                provideTags: (result, error, arg) => [
+                    ...result.map(({ _id }) => ({ type: "FriendRequest", id: _id }))
+                ]
             }),
             sendFriend: builder.mutation({
                 query: ({ userName, tag }) => ({
@@ -26,14 +22,12 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
                 query: ({ senderId, isAccepted }) => ({
                     url: `/friends/${senderId}`,
                     method: 'PUT',
-                    body: {
-                        isAccepted,
-                    }
+                    body: { isAccepted }
                 }),
-                async onQueryStarted({ senderId }, { dispatch, queryFulfilled }) {
+                onQueryStarted: async ({ senderId }, { dispatch, queryFulfilled }) => {
                     const patchResult = dispatch(
                         friendRequestApiSlice.util.updateQueryData('getAllFriendRequest', undefined, draftRequestList => {
-                            draftRequestList.table.members.filter(member => member._id !== senderId);
+                            draftRequestList.table.members = draftRequestList.table.members.filter(member => member._id !== senderId);
                         })
                     );
 

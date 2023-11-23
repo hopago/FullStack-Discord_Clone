@@ -25,11 +25,11 @@ router
   .get(findUserById);
 
 router
-  .route("/friends")
+  .route("/:userId/friends")
   .get(getFriends);
 
 router
-  .route("/friends/:friendId")
+  .route("/:userId/friends/:friendId")
   .get(getSingleFriend)
   .delete(removeFriend);
 

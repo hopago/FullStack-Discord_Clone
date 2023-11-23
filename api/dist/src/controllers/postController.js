@@ -104,7 +104,7 @@ export const getPostsByAuthorId = (req, res, next) => __awaiter(void 0, void 0, 
     try {
         const author = yield User.findById(authorId);
         if (!author)
-            throw new HttpException(404, "Could not found this user...");
+            throw new HttpException(400, "Could not found this user...");
         const posts = yield Post.find({
             author: {
                 authorId,
@@ -122,7 +122,7 @@ export const getPost = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     try {
         const post = yield Post.findById(req.params.postId);
         if (!post)
-            throw new HttpException(404, "Could not found this post...");
+            throw new HttpException(400, "Could not found this post...");
         res.status(200).json(post);
     }
     catch (err) {
@@ -136,7 +136,7 @@ export const updatePost = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     try {
         const post = yield Post.findById(req.params.postId);
         if (!post)
-            throw new HttpException(404, "Could not found this post...");
+            throw new HttpException(400, "Could not found this post...");
         if (req.user.id === post.author.authorId) {
             const updatedPost = yield Post.findByIdAndUpdate(req.params.postId, {
                 $set: req.body,
@@ -155,7 +155,7 @@ export const deletePost = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     try {
         const post = yield Post.findById(req.params.postId);
         if (!post)
-            throw new HttpException(404, "Could not found post...");
+            throw new HttpException(400, "Could not found post...");
         if (req.user.id === post.author.authorId) {
             yield Comment.find({
                 "comments.0.postId": post._id,
@@ -175,7 +175,7 @@ export const likePost = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     try {
         const post = yield Post.findById(req.params.postId);
         if (post === null && !post)
-            throw new HttpException(404, "Could not found post...");
+            throw new HttpException(400, "Could not found post...");
         const reactionName = req.body.reactionName;
         const reactionsObject = post.reactions;
         const isExist = Object.keys(reactionsObject).includes(reactionName);
@@ -191,7 +191,7 @@ export const likePost = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         else {
             const findIndex = post.reactions[reactionName].findIndex(_id => _id === req.user.id);
             if (findIndex === -1)
-                return res.sendStatus(404);
+                return res.sendStatus(400);
             post.reactions[reactionName].splice(findIndex, 1);
             yield post.save();
             const updatedPost = post;

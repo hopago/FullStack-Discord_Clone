@@ -165,7 +165,7 @@ export const getMembers = async (req: Request, res: Response, next: NextFunction
                 throw new HttpException(400, "Something went wrong...");
             }
         } else {
-            throw new HttpException(404, "Server not founded...");
+            throw new HttpException(400, "Server not founded...");
         }
     } catch (err) {
         next(err);
@@ -258,7 +258,7 @@ export const searchServer = async (req: Request, res: Response, next: NextFuncti
         })
         .limit(20);
 
-        if (Array.isArray(servers) && !servers.length) throw new HttpException(404, "Server not founded...");
+        if (Array.isArray(servers) && !servers.length) throw new HttpException(400, "Server not founded...");
 
         res.status(200).json(servers);        
     } catch (err) {

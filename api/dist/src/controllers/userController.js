@@ -43,7 +43,7 @@ export const updateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             return res.sendStatus(400);
         const user = yield User.findById(userId).exec();
         if (!user)
-            return res.sendStatus(404);
+            return res.status(400).json("Could not found user...");
         user.userName = userName;
         user.description = description;
         user.language = language;
@@ -71,7 +71,7 @@ export const deleteUser = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             throw new HttpException(400, "User Id required...");
         const user = yield User.findById(userId).exec();
         if (!user)
-            throw new HttpException(404, "User not found...");
+            throw new HttpException(400, "User not found...");
         const result = yield user.deleteOne();
         res
             .status(200)
@@ -92,7 +92,7 @@ export const findUserById = (req, res, next) => __awaiter(void 0, void 0, void 0
             .select("-password")
             .lean();
         if (!user)
-            res.sendStatus(404);
+            res.status(400).json("Could not found this user...");
         res.status(200).json(user);
     }
     catch (err) {
@@ -100,34 +100,30 @@ export const findUserById = (req, res, next) => __awaiter(void 0, void 0, void 0
     }
 });
 export const getFriends = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.user.id;
+    const userId = req.params.userId;
+    if (!userId)
+        return res.sendStatus(400);
     try {
-        if (!userId)
-            throw new HttpException(403, "Something went wrong in verifying...");
         const user = yield User.findById(userId).exec();
         if (!user)
-            throw new HttpException(404, "User not found...");
-        const getAllPromise = (promises) => Promise.all(promises);
-        const getAllFriends = user === null || user === void 0 ? void 0 : user.friends.map((friendId) => User.findById(friendId));
-        const friends = yield getAllPromise(getAllFriends);
-        let friendList = [];
-        friends.map((friend) => {
-            const { _id, userName, avatar, description, language } = friend;
-            friendList.push({ _id, userName, avatar, description, language });
-        });
-        res.status(200).json(friendList);
+            return res.status(400).json("Could not found user...");
+        if (Array.isArray(user === null || user === void 0 ? void 0 : user.friends) && !(user === null || user === void 0 ? void 0 : user.friends))
+            return res.status(400).json("No friends found yet...");
+        res.status(200).json(user === null || user === void 0 ? void 0 : user.friends);
     }
     catch (err) {
         next(err);
     }
 });
 export const getSingleFriend = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const currentUserId = req.user.id;
+    const currentUserId = req.params.userId;
     const friendId = req.params.friendId;
+    if (!currentUserId || !friendId)
+        return res.sendStatus(400);
     try {
         const user = yield User.findById(currentUserId);
         if (!user)
-            throw new HttpException(404, "User not found...");
+            throw new HttpException(400, "User not found...");
         const friend = user.friends.filter((friend) => {
             return friend._id === friendId;
         });

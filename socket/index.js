@@ -1,6 +1,8 @@
 import express from 'express';
 import { Server } from 'socket.io';
 
+{/* TODO: prevent refresh disconnect */}
+
 const PORT = process.env.PORT || 5000;
 const ADMIN = "Admin";
 
@@ -21,16 +23,12 @@ const UsersState = {
 };
 
 io.on('connection', socket => {
-    socket.emit(undefined, (user) => {
-        console.log(`${user.userName}#${user.tag} connected...`);
-        socket.emit(undefined, socket.id);
-    });
-
     socket.on("activateUser", (user) => {
-        console.log(user);
         const { friends, ...currentUser } = user;
 
         activateUser(currentUser, friends, socket.id);
+
+        console.log(`${user.userName}#${user.tag} connected...`);
     });
 
     socket.on("getOnlineFriends", (_id) => {
@@ -60,8 +58,14 @@ io.on('connection', socket => {
         io.to(receiver.socketId).emit("sendOnlineFriends", onlineFriends);
     });
 
-    socket.on("disconnect", (_id) => {
-        disconnectUser(_id);
+    socket.on("logout", (_id) => {
+        const user = findUserById(_id);
+        if (user) {
+            console.log(`${user.userName}#${user.tag} has been disconnected...`);
+            disconnectUser(_id);
+        } else {
+            console.log(`${user.userName}#${user.tag} has not found...`);
+        }
     });
 });
 
@@ -72,20 +76,31 @@ function activateUser(user, friends, socketId) {
         socketId
     };
 
+    console.log(activateUser);
+
     !UsersState.users.some((user) => user._id === activateUser._id) &&
       UsersState.users.push(activateUser);
 }
 
 function disconnectUser(_id) {
-    UsersState.users.filter((user) => user._id !== _id);
+    UsersState.users = UsersState.users.filter((user) => user._id !== _id);
 }
 
 function findUserById(_id) {
-    return UsersState.users.find((user) => user._id === user._id);
+    return UsersState.users.find((user) => user._id === _id);
 }
 
 function getOnlineFriends(_id) {
+    console.log(UsersState.users);
     const currentUser = UsersState.users.find(user => user._id === _id);
+    if (!currentUser) {
+        console.log(`${currentUser.userName}#${currentUser.tag} has not found...`);
+        return;
+    }
     const friends = currentUser.friendsInfoArray;
+    if (Array.isArray(friends) && !friends.length) {
+        console.log(`${currentUser.userName}#${currentUser.tag} has no friend...`);
+        return;
+    }
     return UsersState.users.filter(user => friends.filter(friend => friend._id === user._id ));
 }

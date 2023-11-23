@@ -87,7 +87,7 @@ export const getComment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     try {
         const comment = yield Comment.findById(commentId);
         if (!comment)
-            res.sendStatus(404);
+            res.status(400).json("No comment found yet...");
         res.status(200).json(comment);
     }
     catch (err) {
@@ -99,7 +99,7 @@ export const updateComment = (req, res, next) => __awaiter(void 0, void 0, void 
     try {
         const comment = yield Comment.findById(commentId);
         if (!comment)
-            res.sendStatus(404);
+            res.status(400).json("No comment found yet...");
         if ((comment === null || comment === void 0 ? void 0 : comment.comments[0].author.authorId) !== req.user.id)
             return res.sendStatus(405);
         const updatedComment = yield comment.updateOne({
@@ -137,10 +137,10 @@ export const replyComment = (req, res, next) => __awaiter(void 0, void 0, void 0
             _id: req.user.id
         });
         if (!currentUser)
-            res.sendStatus(404);
+            res.status(400).json("Cannot found that user...");
         const comment = yield Comment.findById(commentId);
         if (!comment)
-            return res.sendStatus(404);
+            return res.status(400).json("Cannot found comment...");
         let commentReply = comment.comments[0].comment_reply;
         const commentReplyObj = {
             referenced_comment: commentId,
@@ -172,10 +172,10 @@ export const updateReplyComment = (req, res, next) => __awaiter(void 0, void 0, 
     try {
         const ref_comment = yield Comment.findById(commentId);
         if (!ref_comment)
-            return res.sendStatus(404);
+            return res.status(400).json("Could not found referenced comment...");
         const findIndex = ref_comment.comments[0].comment_reply.findIndex((replyObj) => replyObj.description === req.body.originDescription);
         if (findIndex === -1)
-            return res.sendStatus(404);
+            return res.sendStatus(400);
         const isVerified = ref_comment.comments[0].comment_reply[findIndex].user.userId === req.user.id;
         if (!isVerified)
             return res.sendStatus(401);
@@ -204,11 +204,11 @@ export const deleteReplyComment = (req, res, next) => __awaiter(void 0, void 0, 
     try {
         const comment = yield Comment.findById(commentId);
         if (!comment)
-            return res.sendStatus(404);
+            return res.status(400).json("Comment could not found...");
         const findIndex = comment.comments[0].comment_reply.findIndex((reply) => reply.description === req.body.description &&
             reply.user.userId === req.user.id);
         if (findIndex === -1)
-            return res.sendStatus(404);
+            return res.sendStatus(400);
         comment.comments[0].comment_reply.splice(findIndex, 1);
         yield comment.save();
         res.sendStatus(204);

@@ -93,6 +93,13 @@
                                     width: inherit;
                                     height: inherit;
                                 }
+
+                                &.active {
+                                    background-color: transparent;
+                                    color: #2DC770;
+                                    cursor: default;
+                                    font-weight: 400;
+                                }
                             }
                         }
                     }

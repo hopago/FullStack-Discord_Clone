@@ -48,7 +48,7 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             userName,
         });
         if (!user)
-            throw new HttpException(404, "User not found...");
+            throw new HttpException(400, "User not found...");
         const isCorrect = bcrypt.compareSync(req.body.password, user.password);
         if (!isCorrect)
             return res.sendStatus(401);

@@ -93,7 +93,7 @@ export const updateMessage = (req, res, next) => __awaiter(void 0, void 0, void 
     try {
         const message = yield PrivateMessage.findById(req.params.messageId);
         if (!message)
-            throw new HttpException(404, "Could not found message...");
+            throw new HttpException(400, "Could not found message...");
         if (req.user.id === message.referenced_message.author.userId) {
             const updatedMessage = yield PrivateMessage.findByIdAndUpdate(req.params.messageId, {
                 $set: {

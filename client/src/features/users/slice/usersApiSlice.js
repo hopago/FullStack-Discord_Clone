@@ -16,7 +16,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 ],
             }),
             getAllFriends: builder.query({
-                query: "/users/friends",
+                query: (userId) => `/users/${userId}/friends`,
                 providesTags: (result, err, arg) => {
                     return [
                         ...result.map(({ _id }) => ({
@@ -26,7 +26,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 }
             }),
             getSingleFriend: builder.query({
-                query: (friendId) => `/users/friends/${friendId}`,
+                query: (userId, friendId) => `/users/${userId}/friends/${friendId}`,
                 providesTags: (result, error, arg) => [
                     { type: 'User', id: arg }
                 ]

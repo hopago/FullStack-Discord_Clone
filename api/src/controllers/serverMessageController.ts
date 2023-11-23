@@ -116,7 +116,7 @@ export const createMessage = async (req: Request, res: Response, next: NextFunct
 export const updatedMessage = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const message = await ServerMessage.findById(req.params.messageId);
-        if (!message) throw new HttpException(404, "Could not found message...");
+        if (!message) throw new HttpException(400, "Could not found message...");
 
         if (req.user.id === message.referenced_message.author.userId) {
             const updatedMessage = await ServerMessage.findByIdAndUpdate(

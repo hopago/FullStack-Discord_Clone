@@ -10,7 +10,7 @@ const UserInfo = ({ defaultProfile, friend }) => {
             <img src={friend.avatar ?? defaultProfile} alt="" />
             <div className="texts">
               <span className="friend-userName">{friend.userName}</span>
-              <span className="friend-userRole">{friend.language}</span>
+              <span className="friend-userRole">{friend.language} 개발자</span>
             </div>
           </div>
           <div className="actions">

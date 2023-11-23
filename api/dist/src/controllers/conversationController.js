@@ -34,7 +34,7 @@ export const getConversations = (req, res, next) => __awaiter(void 0, void 0, vo
             .sort({ updatedAt: -1 });
         if (!conversations ||
             (Array.isArray(conversations) && !conversations.length))
-            return res.sendStatus(404);
+            return res.status(400).json("No comment found yet...");
         res.status(200).json(conversations);
     }
     catch (err) {
@@ -45,7 +45,7 @@ export const getSingleConversation = (req, res, next) => __awaiter(void 0, void 
     try {
         const conversation = yield PrivateConversation.findById(req.params.conversationId);
         if (!conversation)
-            throw new HttpException(404, "Could not found this chat room...");
+            throw new HttpException(400, "Could not found this chat room...");
         res.status(200).json(conversation);
     }
     catch (err) {

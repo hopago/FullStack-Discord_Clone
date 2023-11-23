@@ -19,8 +19,15 @@ const Community = () => {
     isLoading,
     isSuccess,
     isError,
-    error
+    error,
+    refetch
   } = useGetCurrentUserQuery();
+
+  useEffect(() => {
+    if (!currentUser) {
+      refetch();
+    }
+  }, [currentUser, refetch]);
 
   if (currentUser) {
     dispatch(setCurrentUser(currentUser));
@@ -29,14 +36,6 @@ const Community = () => {
   if (currentUser && socket) {
     dispatch(setSocket(socket.id));
   }
-
-  useEffect(() => {
-    currentUser && socket?.emit("activateUser", currentUser);
-
-    return () => {
-
-    };
-  }, [socket, currentUser]);
 
   let content;
   if (isLoading) {
@@ -53,7 +52,7 @@ const Community = () => {
   } else if (isError) {
     content = <p>{JSON.stringify(error)}</p>
   }
-
+  
   return content;
 }
 

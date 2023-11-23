@@ -113,7 +113,7 @@ export const getPostsByAuthorId = async (
   const authorId: string = req.params.authorId;
   try {
     const author = await User.findById(authorId);
-    if (!author) throw new HttpException(404, "Could not found this user...");
+    if (!author) throw new HttpException(400, "Could not found this user...");
 
     const posts = await Post.find({
       author: {
@@ -137,7 +137,7 @@ export const getPost = async (
 ) => {
   try {
     const post = await Post.findById(req.params.postId);
-    if (!post) throw new HttpException(404, "Could not found this post...");
+    if (!post) throw new HttpException(400, "Could not found this post...");
 
     res.status(200).json(post);
   } catch (err) {
@@ -154,7 +154,7 @@ export const updatePost = async (
   if (postId === "undefined" || !postId) return res.sendStatus(400);
   try {
     const post = await Post.findById(req.params.postId);
-    if (!post) throw new HttpException(404, "Could not found this post...");
+    if (!post) throw new HttpException(400, "Could not found this post...");
 
     if (req.user.id === post.author.authorId) {
       const updatedPost = await Post.findByIdAndUpdate(
@@ -181,7 +181,7 @@ export const deletePost = async (
 ) => {
   try {
     const post = await Post.findById(req.params.postId);
-    if (!post) throw new HttpException(404, "Could not found post...");
+    if (!post) throw new HttpException(400, "Could not found post...");
 
     if (req.user.id === post.author.authorId) {
       await Comment.find({
@@ -207,7 +207,7 @@ export const likePost = async (
   try {
     const post = await Post.findById(req.params.postId);
     if (post === null && !post)
-      throw new HttpException(404, "Could not found post...");
+      throw new HttpException(400, "Could not found post...");
 
     const reactionName: string = req.body.reactionName;
     const reactionsObject: {
@@ -227,7 +227,7 @@ export const likePost = async (
       res.status(201).json(updatedPost);
     } else {
       const findIndex = post.reactions[reactionName].findIndex(_id => _id === req.user.id);
-      if (findIndex === -1) return res.sendStatus(404);
+      if (findIndex === -1) return res.sendStatus(400);
       post.reactions[reactionName].splice(findIndex, 1);
       await post.save();
       const updatedPost = post;

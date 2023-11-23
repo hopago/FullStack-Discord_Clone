@@ -57,7 +57,7 @@ export const login = async (
     const user = await User.findOne({
       userName,
     });
-    if (!user) throw new HttpException(404, "User not found...");
+    if (!user) throw new HttpException(400, "User not found...");
 
     const isCorrect = bcrypt.compareSync(req.body.password, user.password);
     if (!isCorrect) return res.sendStatus(401);

@@ -19,7 +19,7 @@ export const getAllFriendRequest = (req, res, next) => __awaiter(void 0, void 0,
             referenced_user: user === null || user === void 0 ? void 0 : user._id
         });
         if (Array.isArray(requestList) && !(requestList === null || requestList === void 0 ? void 0 : requestList.length)) {
-            return res.sendStatus(404);
+            return res.status(400).json("No friend yet...");
         }
         res.status(200).json(requestList);
     }
@@ -33,13 +33,13 @@ export const sendFriend = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     try {
         const currentUser = yield User.findById(currentUserId);
         if (!currentUser)
-            return res.sendStatus(404);
+            return res.status(400).json("Something went wrong in verifying...");
         const receiver = yield User.findOne({
             userName,
             tag
         });
         if (!receiver)
-            return res.sendStatus(404);
+            return res.status(400).json("Could not found receiver...");
         const requestTable = yield FriendAcceptReject.findOne({
             referenced_user: receiver._id,
         });
