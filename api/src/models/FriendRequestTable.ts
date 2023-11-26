@@ -5,14 +5,13 @@ export interface IFriendRequestTable extends TFriendRequestTable, Document {};
 
 const friendRequestTableSchema: Schema = new Schema(
   {
-    table: {
-      referenced_user: {
-        type: String,
-      },
-      members: {
-        type: [Object],
-        default: [],
-      },
+    referenced_user: {
+      type: String,
+      unique: true,
+    },
+    members: {
+      type: [Object],
+      default: [],
     },
   },
   { timestamps: true }

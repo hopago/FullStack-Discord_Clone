@@ -1,7 +1,6 @@
 import PrivateConversation from "../models/PrivateConversation.js";
 import { Request, Response, NextFunction } from "express";
 import { HttpException } from "../middleware/error/utils.js";
-import User from "../models/User.js";
 
 export const createConversation = async (req: Request, res: Response, next: NextFunction) => {
     const friendId = req.query.friendId;
@@ -30,7 +29,7 @@ export const getConversations = async (req: Request, res: Response, next: NextFu
         if (
           !conversations ||
           (Array.isArray(conversations) && !conversations.length)
-        ) return res.status(400).json("No comment found yet...");
+        ) return res.status(400).json("No conversation found yet...");
 
         res.status(200).json(conversations);
     } catch (err) {

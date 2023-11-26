@@ -1,14 +1,13 @@
 import { model, Schema } from "mongoose";
 ;
 const friendRequestTableSchema = new Schema({
-    table: {
-        referenced_user: {
-            type: String,
-        },
-        members: {
-            type: [Object],
-            default: [],
-        },
+    referenced_user: {
+        type: String,
+        unique: true,
+    },
+    members: {
+        type: [Object],
+        default: [],
     },
 }, { timestamps: true });
 const FriendAcceptReject = model("FriendRequest", friendRequestTableSchema);

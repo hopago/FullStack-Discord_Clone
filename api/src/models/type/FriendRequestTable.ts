@@ -1,8 +1,6 @@
-import { TUser } from "./User";
+import { TUserWithId } from "./User";
 
 export type TFriendRequestTable = {
-    table: {
-        referenced_user: string,
-        members: TUser[],
-    }
+  referenced_user: string;
+  members: [TUserWithId];
 };

@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import User from "../models/User.js";
 import jwt, { Secret, VerifyErrors } from "jsonwebtoken";
 import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from "../config/jwt.js";
-import FriendAcceptReject from "../models/FriendRequestTable.js";
+import FriendAcceptReject, { IFriendRequestTable } from "../models/FriendRequestTable.js";
 
 export const register = async (
   req: Request,
@@ -29,12 +29,17 @@ export const register = async (
     });
     await newUser.save();
 
-    const newFriendRequestTable = new FriendAcceptReject({
-      table: {
-        referenced_user: newUser._id
-      }
-    });
-    await newFriendRequestTable.save();
+    const userId = newUser._id?.toHexString();
+    let newFriendRequestTable: IFriendRequestTable;
+
+    if (typeof userId === "string") {
+      newFriendRequestTable = new FriendAcceptReject({
+        referenced_user: userId
+      });
+      await newFriendRequestTable.save();
+    } else {
+      return res.sendStatus(500).json("Something went wrong in userId...");
+    }
 
     res.status(201).json("User has been created...");
   } catch (err) {

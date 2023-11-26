@@ -14,14 +14,36 @@ export const getAllFriendRequest = (req, res, next) => __awaiter(void 0, void 0,
     try {
         const user = yield User.findById(req.user.id);
         if (!user)
-            return res.sendStatus(403);
+            return res.status(403).json("Something went wrong in verifying...");
         const requestList = yield FriendAcceptReject.find({
-            referenced_user: user === null || user === void 0 ? void 0 : user._id
+            referenced_user: user === null || user === void 0 ? void 0 : user._id,
         });
-        if (Array.isArray(requestList) && !(requestList === null || requestList === void 0 ? void 0 : requestList.length)) {
-            return res.status(400).json("No friend yet...");
+        if (!requestList) {
+            return res.status(500).json("Something went wrong in referenced...");
         }
         res.status(200).json(requestList);
+    }
+    catch (err) {
+        next(err);
+    }
+});
+export const getReceivedCount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const user = yield User.findById(req.user.id);
+        if (!user)
+            return res.status(403).json("Something went wrong in verifying...");
+        const userId = user === null || user === void 0 ? void 0 : user._id.toHexString();
+        const requestList = yield FriendAcceptReject.findOne({
+            referenced_user: userId,
+        });
+        if (!requestList) {
+            return res.status(500).json("Something went wrong in referenced...");
+        }
+        const receivedCount = (_a = requestList === null || requestList === void 0 ? void 0 : requestList.members) === null || _a === void 0 ? void 0 : _a.length;
+        if (receivedCount === undefined)
+            return res.sendStatus(500);
+        res.status(200).json({ count: receivedCount, _id: req.user.id });
     }
     catch (err) {
         next(err);
@@ -36,23 +58,38 @@ export const sendFriend = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             return res.status(400).json("Something went wrong in verifying...");
         const receiver = yield User.findOne({
             userName,
-            tag
+            tag,
         });
         if (!receiver)
             return res.status(400).json("Could not found receiver...");
+        const receiverId = receiver._id.toHexString();
         const requestTable = yield FriendAcceptReject.findOne({
-            referenced_user: receiver._id,
+            referenced_user: receiverId,
         });
-        if (!(requestTable === null || requestTable === void 0 ? void 0 : requestTable.table.members.includes(currentUserId))) {
+        if (!requestTable)
+            return res
+                .status(500)
+                .json(`"Something went wrong in table...", ${requestTable}`);
+        if (!(requestTable === null || requestTable === void 0 ? void 0 : requestTable.members.some((member) => { var _a; return ((_a = member._id) === null || _a === void 0 ? void 0 : _a.toString()) === currentUserId; }))) {
             try {
+                const { _id, description, language, userName, avatar, banner } = currentUser;
+                const currentUserInfo = {
+                    _id,
+                    description,
+                    language,
+                    userName,
+                    avatar,
+                    banner,
+                };
                 yield (requestTable === null || requestTable === void 0 ? void 0 : requestTable.updateOne({
                     $push: {
-                        table: {
-                            members: currentUser
-                        }
-                    }
+                        members: currentUserInfo
+                    },
                 }));
-                return res.status(201).json({ _id: requestTable === null || requestTable === void 0 ? void 0 : requestTable._id });
+                return res.status(201).json({
+                    _id: requestTable === null || requestTable === void 0 ? void 0 : requestTable._id,
+                    receiverId: receiver._id,
+                });
             }
             catch (err) {
                 next(err);
@@ -70,27 +107,52 @@ export const handleRequestFriend = (req, res, next) => __awaiter(void 0, void 0,
     const currentUserId = req.user.id;
     const senderId = req.params.senderId;
     const isAccepted = req.body.isAccepted;
+    if (!senderId)
+        return res.status(400).json("Sender Id required...");
     try {
         const sender = yield User.findById(senderId);
         const currentUser = yield User.findById(currentUserId);
+        if (!sender || !currentUser)
+            return res.status(400).json("Cannot find that users...");
         const requestTable = yield FriendAcceptReject.findOne({
             referenced_user: currentUserId,
         });
-        if (requestTable === null || requestTable === void 0 ? void 0 : requestTable.table.members.includes(senderId)) {
+        if (!requestTable)
+            return res.status(400).json("Something went wrong in requestTable...");
+        if (requestTable === null || requestTable === void 0 ? void 0 : requestTable.members.some((member) => { var _a; return ((_a = member._id) === null || _a === void 0 ? void 0 : _a.toString()) === senderId; })) {
             try {
-                if (isAccepted && !(sender === null || sender === void 0 ? void 0 : sender.friends.includes(currentUserId))) {
+                if (isAccepted &&
+                    !(sender === null || sender === void 0 ? void 0 : sender.friends.some((friend) => { var _a; return ((_a = friend._id) === null || _a === void 0 ? void 0 : _a.toString()) === currentUserId; }))) {
                     try {
+                        const { _id, description, language, userName, avatar, banner } = currentUser;
+                        const currentUserInfo = {
+                            _id,
+                            description,
+                            language,
+                            userName,
+                            avatar,
+                            banner,
+                        };
+                        const { _id: senderId, description: senderDesc, language: senderLang, userName: senderName, avatar: senderAvatar, banner: senderBanner, } = sender;
+                        const senderInfo = {
+                            senderId,
+                            senderDesc,
+                            senderLang,
+                            senderName,
+                            senderAvatar,
+                            senderBanner,
+                        };
                         yield (sender === null || sender === void 0 ? void 0 : sender.updateOne({
-                            $push: { friends: currentUser },
+                            $push: { friends: currentUserInfo },
                         }));
                         yield (currentUser === null || currentUser === void 0 ? void 0 : currentUser.updateOne({
-                            $push: { friends: sender },
+                            $push: { friends: senderInfo },
                         }));
                         yield requestTable.updateOne({
                             $pull: {
-                                table: {
-                                    members: sender,
-                                },
+                                members: {
+                                    _id: sender._id
+                                }
                             },
                         });
                         const newConversation = new PrivateConversation({
@@ -101,7 +163,9 @@ export const handleRequestFriend = (req, res, next) => __awaiter(void 0, void 0,
                             readByReceiver: true,
                         });
                         yield newConversation.save();
-                        res.status(201).json({ newConversation, currentUser });
+                        res
+                            .status(201)
+                            .json({ newConversation, currentUser, requestTable });
                     }
                     catch (err) {
                         next(err);
@@ -111,9 +175,7 @@ export const handleRequestFriend = (req, res, next) => __awaiter(void 0, void 0,
                     try {
                         yield requestTable.updateOne({
                             $pull: {
-                                table: {
-                                    members: sender,
-                                },
+                                members: sender,
                             },
                         });
                         res.status(201).json("Friend request rejected...");
@@ -126,6 +188,9 @@ export const handleRequestFriend = (req, res, next) => __awaiter(void 0, void 0,
             catch (err) {
                 next(err);
             }
+        }
+        else {
+            return res.status(400).json("Friend request not found...");
         }
     }
     catch (err) {

@@ -10,7 +10,7 @@ const blockRequestTableSchema: Schema = new Schema(
         type: String,
       },
       members: {
-        type: [Object],
+        type: [String],
         default: [],
       },
     },

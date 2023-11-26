@@ -59,6 +59,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
 export const {
     useGetCurrentUserQuery,
     useFindUserByIdQuery,
+    useLazyFindUserByIdQuery,
     useLazyGetAllFriendsQuery,
     useGetSingleFriendQuery,
     useUpdateUserMutation,

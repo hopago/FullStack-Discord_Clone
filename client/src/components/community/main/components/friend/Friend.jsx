@@ -9,8 +9,14 @@ import {
 import defaultProfile from "../../assets/default-profile-pic-e1513291410505.jpg";
 import { useEffect, useState } from "react";
 import UserInfo from "./components/UserInfo";
-import { useLazyGetAllFriendsQuery } from "../../../../../features/users/slice/usersApiSlice";
-import { useLazyGetAllFriendRequestQuery } from "../../../../../features/friends/slice/friendRequestApiSlice";
+import {
+  useLazyFindUserByIdQuery,
+  useLazyGetAllFriendsQuery,
+} from "../../../../../features/users/slice/usersApiSlice";
+import {
+  useGetReceivedCountQuery,
+  useLazyGetAllFriendRequestQuery,
+} from "../../../../../features/friends/slice/friendRequestApiSlice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../../features/users/slice/userSlice";
 import { socket } from "../../../../..";
@@ -19,33 +25,74 @@ import SendFriendForm from "./components/SendFriendForm";
 const Friend = () => {
   const currentUser = useSelector(selectCurrentUser);
 
-  const [active, setActive] = useState(0);
-  const [friends, setFriends] = useState(null);
-  const [fetchType, setFetchType] = useState("온라인");
-  const [showSendFriendForm, setShowFriendForm] = useState(false);
-
   const [
     getAllFriends,
-    { data: allFriends, isFetching: isAllFriendsFetching },
+    { data: allFriends },
   ] = useLazyGetAllFriendsQuery();
   const [
     getAllFriendRequest,
-    { data: allFriendRequest, isFetching: isAllFriendRequestFetching },
+    { data: allFriendRequest },
   ] = useLazyGetAllFriendRequestQuery();
+  const {
+    data: receivedCount
+  } = useGetReceivedCountQuery();
+  const [
+    findUser
+  ] = useLazyFindUserByIdQuery();
 
-  let friendList;
+  const [active, setActive] = useState(0);
+  const [friends, setFriends] = useState(null);
+  const [friendList, setFriendList] = useState(null);
+  const [fetchType, setFetchType] = useState("온라인");
+  const [showSendFriendForm, setShowFriendForm] = useState(false);
+  const [friendRequestCount, setFriendRequestCount] = useState(0);
+  const [contentType, setContentType] = useState("");
 
   const fetchOnlineFriends = (e) => {
+    setContentType("");
+    setFriends(null);
+    setFriendList(null);
     handleActiveClass(e);
     socket?.emit("getOnlineFriends", currentUser?._id);
     socket?.on("onlineFriendList", (onlineFriends) => {
       setFriends(onlineFriends);
     });
+  };
+
+  const fetchAllFriends = (e) => {
+    setContentType("");
+    setFriends(null);
+    setFriendList(null);
+    handleActiveClass(e);
+    getAllFriends(currentUser?._id)
+      .unwrap()
+      .then(data => setFriends(data))
+      .catch(err => console.error(err));
+  };
+
+  const fetchFriendRequest = (e) => {
+    setContentType("friendRequest");
+    setFriends(null);
+    setFriendList(null);
+    handleActiveClass(e);
+    getAllFriendRequest()
+      .unwrap()
+      .then((data) =>
+        setFriends(
+          ...data.map((request) => request.members.map((friend) => friend))
+        )
+      )
+      .catch((err) => console.error(err));
+  };
+
+  useEffect(() => {
     if (Array.isArray(friends) && friends.length) {
-      friendList = (
+      setFriendList(
         <>
           {friends?.map((friend) => (
             <UserInfo
+              type={contentType}
+              senderId={friend._id}
               key={friend._id}
               defaultProfile={defaultProfile}
               friend={friend}
@@ -54,66 +101,28 @@ const Friend = () => {
         </>
       );
     }
-  };
+  }, [friends, active]);
 
-  const fetchAllFriends = (e) => {
-    handleActiveClass(e);
-    getAllFriends(currentUser?._id);
-    if (
-      Array.isArray(allFriends) &&
-      allFriends.length &&
-      !isAllFriendsFetching
-    ) {
-      setFriends(allFriends);
+  useEffect(() => {
+    if (receivedCount?.count) {
+      setFriendRequestCount(receivedCount.count);
     }
-    friendList = (
-      <>
-        {friends?.map((friend) => (
-          <UserInfo
-            key={friend._id}
-            defaultProfile={defaultProfile}
-            friend={friend}
-          />
-        ))}
-      </>
-    );
-  };
-
-  const fetchFriendRequest = (e) => {
-    handleActiveClass(e);
-    getAllFriendRequest();
-    if (
-      Array.isArray(allFriendRequest) &&
-      allFriendRequest.length &&
-      !isAllFriendRequestFetching
-    ) {
-      setFriends(allFriendRequest?.table?.members);
-    }
-    friendList = (
-      <>
-        {friends?.map((friend) => (
-          <UserInfo
-            key={friend._id}
-            defaultProfile={defaultProfile}
-            friend={friend}
-          />
-        ))}
-      </>
-    );
-  };
+  }, [receivedCount]);
 
   useEffect(() => {
     try {
       socket?.emit("activateUser", currentUser);
       socket?.emit("getOnlineFriends", currentUser?._id);
       socket?.on("onlineFriendList", (onlineFriends) => {
+        if (!onlineFriends) return;
         setFriends(onlineFriends);
       });
       if (Array.isArray(friends) && friends.length) {
-        friendList = (
+        setFriendList(
           <>
             {friends?.map((friend) => (
               <UserInfo
+                senderId={friend._id}
                 key={friend._id}
                 defaultProfile={defaultProfile}
                 friend={friend}
@@ -130,6 +139,27 @@ const Friend = () => {
       socket?.off("onlineFriendList");
     };
   }, [socket, currentUser]);
+
+  useEffect(() => {
+    socket?.on("getNotification", ({ senderId, requestType }) => {
+      if (senderId && requestType === "FriendRequest") {
+        try {
+          findUser(senderId)
+            .unwrap()
+            .then(data => setFriends(prev => ([...prev, data])))
+            .catch(err => console.error(err));
+          
+          setFriendRequestCount(prev => prev + 1);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    });
+
+    return () => {
+      socket?.off("getNotification");
+    };
+  }, [socket]);
 
   const handleActiveClass = (e) => {
     if (e.target.innerText === "온라인") {
@@ -151,7 +181,7 @@ const Friend = () => {
   const handleShowFriendForm = () => {
     setShowFriendForm(true);
     setActive(4);
-  }
+  };
 
   return (
     <div className="friend">
@@ -183,11 +213,24 @@ const Friend = () => {
                 </div>
                 <div
                   className={
-                    active === 2 ? "active friend-opt-list" : "friend-opt-list"
+                    active === 2
+                      ? `active friend-opt-list ${
+                          Number(friendRequestCount) > 0 &&
+                          "friend-request-count"
+                        }`
+                      : `friend-opt-list ${
+                          Number(friendRequestCount) > 0 &&
+                          "friend-request-count"
+                        }`
                   }
                   onClick={fetchFriendRequest}
                 >
-                  대기 중
+                  <span className="text">대기 중</span>
+                  <div className="notifications">
+                    <span className="badge">
+                      {Number(friendRequestCount) > 0 && friendRequestCount}
+                    </span>
+                  </div>
                 </div>
                 <div
                   className={
@@ -230,7 +273,7 @@ const Friend = () => {
       <div className="friend-body">
         <div className="body-left">
           {showSendFriendForm ? (
-            <SendFriendForm />
+            <SendFriendForm currentUser={currentUser} />
           ) : (
             <>
               <div className="friend-searchBar">

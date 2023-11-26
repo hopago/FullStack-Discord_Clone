@@ -225,7 +225,7 @@ const Navbar = () => {
           </div>
           <hr />
           <div aria-label="server" className="server">
-            {isSuccess && (
+            {isSuccess && servers.length && (
               <div className="flex-col">
                 {servers.map((server, index) => (
                   <Link

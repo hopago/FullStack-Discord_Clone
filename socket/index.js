@@ -44,11 +44,18 @@ io.on('connection', socket => {
 
     socket.on('sendNotification', ({ senderId, receiverId, requestType }) => {
         const receiver = findUserById(receiverId);
-
-        io.to(receiver.socketId).emit("getNotification", {
-            senderId,
-            requestType
-        });
+        if (!receiver) {
+            console.log(`Type: ${requestType}, Receiver has not found...`);
+            return socket.emit("userNotFound", {
+                message: "Receiver not found...",
+                status: 400
+            });
+        } else {
+            io.to(receiver.socketId).emit("getNotification", {
+                senderId,
+                requestType
+            });
+        }
     });
 
     socket.on("getOnlineFriends", (_id) => {

@@ -4,14 +4,26 @@ export const serversApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => (
         {
             getUserServers: builder.query({
-                query: () => `/servers`,
+                query: () => ({
+                    url: `/servers`,
+                    transformResponse: (response) => {
+                        if (response.status === 400) {
+                            return [];
+                        }
+                        return response.data;
+                    }
+                }),
                 providesTags: (result, error, arg) => {
-                    return [
-                        { type: 'Server', id: "LIST" },
-                        ...result.map(({ _id }) => ({
-                            type: 'Server', id: _id
-                        }))
-                    ]
+                    if (Array.isArray(result) && result.length) {
+                        return [
+                            { type: 'Server', id: "LIST" },
+                            ...result.map(({ _id }) => ({
+                                type: 'Server', id: _id
+                            }))
+                        ];
+                    } else {
+                        return [];
+                    }
                 }
             }),
             getSingleServer: builder.query({

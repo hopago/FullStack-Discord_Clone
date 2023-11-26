@@ -2,6 +2,7 @@ import express from 'express';
 import { verifyJWT } from '../middleware/jwt/verifyJWT.js';
 import {
   getAllFriendRequest,
+  getReceivedCount,
   handleRequestFriend,
   sendFriend,
 } from "../controllers/friendRequestTableController.js";
@@ -15,6 +16,12 @@ router
   .get(getAllFriendRequest)
   .put(sendFriend);
 
-router.route("/:senderId").put(handleRequestFriend);
+router
+  .route("/count")
+  .get(getReceivedCount);
+
+router
+  .route("/process/:senderId")
+  .put(handleRequestFriend);
 
 export default router;

@@ -34,7 +34,7 @@ export const getConversations = (req, res, next) => __awaiter(void 0, void 0, vo
             .sort({ updatedAt: -1 });
         if (!conversations ||
             (Array.isArray(conversations) && !conversations.length))
-            return res.status(400).json("No comment found yet...");
+            return res.status(400).json("No conversation found yet...");
         res.status(200).json(conversations);
     }
     catch (err) {

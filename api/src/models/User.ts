@@ -39,11 +39,11 @@ const userSchema: Schema = new Schema({
         default: UserType[1].number,
     },
     friends: {
-        type: [String],
+        type: [Object],
         default: []
     },
     blackList: {
-        type: [String],
+        type: [Object],
         default: []
     },
     refreshToken: {

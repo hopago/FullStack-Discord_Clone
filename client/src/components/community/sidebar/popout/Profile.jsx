@@ -9,6 +9,13 @@ import { useEffect, useRef, useState } from "react";
 import { useUpdateUserMutation } from "../../../../features/users/slice/usersApiSlice";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "../../../../lib/firebase/config/firebase";
+import { useLogOutMutation } from "../../../../features/authentication/slice/authApiSlice";
+import { useDispatch } from "react-redux";
+import { logOut } from "../../../../features/authentication/slice/authSlice";
+import { apiSlice } from "../../../../features/authentication/api/apiSlice";
+import { useNavigate } from "react-router-dom";
+import { persistor } from "../../../../lib/redux/store";
+import { socket } from "../../../..";
 
 const Profile = ({ currentUser, setShowProfile, showProfile }) => {
   const inputRef = useRef();
@@ -30,19 +37,23 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
   const [updatedBanner, setUpdatedBanner] = useState({ banner: null });
 
   const [updateUserInfo] = useUpdateUserMutation();
+  const [logout] = useLogOutMutation();
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const updateUserAvatar = async () => {
     try {
       let { avatar: file } = updatedAvatar;
       console.log(file.name);
-  
+
       const imageRef = ref(
         storage,
         `users/images/${
           file.name + new Date().getSeconds() + new Date().getTime()
         }`
       );
-  
+
       const snapshot = await uploadBytes(imageRef, file);
       const url = await getDownloadURL(snapshot.ref);
       await updateUserInfo({ ...updatedUserInfo, avatar: url }).unwrap();
@@ -115,6 +126,30 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
           language: currentUser.language,
         });
       });
+  };
+
+  const handleLogout = () => {
+    logout()
+      .unwrap()
+      .then(async (res) => {
+        console.log(res);
+        if (res.status === 204) {
+          try {
+            await persistor.purge();
+            socket.emit("logout", currentUser._id);
+            dispatch(logOut());
+            dispatchEvent(apiSlice.util.resetApiState());
+            localStorage.removeItem("persist");
+          } catch (err) {
+            console.error(err);
+          }
+        } else {
+          console.error("Something went wrong in logout...");
+        }
+      })
+      .catch((err) => console.error(err));
+
+    navigate("/");
   };
 
   const handleBannerChanged = (e) => {
@@ -224,9 +259,12 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
 
   const handleProfilePopoutOutsideClicked = (e) => {
     const { screenX, screenY } = e;
-  
-    const isOutsideClick = (screenX > 2325 || screenX < 1985) || (screenY < (editUserProfile ? 630 : 630 + height));
-  
+
+    const isOutsideClick =
+      screenX > 2325 ||
+      screenX < 1985 ||
+      screenY < (editUserProfile ? 630 : 630 + height);
+
     if (isOutsideClick) {
       const updatedUserInfo = {
         _id: currentUser._id,
@@ -234,7 +272,7 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
         description: currentUser.description ?? null,
         language: currentUser.language,
       };
-  
+
       setUpdatedUserInfo(updatedUserInfo);
       setShowProfileEditLabel(false);
       setEditUserProfile(false);
@@ -266,8 +304,8 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
       className="accountProfile"
       style={
         editUserProfile
-          ? { top: `-465px` }
-          : { top: `-${(395 + height).toString()}px` }
+          ? { top: `-429px` }
+          : { top: `-${(431 + height).toString()}px` }
       }
     >
       <div className="wrapper">
@@ -284,7 +322,7 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
           onMouseLeave={() => setShowAvatarEditLabel(false)}
           htmlFor="popoutImg"
         >
-          <img className="popout_userAvatar" src={currentUser.avatar} />
+          <img className="popout_userAvatar" src={currentUser.avatar} alt="" />
           {showAvatarEditLabel && avatarEditLabel}
         </label>
         <input id="popoutImg" type="file" onChange={handleAvatarChanged} />
@@ -357,6 +395,12 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
               <div className="row">
                 <div className="fill" />
                 <div className="grow">온라인</div>
+                <ArrowRight />
+              </div>
+              <div className="row">
+                <div className="grow" onClick={handleLogout}>
+                  로그아웃
+                </div>
                 <ArrowRight />
               </div>
             </section>
