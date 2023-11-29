@@ -117,6 +117,9 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
           language: currentUser.language,
         })
       )
+      .then(
+        setEditUserProfile(false)
+      )
       .catch((err) => {
         console.error(err);
         setUpdatedUserInfo({
@@ -154,15 +157,9 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
 
   const handleBannerChanged = (e) => {
     setUpdatedBanner((prev) => ({ ...prev, banner: e.target.files[0] }));
-    if (updatedBanner.banner) {
-      updateUserBanner();
-    }
   };
   const handleAvatarChanged = (e) => {
     setUpdatedAvatar((prev) => ({ ...prev, avatar: e.target.files[0] }));
-    if (updatedAvatar.avatar) {
-      updateUserAvatar();
-    }
   };
 
   const LanguageImg = () => {
@@ -282,6 +279,19 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
   };
 
   useEffect(() => {
+    console.log(updatedAvatar.avatar);
+    if (updatedAvatar.avatar) {
+      updateUserAvatar();
+    }
+  }, [updatedAvatar.avatar]);
+
+  useEffect(() => {
+    if (updatedBanner.banner) {
+      updateUserBanner();
+    }
+  }, [updatedBanner.banner])
+ 
+  useEffect(() => {
     window.addEventListener("click", handleProfilePopoutOutsideClicked);
 
     return () => {
@@ -304,7 +314,7 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
       className="accountProfile"
       style={
         editUserProfile
-          ? { top: `-429px` }
+          ? { top: `-495px` }
           : { top: `-${(431 + height).toString()}px` }
       }
     >

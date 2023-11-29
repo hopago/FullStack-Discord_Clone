@@ -1,4 +1,4 @@
-.serverModal {
+.profileModal {
     position: absolute;
     width: 100vw;
     height: 100vh;
@@ -6,43 +6,42 @@
     left: 0px;
     bottom: 0px;
     right: 0px;
-    
-    .serverModal-backgroundDrop {
+    cursor: default;
+
+    .profileModal-backgroundDrop {
         position: absolute;
         width: 100%;
         height: 100%;
         opacity: 0.75;
-        background-color: #111111;
+        background-color: #070808;
     }
 
-    .serverModal-layer {
+    .profileModal-layer {
         width: 100%;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
         z-index: 999;
-        opacity: 0.95;
-        background-color: #111111;
         position: sticky;
 
-        .serverModal-modal {
+        .profileModal-modal {
             display: flex;
             align-items: center;
             justify-content: center;
 
-            .serverModal-modal-container {
+            .profileModal-modal-container {
                 width: 570px;
                 height: max-content;
 
-                .serverModal-modal-wrapper {
+                .profileModal-modal-wrapper {
                     width: 100%;
                     height: 100%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
 
-                    .serverModal-contents {
+                    .profileModal-contents {
                         width: 100%;
                         height: 100%;
                         display: flex;

@@ -74,9 +74,20 @@ io.on('connection', socket => {
             console.log(`${user.userName}#${user.tag} has not found...`);
         }
     });
+
+    socket.on("disconnect", (_id) => {
+        const user = findUserById(_id);
+        if (user) {
+            console.log(`${user.userName}#${user.tag} has been disconnected...`);
+            disconnectUser(_id);
+        } else {
+            console.log(`${user.userName}#${user.tag} has not found...`);
+        }
+    })
 });
 
 function activateUser(user, friends, socketId) {
+    console.log(friends);
     const activateUser = {
         ...user,
         friendsInfoArray: friends,
@@ -101,7 +112,7 @@ function getOnlineFriends(_id) {
     console.log(UsersState.users);
     const currentUser = UsersState.users.find(user => user._id === _id);
     if (!currentUser) {
-        console.log(`${currentUser.userName}#${currentUser.tag} has not found...`);
+        console.log(`CurrentUser has not found...`);
         return;
     }
     const friends = currentUser.friendsInfoArray;

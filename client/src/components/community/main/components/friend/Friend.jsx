@@ -25,20 +25,10 @@ import SendFriendForm from "./components/SendFriendForm";
 const Friend = () => {
   const currentUser = useSelector(selectCurrentUser);
 
-  const [
-    getAllFriends,
-    { data: allFriends },
-  ] = useLazyGetAllFriendsQuery();
-  const [
-    getAllFriendRequest,
-    { data: allFriendRequest },
-  ] = useLazyGetAllFriendRequestQuery();
-  const {
-    data: receivedCount
-  } = useGetReceivedCountQuery();
-  const [
-    findUser
-  ] = useLazyFindUserByIdQuery();
+  const [getAllFriends] = useLazyGetAllFriendsQuery();
+  const [getAllFriendRequest] = useLazyGetAllFriendRequestQuery();
+  const { data: receivedCount } = useGetReceivedCountQuery();
+  const [findUser] = useLazyFindUserByIdQuery();
 
   const [active, setActive] = useState(0);
   const [friends, setFriends] = useState(null);
@@ -48,10 +38,14 @@ const Friend = () => {
   const [friendRequestCount, setFriendRequestCount] = useState(0);
   const [contentType, setContentType] = useState("");
 
-  const fetchOnlineFriends = (e) => {
+  const resetFetchState = () => {
     setContentType("");
     setFriends(null);
     setFriendList(null);
+  };
+
+  const fetchOnlineFriends = (e) => {
+    resetFetchState();
     handleActiveClass(e);
     socket?.emit("getOnlineFriends", currentUser?._id);
     socket?.on("onlineFriendList", (onlineFriends) => {
@@ -60,14 +54,12 @@ const Friend = () => {
   };
 
   const fetchAllFriends = (e) => {
-    setContentType("");
-    setFriends(null);
-    setFriendList(null);
+    resetFetchState();
     handleActiveClass(e);
     getAllFriends(currentUser?._id)
       .unwrap()
-      .then(data => setFriends(data))
-      .catch(err => console.error(err));
+      .then((data) => setFriends(data))
+      .catch((err) => console.error(err));
   };
 
   const fetchFriendRequest = (e) => {
@@ -117,20 +109,6 @@ const Friend = () => {
         if (!onlineFriends) return;
         setFriends(onlineFriends);
       });
-      if (Array.isArray(friends) && friends.length) {
-        setFriendList(
-          <>
-            {friends?.map((friend) => (
-              <UserInfo
-                senderId={friend._id}
-                key={friend._id}
-                defaultProfile={defaultProfile}
-                friend={friend}
-              />
-            ))}
-          </>
-        );
-      }
     } catch (err) {
       console.error(err);
     }
@@ -143,16 +121,12 @@ const Friend = () => {
   useEffect(() => {
     socket?.on("getNotification", ({ senderId, requestType }) => {
       if (senderId && requestType === "FriendRequest") {
-        try {
-          findUser(senderId)
-            .unwrap()
-            .then(data => setFriends(prev => ([...prev, data])))
-            .catch(err => console.error(err));
-          
-          setFriendRequestCount(prev => prev + 1);
-        } catch (err) {
-          console.error(err);
-        }
+        findUser(senderId)
+          .unwrap()
+          .then((data) => setFriends((prev) => [...prev, data]))
+          .catch((err) => console.error(err));
+
+        setFriendRequestCount((prev) => prev + 1);
       }
     });
 

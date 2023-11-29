@@ -5,13 +5,25 @@ export const conversationsApiSlice = apiSlice.injectEndpoints({
         {
             getConversations: builder.query({
                 query: () => '/conversations',
+                transformResponse: (response) => {
+                    if (response.status === 400) {
+                        return [];
+                    }
+                    console.log(response);
+                    return response;
+                },
                 providesTags: (result, error, arg) => {
-                    return [
-                        { type: 'Conversation', id: 'LIST' },
-                        ...result.map(({ _id }) => ({
-                            type: 'Conversation', id: _id
-                        }))
-                    ]
+                    if (Array.isArray(result) && result.length) {
+                        return [
+                            { type: 'Conversation', id: 'LIST' },
+                            ...result.map(({ _id }) => ({
+                                type: 'Conversation', id: _id
+                            }))
+                        ]
+                    }
+                    else {
+                        return [];
+                    }
                 }
             }),
             getSingleConversation: builder.query({

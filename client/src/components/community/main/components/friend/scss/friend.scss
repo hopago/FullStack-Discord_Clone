@@ -408,7 +408,16 @@
 
                         &:hover {
                             background-color: #393C41;
-                            padding: 0px;
+                            margin: 16px 10px 8px 30px;
+                            padding: 0;
+                            width: inherit;
+                            height: inherit;
+                            border-radius: 8px;
+                        }
+
+                        &.active {
+                            background-color: #393C41;
+                            padding: 0;
                             margin: 16px 10px 8px 30px;
                             width: inherit;
                             height: inherit;

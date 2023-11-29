@@ -1,14 +1,11 @@
 import { ChatBubble, Check, Close, MoreVert } from "@mui/icons-material";
 import { useHandleRequestFriendMutation } from "../../../../../../features/friends/slice/friendRequestApiSlice";
 import { conversationsApiSlice } from "../../../../../../features/conversation/slice/conversationsApiSlice";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import FriendServicesPopout from "./FriendServicesPopout";
+import ProfileModal from "./modal/ProfileModal";
 
-const UserInfo = ({
-  defaultProfile,
-  friend,
-  type,
-  senderId,
-}) => {
+const UserInfo = ({ defaultProfile, friend, type, senderId }) => {
   const [acceptRejectRequest] = useHandleRequestFriendMutation();
 
   const handleRequest = (e) => {
@@ -22,14 +19,14 @@ const UserInfo = ({
 
     const params = {
       senderId,
-      isAccepted
+      isAccepted,
     };
 
     if (params.senderId && params.isAccepted !== undefined) {
       acceptRejectRequest(params)
         .unwrap()
-        .then(async (data) => {
-          const { newConversation } = await data;
+        .then((data) => {
+          const { newConversation } = data;
           if (newConversation) {
             try {
               conversationsApiSlice.util.updateQueryData(
@@ -52,10 +49,37 @@ const UserInfo = ({
     }
   };
 
+  const [xy, setXy] = useState({ x: 0, y: 0 });
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [active, setActive] = useState(false);
+
+  const handleServerContextMenu = (e) => {
+    e.preventDefault();
+    const rect = e.target.getBoundingClientRect();
+    setXy({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setActive(true);
+    setShowContextMenu(true);
+  };
+
+  const modalRef = useRef();
+  const [showModal, setShowModal] = useState(false);
+
+  const modalOutsideClick = (e) => {
+    if (modalRef.current === e.target) {
+      setShowModal(false);
+    }
+  };
+
   return (
     <div className="peopleList">
-      <div className="listItemWrapper">
-        <div className="contents">
+      <div
+        className={`${active ? "listItemWrapper active" : "listItemWrapper"}`}
+      >
+        <div
+          className="contents"
+          style={showModal ? {} : { position: "relative" }}
+          onContextMenu={handleServerContextMenu}
+        >
           <div className="userInfo">
             <img src={friend.avatar ?? defaultProfile} alt="" />
             <div className="texts">
@@ -87,6 +111,22 @@ const UserInfo = ({
               )}
             </div>
           </div>
+          {showContextMenu && (
+            <FriendServicesPopout
+              setActive={setActive}
+              setShowModal={setShowModal}
+              xy={xy}
+              setShowContextMenu={setShowContextMenu}
+              showContextMenu={showContextMenu}
+            />
+          )}
+          {showModal && (
+            <ProfileModal
+              modalRef={modalRef}
+              modalOutsideClick={modalOutsideClick}
+              friend={friend}
+            />
+          )}
         </div>
       </div>
     </div>

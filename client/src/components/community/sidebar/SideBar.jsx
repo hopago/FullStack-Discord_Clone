@@ -24,6 +24,7 @@ import react from "./assets/language/react.png";
 import next from "./assets/language/next.png";
 import Profile from "./popout/Profile";
 import { useGetCurrentUserQuery } from "../../../features/users/slice/usersApiSlice";
+import { useGetConversationsQuery } from "../../../features/conversation/slice/conversationsApiSlice";
 
 export const categories = [
   {
@@ -137,10 +138,27 @@ const ServerSideBar = () => {
 
 const SideBar = ({ type: basePathName }) => {
   const { data: currentUser } = useGetCurrentUserQuery();
+  const { data: conversations } = useGetConversationsQuery();
 
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+
+  console.log(conversations);
+
+  const findFriendInfo = (conversation) => {
+    return conversation.members.find(member => {
+      return member._id !== currentUser._id;
+    });
+  };
+
+  const getFriendInfo = (conversation, value) => {
+    const friend = findFriendInfo(conversation);
+
+    if (friend && value === "avatar") return friend.avatar;
+    if (friend && value === "userName") return friend.userName;
+    if (friend && value === "language") return friend.language;
+  };
 
   const modalOutsideClick = (e) => {
     if (modalRef.current === e.target) {
@@ -231,18 +249,25 @@ const SideBar = ({ type: basePathName }) => {
                 </li>
               </Link>
               <h2 className="private-message-bradCrumbs">Private Messages</h2>
-              <Link to="/community/conversation/:friendId" className="link">
-                <li className="sidebar-friend">
-                  <div className="sidebar-pp">
-                    <img src={profile} alt="" />
-                    <div className="status-fill" />
-                  </div>
-                  <div className="sidebar-friendInfo">
-                    <h2 className="friend-name">지인</h2>
-                    <p>React 개발자</p>
-                  </div>
-                </li>
-              </Link>
+              {conversations?.map((conversation) => (
+                <Link
+                  to={`/community/conversation/${conversation._id}`}
+                  className="link"
+                >
+                  <li className="sidebar-friend">
+                    <div className="sidebar-pp">
+                      <img src={getFriendInfo(conversation, "avatar")} alt="" />
+                      <div className="status-fill" />
+                    </div>
+                    <div className="sidebar-friendInfo">
+                      <h2 className="friend-name">
+                        {getFriendInfo(conversation, "userName")}
+                      </h2>
+                      <p>{getFriendInfo(conversation, "language")} 개발자</p>
+                    </div>
+                  </li>
+                </Link>
+              ))}
             </ul>
           </div>
         </div>

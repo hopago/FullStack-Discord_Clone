@@ -37,6 +37,30 @@ const Community = () => {
     dispatch(setSocket(socket.id));
   }
 
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log('Connect to socket server...');
+    });
+
+    return () => {
+      socket.disconnect(currentUser?._id);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("beforeunload", (e) => {
+      e.preventDefault();
+      socket.disconnect(currentUser?._id);
+    });
+
+    return () => {
+      window.removeEventListener("beforeunload", (e) => {
+        e.preventDefault();
+        socket.disconnect(currentUser?._id);
+      })
+    }
+  }, []);
+
   let content;
   if (isLoading) {
     content = <Spinner message={"컨텐츠를 기다리는 중 이에요..."} />;

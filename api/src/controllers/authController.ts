@@ -210,6 +210,9 @@ export const refreshToken = async (
         if (err || decoded.userInfo.id !== user._id) {
           user.refreshToken = [...newRefreshTokenArray];
           await user.save();
+
+          if (err) res.sendStatus(403);
+          return;
         }
 
         const accessToken = jwt.sign(

@@ -163,6 +163,9 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
             if (err || decoded.userInfo.id !== user._id) {
                 user.refreshToken = [...newRefreshTokenArray];
                 yield user.save();
+                if (err)
+                    res.sendStatus(403);
+                return;
             }
             const accessToken = jwt.sign({
                 userInfo: {

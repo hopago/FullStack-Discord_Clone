@@ -130,60 +130,60 @@ const Navbar = () => {
   };
 
   const logoClicked = () =>
-  setActiveFill((prev) => ({
-    ...prev,
-    active: true,
-    type: "logo",
-    activeServerId: "",
-  }));
+    setActiveFill((prev) => ({
+      ...prev,
+      active: true,
+      type: "logo",
+      activeServerId: "",
+    }));
   const logoMouseEnter = () => {
-  setActiveFill((prev) => ({ ...prev, logo_hover: true }));
+    setActiveFill((prev) => ({ ...prev, logo_hover: true }));
   };
   const logoMouseLeave = () => {
-  setActiveFill((prev) => ({ ...prev, logo_hover: false }));
+    setActiveFill((prev) => ({ ...prev, logo_hover: false }));
   };
-  
+
   const serverThumbnailClicked = (server) => {
-  console.log(server);
-  setActiveFill((prev) => ({
-    ...prev,
-    type: "server",
-    active: true,
-    activeServerId: server._id,
-  }));
+    console.log(server);
+    setActiveFill((prev) => ({
+      ...prev,
+      type: "server",
+      active: true,
+      activeServerId: server._id,
+    }));
   };
   const serverThumbnailMouseEnter = (server) => {
-  if (
-    (activeFill.type === "logo" && activeFill.active === true) ||
-    (activeFill.type === "server" && activeFill.active === true)
-  ) {
-    setActiveFill((prev) => ({
-      ...prev,
-      server_hover: true,
-      hoverServerId: server._id,
-    }));
-  }
-  if (showContextMenu) return;
-  setCurrentServerId(server._id);
-  setShowServerName(true);
+    if (
+      (activeFill.type === "logo" && activeFill.active === true) ||
+      (activeFill.type === "server" && activeFill.active === true)
+    ) {
+      setActiveFill((prev) => ({
+        ...prev,
+        server_hover: true,
+        hoverServerId: server._id,
+      }));
+    }
+    if (showContextMenu) return;
+    setCurrentServerId(server._id);
+    setShowServerName(true);
   };
   const serverThumbnailMouseLeave = () => {
-  if (
-    (activeFill.type === "logo" && activeFill.active === true) ||
-    (activeFill.type === "server" && activeFill.active === true)
-  ) {
-    setActiveFill((prev) => ({
-      ...prev,
-      server_hover: false,
-      hoverServerId: "",
-    }));
-  }
-  if (showContextMenu) {
+    if (
+      (activeFill.type === "logo" && activeFill.active === true) ||
+      (activeFill.type === "server" && activeFill.active === true)
+    ) {
+      setActiveFill((prev) => ({
+        ...prev,
+        server_hover: false,
+        hoverServerId: "",
+      }));
+    }
+    if (showContextMenu) {
+      setShowServerName(false);
+      return;
+    }
+    setCurrentServerId("");
     setShowServerName(false);
-    return;
-  }
-  setCurrentServerId("");
-  setShowServerName(false);
   };
 
   return (

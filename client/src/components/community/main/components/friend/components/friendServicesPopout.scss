@@ -1,0 +1,85 @@
+.friendServicesPopout {
+    width: max-content;
+    min-width: 188px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    text-decoration: none;
+    background-color: #101113;
+    border-radius: 0.7rem;
+    z-index: 99999;
+
+    .wrapper {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+
+        .flexCol {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            .itemContainer {
+                width: 100%;
+                padding: 0.5rem;
+                border-radius: 0.5rem;
+
+                span {
+                    color: #b5bac1;
+                    text-decoration: inherit;
+                    font-weight: 400;
+                    font-size: 14px;
+                }
+
+                .invite {
+                    color: #949cf7;
+                }
+
+                .text_icon {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+
+                .text {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+
+                    .text_flexCol {
+                        display: flex;
+                        flex-direction: column;
+
+                        .thin {
+                            font-weight: 300;
+                            font-size: 11px;
+                        }
+                    }
+                }
+
+                &:hover {
+                    background-color: #4752C4;
+
+                    span {
+                        color: #fff;
+                    }
+
+                    .invite {
+                        color: #fff;
+                    }
+                }
+            }
+
+            hr {
+                width: 100%;
+                opacity: 0.1;
+                height: 0.5px;
+            }
+        }
+    }
+}

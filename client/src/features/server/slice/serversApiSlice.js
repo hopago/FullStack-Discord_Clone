@@ -10,7 +10,8 @@ export const serversApiSlice = apiSlice.injectEndpoints({
                         if (response.status === 400) {
                             return [];
                         }
-                        return response.data;
+                        console.log(response);
+                        return response;
                     }
                 }),
                 providesTags: (result, error, arg) => {
