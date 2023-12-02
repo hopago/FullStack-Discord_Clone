@@ -119,7 +119,7 @@ export const updateComment = async (
     const comment = await Comment.findById(commentId);
     if (!comment) res.status(400).json("No comment found yet...");
 
-    if (comment?.comments[0].author.authorId !== req.user.id) return res.sendStatus(405);
+    if (comment?.comments[0].author.authorId.toString() !== req.user.id) return res.sendStatus(405);
     
     const updatedComment = await comment.updateOne({
       $set: {
@@ -144,7 +144,7 @@ export const deleteComment = async (
   if (commentId === 'undefined' || !commentId) return res.sendStatus(400);
   try {
     const comment = await Comment.findById(commentId);
-    if (req.user.id !== comment?.comments[0].author.authorId) return res.sendStatus(405);
+    if (req.user.id !== comment?.comments[0].author.authorId.toString()) return res.sendStatus(405);
     await comment.deleteOne();
 
     res.sendStatus(204);
@@ -216,7 +216,7 @@ export const updateReplyComment = async (
     );
     if (findIndex === - 1) return res.sendStatus(400);
 
-    const isVerified = ref_comment.comments[0].comment_reply[findIndex].user.userId === req.user.id;
+    const isVerified = ref_comment.comments[0].comment_reply[findIndex].user.userId.toString() === req.user.id;
     if (!isVerified) return res.sendStatus(401);
 
     const description = req.body.description;
@@ -256,7 +256,7 @@ export const deleteReplyComment = async (
     const findIndex = comment.comments[0].comment_reply.findIndex(
       (reply) =>
         reply.description === req.body.description &&
-        reply.user.userId === req.user.id
+        reply.user.userId.toString() === req.user.id
     );
     if (findIndex === - 1) return res.sendStatus(400);
 

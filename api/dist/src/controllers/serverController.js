@@ -44,19 +44,40 @@ export const getAllServers = (req, res, next) => __awaiter(void 0, void 0, void 
     }
 });
 export const getAllUserServers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.query;
     try {
-        const user = yield User.findById(req.user.id);
-        const servers = yield Server.find({
-            members: {
-                $elemMatch: {
-                    $eq: req.user.id
+        if (!userId) {
+            const user = yield User.findById(req.user.id);
+            if (!user)
+                return res.status(404).json("User not found...");
+            const servers = yield Server.find({
+                members: {
+                    $elemMatch: {
+                        _id: { $eq: user._id }
+                    }
                 }
+            });
+            if (Array.isArray(servers) && !servers.length) {
+                throw new HttpException(400, "No server joined yet...");
             }
-        });
-        if (Array.isArray(servers) && !servers.length) {
-            throw new HttpException(400, "No server joined yet...");
+            res.status(200).json(servers);
         }
-        res.status(200).json(servers);
+        else {
+            const user = yield User.findById(userId);
+            if (!user)
+                return res.status(404).json("User not found...");
+            const servers = yield Server.find({
+                members: {
+                    $elemMatch: {
+                        _id: { $eq: userId }
+                    }
+                }
+            });
+            if (Array.isArray(servers) && !servers.length) {
+                throw new HttpException(400, "No server joined yet...");
+            }
+            res.status(200).json(servers);
+        }
     }
     catch (err) {
         next(err);
@@ -66,7 +87,18 @@ export const createServer = (req, res, next) => __awaiter(void 0, void 0, void 0
     var _a;
     try {
         const user = yield User.findById(req.user.id);
-        const newServer = new Server(Object.assign({ members: [req.user.id], author: {
+        if (user === null || !user)
+            return res.status(404).json("User not found...");
+        const { _id, description, language, userName, avatar, banner } = user;
+        const userInfo = {
+            _id,
+            description,
+            language,
+            userName,
+            avatar,
+            banner
+        };
+        const newServer = new Server(Object.assign({ members: [userInfo], author: {
                 authorId: req.user.id,
                 userName: user === null || user === void 0 ? void 0 : user.userName,
                 avatar: (_a = user === null || user === void 0 ? void 0 : user.avatar) !== null && _a !== void 0 ? _a : null
@@ -107,6 +139,8 @@ export const getSingleServer = (req, res, next) => __awaiter(void 0, void 0, voi
 export const updateServer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const server = yield Server.findById(req.params.serverId);
+        if ((server === null || server === void 0 ? void 0 : server.author.authorId) === undefined)
+            return res.status(500).json("Something went wrong in authorId...");
         const serverAuthorId = server === null || server === void 0 ? void 0 : server.author.authorId;
         if (serverAuthorId === req.user.id) {
             const updatedServer = yield (server === null || server === void 0 ? void 0 : server.updateOne({
@@ -127,9 +161,7 @@ export const deleteServer = (req, res, next) => __awaiter(void 0, void 0, void 0
         const server = yield Server.findById(req.params.serverId);
         const serverAuthorId = server === null || server === void 0 ? void 0 : server.author.authorId;
         if (serverAuthorId === req.user.id) {
-            yield (server === null || server === void 0 ? void 0 : server.deleteOne({
-                $set: req.body,
-            }));
+            yield (server === null || server === void 0 ? void 0 : server.deleteOne());
             res.status(204);
         }
         else {
@@ -149,11 +181,11 @@ export const getMembers = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 res.status(200).json(members);
             }
             else {
-                throw new HttpException(400, "Something went wrong...");
+                return res.status(400).json("No server yet...");
             }
         }
         else {
-            throw new HttpException(400, "Server not founded...");
+            return res.status(404).json("Server not found...");
         }
     }
     catch (err) {
@@ -169,11 +201,13 @@ export const updateMembers = (req, res, next) => __awaiter(void 0, void 0, void 
         try {
             const server = yield Server.findByIdAndUpdate(req.params.serverId, {
                 $pull: {
-                    members: removedUserId
+                    members: {
+                        _id: removedUserId
+                    }
                 }
-            });
+            }, { new: true });
             if (!server)
-                return res.sendStatus(500);
+                return res.status(404).json("Server not found...");
             res.status(201).json(server);
         }
         catch (err) {
@@ -184,11 +218,13 @@ export const updateMembers = (req, res, next) => __awaiter(void 0, void 0, void 
         try {
             const server = yield Server.findByIdAndUpdate(req.params.serverId, {
                 $push: {
-                    members: joinedUserId
+                    members: {
+                        _id: joinedUserId
+                    }
                 }
-            });
+            }, { new: true });
             if (!server)
-                return res.sendStatus(505);
+                return res.status(404).json("Server not found...");
             res.status(201).json(server);
         }
         catch (err) {

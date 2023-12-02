@@ -11,7 +11,7 @@ export type TComment = {
         avatar: IUser["avatar"];
       };
       description: string;
-      comment_like_count: IUser["_id"][];
+      comment_like_count: string[];
       comment_reply: [
         {
           referenced_comment: string;

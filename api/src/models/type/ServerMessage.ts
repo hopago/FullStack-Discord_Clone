@@ -3,13 +3,13 @@ import { IUser } from "../User";
 
 export type TServerMessage = {
   referenced_conversation: {
-    serverId: TServerConversation["messages_referenced"]["serverId"];
+    serverId: string;
     childCategory: TServerConversation["messages_referenced"]["childCategory"];
   };
   referenced_message: {
     content: object;
     author: {
-      userId: IUser["_id"];
+      userId: string;
       userName: IUser["userName"];
       avatar: IUser["avatar"];
     };

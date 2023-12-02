@@ -137,7 +137,7 @@ export const updatePost = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         const post = yield Post.findById(req.params.postId);
         if (!post)
             throw new HttpException(400, "Could not found this post...");
-        if (req.user.id === post.author.authorId) {
+        if (req.user.id === post.author.authorId.toString()) {
             const updatedPost = yield Post.findByIdAndUpdate(req.params.postId, {
                 $set: req.body,
             }, { new: true });
@@ -156,7 +156,7 @@ export const deletePost = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         const post = yield Post.findById(req.params.postId);
         if (!post)
             throw new HttpException(400, "Could not found post...");
-        if (req.user.id === post.author.authorId) {
+        if (req.user.id === post.author.authorId.toString()) {
             yield Comment.find({
                 "comments.0.postId": post._id,
             }).deleteMany();

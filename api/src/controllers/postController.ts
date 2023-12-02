@@ -156,7 +156,7 @@ export const updatePost = async (
     const post = await Post.findById(req.params.postId);
     if (!post) throw new HttpException(400, "Could not found this post...");
 
-    if (req.user.id === post.author.authorId) {
+    if (req.user.id === post.author.authorId.toString()) {
       const updatedPost = await Post.findByIdAndUpdate(
         req.params.postId,
         {
@@ -183,7 +183,7 @@ export const deletePost = async (
     const post = await Post.findById(req.params.postId);
     if (!post) throw new HttpException(400, "Could not found post...");
 
-    if (req.user.id === post.author.authorId) {
+    if (req.user.id === post.author.authorId.toString()) {
       await Comment.find({
         "comments.0.postId": post._id,
       }).deleteMany();
@@ -211,7 +211,7 @@ export const likePost = async (
 
     const reactionName: string = req.body.reactionName;
     const reactionsObject: {
-      [key: string]: [IUser["_id"]];
+      [key: string]: [string];
     } = post.reactions;
 
     const isExist = Object.keys(reactionsObject).includes(reactionName);

@@ -2,7 +2,6 @@ import { HttpException } from "../middleware/error/utils.js";
 import User, { IUser } from "../models/User.js";
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
-import { IFriends } from "./type/friends";
 
 export const getCurrentUser = async (
   req: Request,
@@ -114,7 +113,7 @@ export const getFriends = async (
   res: Response,
   next: NextFunction
 ) => {
-  const userId = req.params.userId;
+  const userId = req.user.id;
   if (!userId) return res.sendStatus(400);
   try {
     const user = await User.findById(userId).exec();
@@ -133,15 +132,15 @@ export const getSingleFriend = async (
   res: Response,
   next: NextFunction
 ) => {
-  const currentUserId = req.params.userId;
+  const currentUserId = req.user.id;
   const friendId = req.params.friendId;
   if (!currentUserId || !friendId) return res.sendStatus(400);
   try {
     const user = await User.findById(currentUserId);
     if (!user) throw new HttpException(400, "User not found...");
 
-    const friend: IUser[] = user.friends.filter((friend: IFriends) => {
-      return friend._id === friendId;
+    const friend: IUser[] = user.friends.filter((friend: IUser) => {
+        return friend._id.toString() === friendId;
     });
 
     const { password, ...friendInfo } = friend[0];
@@ -159,6 +158,7 @@ export const removeFriend = async (
 ) => {
   const currentUserId = req.user.id;
   const friendId = req.params?.friendId;
+  if (!friendId || friendId === "undefined") return res.status(400).json("Friend Id required...");
   try {
     const currentUser = await User.findById(currentUserId);
     const friend = await User.findById(friendId);
@@ -173,6 +173,100 @@ export const removeFriend = async (
     } else {
       throw new HttpException(500, "Something went wrong...");
     }
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const addMemo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const currentUserId = req.user.id;
+  const friendId = req.params.friendId;
+  if (!friendId || friendId === "undefined")
+    return res.status(400).json("Friend Id required...");
+
+  try {
+    const currentUser = await User.findById(currentUserId);
+    let updatedFriend: IUser | undefined;
+
+    if (!currentUser)
+      return res.status(404).json("Something went wrong in verifying...");
+
+    if (currentUser) {
+      updatedFriend = currentUser.friends.find((friend: IUser) => {
+        friend._id.toString() === friendId;
+      });
+    }
+
+    if (!updatedFriend) return res.status(404).json("Friend not found...");
+
+    updatedFriend.memo = req.body.memo;
+
+    currentUser.friends = currentUser.friends
+      .map((friend: IUser) => {
+        if (updatedFriend === undefined) return friend;
+        return friend._id === updatedFriend._id ? updatedFriend : friend;
+      })
+      .filter(
+        (friend: IUser | undefined): friend is IUser => friend !== undefined
+      );
+
+    await currentUser.save();
+
+    return res.status(201).json({ _id: currentUser._id });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const handleCloseFriends = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const currentUserId = req.user.id;
+  const friendId = req.params.friendId;
+  if (currentUserId === "undefined" || friendId === "undefined")
+    return res
+      .status(400)
+      .json("Friend Id or Current User Id must required...");
+
+  try {
+    const currentUser = await User.findById(currentUserId);
+    if (!currentUser) return res.status(404).json("User not found...");
+
+    const findFriend = currentUser.friends.find((friend: IUser) => {
+      if (friend._id.toString() === friendId) {
+        return friend;
+      }
+    });
+
+    if (findFriend === undefined)
+      return res.status(404).json("Friend not found...");
+    const updatedFriend: IUser = findFriend;
+
+    currentUser.friends = currentUser.friends.filter((friend: IUser) => {
+      friend._id.toString() !== friendId;
+    });
+
+    if (
+      currentUser.closeFriends.some(
+        (friend) => friend._id.toString() === findFriend._id.toString()
+      )
+    ) {
+      currentUser.closeFriends = currentUser.closeFriends.filter(
+        (friend) => friend._id !== updatedFriend._id
+      );
+    } else {
+      currentUser.closeFriends.push(updatedFriend);
+    }
+
+    await currentUser.save();
+
+    return res.status(201).json({ _id: currentUser._id });
   } catch (err) {
     next(err);
   }

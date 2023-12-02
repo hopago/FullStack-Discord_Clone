@@ -27,7 +27,7 @@ export const register = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         const hash = bcrypt.hashSync(req.body.password, 10);
         const newUser = new User(Object.assign(Object.assign({}, req.body), { password: hash }));
         yield newUser.save();
-        const userId = (_a = newUser._id) === null || _a === void 0 ? void 0 : _a.toHexString();
+        const userId = (_a = newUser._id) === null || _a === void 0 ? void 0 : _a.toString();
         let newFriendRequestTable;
         if (typeof userId === "string") {
             newFriendRequestTable = new FriendAcceptReject({

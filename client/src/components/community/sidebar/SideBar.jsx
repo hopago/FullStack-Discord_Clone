@@ -102,7 +102,7 @@ const ServerSideBar = () => {
               className="currUserProfileWrapper"
               onClick={() => setShowProfile(!showProfile)}
             >
-              <img src={currentUser.avatar} alt="" />
+              <img src={currentUser.avatar ?? profile} alt="" />
               <div className="texts">
                 <h4>{currentUser.userName}</h4>
                 <div className="user-icons">
@@ -147,7 +147,7 @@ const SideBar = ({ type: basePathName }) => {
   console.log(conversations);
 
   const findFriendInfo = (conversation) => {
-    return conversation.members.find(member => {
+    return conversation.members.find((member) => {
       return member._id !== currentUser._id;
     });
   };
@@ -278,7 +278,7 @@ const SideBar = ({ type: basePathName }) => {
             className="currUserProfileWrapper"
             onClick={() => setShowProfile(!showProfile)}
           >
-            <img src={currentUser.avatar} alt="" />
+            <img src={currentUser.avatar ?? profile} alt="" />
             <div className="texts">
               <h4>{currentUser.userName}</h4>
               <div className="user-icons">

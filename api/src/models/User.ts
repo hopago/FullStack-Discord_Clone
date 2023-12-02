@@ -1,8 +1,23 @@
 import { Document, model, Schema } from "mongoose";
-import { TUser } from "./type/User.js";
 import { UserType } from "../config/userType.js";
 
-export interface IUser extends TUser, Document {};
+export interface IUser extends Document {
+    type: number,
+    description: string,
+    language: string,
+    email: string,
+    password: string,
+    isVerified: boolean,
+    userName: string,
+    avatar: string,
+    banner: string,
+    friends: IUser[] | [],
+    closeFriends: IUser[],
+    blackList: [],
+    refreshToken: string[],
+    memo: string,
+    _doc: any
+};
 
 const userSchema: Schema = new Schema({
     userName: {
@@ -39,6 +54,10 @@ const userSchema: Schema = new Schema({
         default: UserType[1].number,
     },
     friends: {
+        type: [Object],
+        default: []
+    },
+    closeFriends: {
         type: [Object],
         default: []
     },

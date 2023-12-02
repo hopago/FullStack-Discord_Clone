@@ -1,8 +1,7 @@
 import { model, Schema } from "mongoose";
-;
 const serverSchema = new Schema({
     members: {
-        type: [String],
+        type: [Object],
         required: true,
     },
     custom_category: {
@@ -27,7 +26,7 @@ const serverSchema = new Schema({
     isVerified: {
         type: Boolean,
         default: false,
-    }
+    },
 }, { timestamps: true });
 const Server = model("Server", serverSchema);
 export default Server;

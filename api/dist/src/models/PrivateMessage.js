@@ -22,7 +22,7 @@ const privateMessageSchema = new Schema({
             },
         },
         author: {
-            userId: {
+            authorId: {
                 type: String,
             },
             userName: {

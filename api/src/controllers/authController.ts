@@ -29,7 +29,7 @@ export const register = async (
     });
     await newUser.save();
 
-    const userId = newUser._id?.toHexString();
+    const userId = newUser._id?.toString();
     let newFriendRequestTable: IFriendRequestTable;
 
     if (typeof userId === "string") {

@@ -1,6 +1,8 @@
 import { ObjectId } from "mongoose";
+import { IUser } from "../User";
 
 export type TUser = {
+    _id: ObjectId,
     type: number,
     description: string,
     language: string,
@@ -10,19 +12,10 @@ export type TUser = {
     userName: string,
     avatar: string,
     banner: string,
-    friends: [],
+    friends: IUser[] | [],
+    closeFriends: IUser[],
     blackList: [],
     refreshToken: string[],
+    memo: string,
     _doc: any
 };
-
-export type TUserWithId = {
-    _id?: ObjectId,
-    description?: string,
-    language: string,
-    userName: string,
-    avatar: string,
-    banner: string,
-    friends: [string],
-    _doc: any
-}

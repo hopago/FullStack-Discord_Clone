@@ -31,7 +31,7 @@
             justify-content: center;
 
             .profileModal-modal-container {
-                width: 570px;
+                width: 600px;
                 height: max-content;
 
                 .profileModal-modal-wrapper {
@@ -48,13 +48,390 @@
                         flex-direction: column;
                         align-items: center;
                         justify-content: space-between;
-                        padding: 1rem;
-                        background-color: #FFFFFF;
+                        background-color: #232428;
                         color: #060607;
-                        border-radius: 1rem;
-                        opacity: 1;
+                        border-radius: 0.5rem;
 
+                        .profileInterface {
+                            width: 100%;
 
+                            .header {
+                                width: 100%;
+                                display: flex;
+                                flex-direction: column;
+
+                                .top {
+                                    width: 100%;
+                                    min-height: 166px;
+                                    position: relative;
+
+                                    .banner {
+                                        position: absolute;
+                                        top: 0;
+                                        width: 100%;
+
+                                        .fill {
+                                            width: 100%;
+                                            background-color: #7d7d7d;
+                                            height: 106px;
+                                            border-radius: 0.5rem 0.5rem 0 0;
+                                        }
+                                    }
+
+                                    .absoluteUserAvatar {
+                                        position: absolute;
+                                        top: 30px;
+                                        left: 1rem;
+
+                                        .imgWrap {
+                                            width: 120px;
+                                            height: 120px;
+                                            outline: 5px solid #202225;
+                                            border-radius: 50%;
+                                            background-color: #7d7d7d;
+
+                                            img {
+                                                width: 100%;
+                                                height: 100%;
+                                                object-fit: cover;
+                                                border-radius: 50%;
+                                            }
+
+                                            .language {
+                                                position: absolute;
+                                                top: 76px;
+                                                left: 88px;         
+                                                z-index: 999;
+                                                background-color: #202225;
+                                                border-radius: 50%;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+
+                                                img {
+                                                    width: 36px;
+                                                    height: 36px;
+                                                    background-color: white;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    .absoluteServiceContainer {
+                                        position: absolute;
+                                        top: 88px;
+                                        right: 0.5rem;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: space-between;
+                                        width: 100%;
+
+                                        .empty {
+                                            width: 1px;
+                                            height: 1px;
+                                            opacity: 0;
+                                        }
+
+                                        .services {
+                                            display: flex;
+                                            align-items: center;
+
+                                            button {
+                                                background-color: #248046;
+                                                color: #ffffff;
+                                                cursor: pointer;
+                                                border: none;
+                                                padding: 0.5rem 1rem;
+                                                font-weight: 400;
+                                                font-size: 16px;
+                                                transition: all .15s ease;
+                                                border-radius: 4px;
+                                                margin-right: 0.5rem;
+
+                                                &:hover {
+                                                    color: #f2f3f5;
+                                                    background-color: #1A6334;
+                                                }
+                                            }
+
+                                            .friendService {
+                                                width: 24px;
+                                                height: 24px;
+                                                color: #DBDEE1;
+                                                cursor: pointer;
+                                                transition: all .15s ease;
+
+                                                &:hover {
+                                                    color: #ffffff;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                .bottom {
+                                    display: flex;
+                                    flex-direction: column;
+                                    width: 100%;
+                                    padding: 0.5rem;
+
+                                    .wrapper {
+                                        width: 100%;
+                                        background-color: #111214;
+                                        color: #ffffff;
+                                        border-radius: 0.5rem;
+                                        padding: 0.5rem;
+
+                                        .userInfo {
+                                            width: 100%;
+                                            display: flex;
+                                            flex-direction: column;
+                                            align-items: flex-start;
+                                            gap: 3px;
+                                            margin-bottom: 1rem;
+
+                                            h2 {
+                                                font-size: 20px;
+                                                color: #DBDEE1;
+                                            }
+
+                                            p {
+                                                font-size: 14px;
+                                                color: #b5bac1;
+                                                font-weight: bold;
+                                            }
+                                        }
+
+                                        .selectSection {
+                                            width: 100%;
+                                            display: flex;
+                                            flex-direction: column;
+                                            margin-bottom: 1rem;
+
+                                            .selectWrap {
+                                                display: flex;
+                                                flex-direction: column;
+                                                gap: 0.5rem;
+                                                width: 100%;
+                                                padding: 0 0.5rem;
+
+                                                .textContainer {
+                                                    display: flex;
+                                                    align-items: center;
+                                                    justify-content: space-between;
+
+                                                    .textWrap {
+                                                        width: max-content;
+                                                        height: calc(max-content + 2px);
+                                                        box-sizing: border-box;
+                                                        padding-bottom: 1rem;
+                                                        font-size: 14px;
+                                                        color: #b5bac1;
+                                                        cursor: pointer;
+
+                                                        .innerText {
+                                                            font-size: 14px;
+                                                            color: #b5bac1;
+                                                            cursor: pointer;
+                                                        }
+
+                                                        &.active {
+                                                            margin-bottom: -2px;
+                                                            border-bottom: 2px solid #ffffff;
+                                                            
+                                                            .innerText {
+                                                                color: #ffffff;
+                                                            }
+                                                        }
+
+                                                        &:hover {
+                                                            margin-bottom: -2px;
+                                                            border-bottom: 2px solid #ffffff;
+                                                            
+                                                            .innerText {
+                                                                color: #ffffff;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        .moreInfo {
+                                            width: 100%;
+                                            display: flex;
+                                            flex-direction: column;
+                                            padding-bottom: 7rem;
+
+                                            .date {
+                                                padding: 0 0.5rem;
+                                                margin-bottom: 1rem;
+
+                                                h1 {
+                                                    font-size: 12px;
+                                                    color: #f2f3f5;
+                                                    font-weight: bold;
+                                                    margin-bottom: 0.5rem;
+                                                }
+
+                                                p {
+                                                    font-size: 14px;
+                                                    color: #f2f3f5;
+                                                    font-weight: 400;
+                                                }
+                                            }
+
+                                            .localMemo {
+                                                padding: 0 0.5rem;
+
+                                                h2 {
+                                                    font-size: 12px;
+                                                    color: #f2f3f5;
+                                                    font-weight: bold;
+                                                    margin-bottom: 0.5rem;
+                                                }
+
+                                                p {
+                                                    font-size: 14px;
+                                                    color: #b5bac1;
+                                                    font-weight: 400;
+                                                    cursor: pointer;
+                                                }
+                                            }
+
+                                            .postInfo {
+                                                display: flex;
+                                                margin-bottom: 0.5rem;
+                                                gap: 1rem;
+                                                cursor: pointer;
+                                                padding: 0.5rem;
+                                                border-radius: 0.5rem;
+
+                                                .postImgWrap {
+                                                    width: 80px;
+                                                    height: 80px;
+
+                                                    img {
+                                                        background-color: white;
+                                                        width: 100%;
+                                                        height: 100%;
+                                                        object-fit: cover;
+                                                        border-radius: 50%;
+                                                    }
+                                                }
+
+                                                h2 {
+                                                    font-size: 12px;
+                                                    color: #f2f3f5;
+                                                    font-weight: bold;
+                                                    margin-bottom: 0.5rem;
+                                                }
+
+                                                .postInfoCol {
+                                                    display: flex;
+                                                    flex-direction: column;
+                                                    flex: 1;
+                                                    gap: 3px;
+
+                                                    h1 {
+                                                        font-size: 12px;
+                                                        color: #f2f3f5;
+                                                        font-weight: bold;
+                                                    }
+
+                                                    p {
+                                                        font-size: 12px;
+                                                        color: #b5bac1;
+                                                        font-weight: 400;
+                                                        cursor: pointer;
+                                                    }
+                                                }
+
+                                                &:hover {
+                                                    background-color: #232528;
+                                                }
+                                            }
+
+                                            .serverInfo {
+                                                display: flex;
+                                                align-items: center;
+                                                gap: 0.5rem;
+                                                padding: 0 0.5rem;
+
+                                                .serverIconWrap {
+                                                    width: 40px;
+                                                    height: 40px;
+                                                    background-color: white;
+                                                    border-radius: 0.5rem;
+
+                                                    img {
+                                                        width: 100%;
+                                                        height: 100%;
+                                                        object-fit: cover;
+                                                        border-radius: 0.5rem;
+                                                    }
+                                                }
+
+                                                p {
+                                                    font-size: 16px;
+                                                    font-weight: 400;
+                                                    color: #DBDEE1;
+                                                }
+                                            }
+
+                                            .friendInfo {
+                                                padding: 0 0.5rem;
+
+                                                .flexRow {
+                                                    display: flex;
+                                                    align-items: center;
+                                                    gap: 0.5rem;
+
+                                                    .userAvatar {
+                                                        display: flex;
+                                                        align-items: center;
+                                                        justify-content: flex-start;
+
+                                                        .avatar {
+                                                            width: 40px;
+                                                            height: 40px;
+                                                            border-radius: 50%;
+                                                        }
+                                                    }
+
+                                                    span {
+                                                        font-size: 16px;
+                                                        font-weight: 400;
+                                                        color: #f2f3f5;
+                                                    }
+                                                }
+                                            }
+
+                                            .emptyServerInfo,
+                                            .emptyFriendInfo {
+                                                padding: 1rem 0px;
+                                                width: 100%;
+                                                height: 100%;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                flex-direction: column;
+
+                                                img {
+                                                    margin-bottom: 1rem;
+                                                }
+
+                                                p {
+                                                    font-size: 16px;
+                                                    color: #b5bac1;
+                                                    font-weight: 400;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

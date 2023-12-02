@@ -10,7 +10,7 @@ import Spinner from '../lib/react-loader-spinner/Spinner';
 import { useDispatch } from 'react-redux';
 import { setCurrentUser } from '../features/users/slice/userSlice';
 import { setSocket } from '../features/socket/slice/socketSlice';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const Community = () => {
   const dispatch = useDispatch();
@@ -27,7 +27,7 @@ const Community = () => {
     if (!currentUser) {
       refetch();
     }
-  }, [currentUser, refetch]);
+  }, [currentUser]);
 
   if (currentUser) {
     dispatch(setCurrentUser(currentUser));
@@ -43,23 +43,15 @@ const Community = () => {
     });
 
     return () => {
-      socket.disconnect(currentUser?._id);
+      socket.off('connect');
     }
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
-    window.addEventListener("beforeunload", (e) => {
-      e.preventDefault();
-      socket.disconnect(currentUser?._id);
-    });
-
-    return () => {
-      window.removeEventListener("beforeunload", (e) => {
-        e.preventDefault();
-        socket.disconnect(currentUser?._id);
-      })
+    if (currentUser) {
+      socket?.emit("activateUser", currentUser);
     }
-  }, []);
+  }, [currentUser?._id]);
 
   let content;
   if (isLoading) {

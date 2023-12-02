@@ -39,6 +39,10 @@ const userSchema = new Schema({
         type: [Object],
         default: []
     },
+    closeFriends: {
+        type: [Object],
+        default: []
+    },
     blackList: {
         type: [Object],
         default: []

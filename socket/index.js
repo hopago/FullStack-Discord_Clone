@@ -28,7 +28,20 @@ io.on('connection', socket => {
 
         activateUser(currentUser, friends, socket.id);
 
-        console.log(`${user.userName}#${user.tag} connected...`);
+        if (friends.length) {
+            friends.map(friend => {
+                const friendSocketId = findUserById(friend._id)?.socketId;
+    
+                if (friendSocketId) {
+                    const onlineFriends = getOnlineFriends(friend._id);
+                    io.to(friendSocketId).emit('onlineFriendList', onlineFriends);
+                } else {
+                    console.log(`${currentUser?.userName} has no friend...`);
+                }
+            });
+        }
+
+        console.log(`${currentUser.userName}#${currentUser.tag} connected...`);
     });
 
     socket.on("getOnlineFriends", (_id) => {
@@ -58,32 +71,16 @@ io.on('connection', socket => {
         }
     });
 
-    socket.on("getOnlineFriends", (_id) => {
-        const receiver = findUserById(_id);
-        const onlineFriends = getOnlineFriends(_id);
-
-        io.to(receiver.socketId).emit("sendOnlineFriends", onlineFriends);
-    });
-
     socket.on("logout", (_id) => {
+        console.log(UsersState);
         const user = findUserById(_id);
         if (user) {
             console.log(`${user.userName}#${user.tag} has been disconnected...`);
             disconnectUser(_id);
         } else {
-            console.log(`${user.userName}#${user.tag} has not found...`);
+            return console.log('logout: User Not Found...');
         }
     });
-
-    socket.on("disconnect", (_id) => {
-        const user = findUserById(_id);
-        if (user) {
-            console.log(`${user.userName}#${user.tag} has been disconnected...`);
-            disconnectUser(_id);
-        } else {
-            console.log(`${user.userName}#${user.tag} has not found...`);
-        }
-    })
 });
 
 function activateUser(user, friends, socketId) {

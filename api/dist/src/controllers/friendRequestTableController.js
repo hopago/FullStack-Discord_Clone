@@ -33,7 +33,7 @@ export const getReceivedCount = (req, res, next) => __awaiter(void 0, void 0, vo
         const user = yield User.findById(req.user.id);
         if (!user)
             return res.status(403).json("Something went wrong in verifying...");
-        const userId = user === null || user === void 0 ? void 0 : user._id.toHexString();
+        const userId = user === null || user === void 0 ? void 0 : user._id.toString();
         const requestList = yield FriendAcceptReject.findOne({
             referenced_user: userId,
         });
@@ -62,7 +62,7 @@ export const sendFriend = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         });
         if (!receiver)
             return res.status(400).json("Could not found receiver...");
-        const receiverId = receiver._id.toHexString();
+        const receiverId = receiver._id.toString();
         const requestTable = yield FriendAcceptReject.findOne({
             referenced_user: receiverId,
         });
@@ -83,7 +83,7 @@ export const sendFriend = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 };
                 yield (requestTable === null || requestTable === void 0 ? void 0 : requestTable.updateOne({
                     $push: {
-                        members: currentUserInfo
+                        members: currentUserInfo,
                     },
                 }));
                 return res.status(201).json({
@@ -151,12 +151,12 @@ export const handleRequestFriend = (req, res, next) => __awaiter(void 0, void 0,
                         yield requestTable.updateOne({
                             $pull: {
                                 members: {
-                                    _id: sender._id
-                                }
+                                    _id: sender._id,
+                                },
                             },
                         });
                         const newConversation = new PrivateConversation({
-                            members: [sender, currentUser],
+                            members: [senderInfo, currentUserInfo],
                             senderId: sender === null || sender === void 0 ? void 0 : sender._id,
                             receiverId: currentUser === null || currentUser === void 0 ? void 0 : currentUser._id,
                             readBySender: false,
@@ -175,7 +175,9 @@ export const handleRequestFriend = (req, res, next) => __awaiter(void 0, void 0,
                     try {
                         yield requestTable.updateOne({
                             $pull: {
-                                members: sender,
+                                members: {
+                                    _id: sender._id,
+                                },
                             },
                         });
                         res.status(201).json("Friend request rejected...");

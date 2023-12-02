@@ -1,8 +1,7 @@
 import FriendAcceptReject from "../models/FriendRequestTable.js";
 import { Request, Response, NextFunction } from "express";
-import User from "../models/User.js";
+import User, { IUser } from "../models/User.js";
 import PrivateConversation from "../models/PrivateConversation.js";
-import { TUserWithId } from "../models/type/User.js";
 
 export const getAllFriendRequest = async (
   req: Request,
@@ -37,7 +36,7 @@ export const getReceivedCount = async (
     if (!user)
       return res.status(403).json("Something went wrong in verifying...");
 
-    const userId = user?._id.toHexString();
+    const userId = user?._id.toString();
 
     const requestList = await FriendAcceptReject.findOne({
       referenced_user: userId,
@@ -72,7 +71,7 @@ export const sendFriend = async (
     });
     if (!receiver) return res.status(400).json("Could not found receiver...");
 
-    const receiverId = receiver._id.toHexString();
+    const receiverId = receiver._id.toString();
 
     const requestTable = await FriendAcceptReject.findOne({
       referenced_user: receiverId,
@@ -84,7 +83,8 @@ export const sendFriend = async (
 
     if (
       !requestTable?.members.some(
-        (member: TUserWithId) => member._id?.toString() === (currentUserId as never)
+        (member: IUser) =>
+          member._id?.toString() === (currentUserId as never)
       )
     ) {
       try {
@@ -101,7 +101,7 @@ export const sendFriend = async (
 
         await requestTable?.updateOne({
           $push: {
-            members: currentUserInfo
+            members: currentUserInfo,
           },
         });
         return res.status(201).json({
@@ -142,19 +142,20 @@ export const handleRequestFriend = async (
 
     if (
       requestTable?.members.some(
-        (member: TUserWithId) => member._id?.toString() === (senderId as string)
+        (member: IUser) => member._id?.toString() === (senderId as string)
       )
     ) {
       try {
         if (
           isAccepted &&
           !sender?.friends.some(
-            (friend: TUserWithId) => friend._id?.toString() === (currentUserId as string)
+            (friend: IUser) =>
+              friend._id?.toString() === (currentUserId as string)
           )
         ) {
           try {
             const { _id, description, language, userName, avatar, banner } =
-            currentUser;
+              currentUser;
             const currentUserInfo = {
               _id,
               description,
@@ -172,6 +173,7 @@ export const handleRequestFriend = async (
               avatar: senderAvatar,
               banner: senderBanner,
             } = sender;
+
             const senderInfo = {
               senderId,
               senderDesc,
@@ -190,13 +192,13 @@ export const handleRequestFriend = async (
             await requestTable.updateOne({
               $pull: {
                 members: {
-                  _id: sender._id
-                }
+                  _id: sender._id,
+                },
               },
             });
 
             const newConversation = new PrivateConversation({
-              members: [sender, currentUser],
+              members: [senderInfo, currentUserInfo],
               senderId: sender?._id,
               receiverId: currentUser?._id,
               readBySender: false,
@@ -214,7 +216,9 @@ export const handleRequestFriend = async (
           try {
             await requestTable.updateOne({
               $pull: {
-                members: sender,
+                members: {
+                  _id: sender._id,
+                },
               },
             });
             res.status(201).json("Friend request rejected...");

@@ -100,7 +100,7 @@ export const updateComment = (req, res, next) => __awaiter(void 0, void 0, void 
         const comment = yield Comment.findById(commentId);
         if (!comment)
             res.status(400).json("No comment found yet...");
-        if ((comment === null || comment === void 0 ? void 0 : comment.comments[0].author.authorId) !== req.user.id)
+        if ((comment === null || comment === void 0 ? void 0 : comment.comments[0].author.authorId.toString()) !== req.user.id)
             return res.sendStatus(405);
         const updatedComment = yield comment.updateOne({
             $set: {
@@ -119,7 +119,7 @@ export const deleteComment = (req, res, next) => __awaiter(void 0, void 0, void 
         return res.sendStatus(400);
     try {
         const comment = yield Comment.findById(commentId);
-        if (req.user.id !== (comment === null || comment === void 0 ? void 0 : comment.comments[0].author.authorId))
+        if (req.user.id !== (comment === null || comment === void 0 ? void 0 : comment.comments[0].author.authorId.toString()))
             return res.sendStatus(405);
         yield comment.deleteOne();
         res.sendStatus(204);
@@ -176,7 +176,7 @@ export const updateReplyComment = (req, res, next) => __awaiter(void 0, void 0, 
         const findIndex = ref_comment.comments[0].comment_reply.findIndex((replyObj) => replyObj.description === req.body.originDescription);
         if (findIndex === -1)
             return res.sendStatus(400);
-        const isVerified = ref_comment.comments[0].comment_reply[findIndex].user.userId === req.user.id;
+        const isVerified = ref_comment.comments[0].comment_reply[findIndex].user.userId.toString() === req.user.id;
         if (!isVerified)
             return res.sendStatus(401);
         const description = req.body.description;
@@ -206,7 +206,7 @@ export const deleteReplyComment = (req, res, next) => __awaiter(void 0, void 0, 
         if (!comment)
             return res.status(400).json("Comment could not found...");
         const findIndex = comment.comments[0].comment_reply.findIndex((reply) => reply.description === req.body.description &&
-            reply.user.userId === req.user.id);
+            reply.user.userId.toString() === req.user.id);
         if (findIndex === -1)
             return res.sendStatus(400);
         comment.comments[0].comment_reply.splice(findIndex, 1);

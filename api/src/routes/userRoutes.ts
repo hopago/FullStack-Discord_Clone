@@ -7,7 +7,9 @@ import {
   updateUser,
   removeFriend,
   findUserById,
-  getCurrentUser
+  getCurrentUser,
+  addMemo,
+  handleCloseFriends,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -21,16 +23,21 @@ router
   .delete(deleteUser);
 
 router
-  .route("/:userId")
-  .get(findUserById);
-
-router
-  .route("/:userId/friends")
+  .route("/friends")
   .get(getFriends);
 
 router
-  .route("/:userId/friends/:friendId")
+  .route("/friends/close/:friendId")
+  .put(handleCloseFriends)
+
+router
+  .route("/friends/:friendId")
   .get(getSingleFriend)
+  .put(addMemo)
   .delete(removeFriend);
+
+router
+  .route("/:userId")
+  .get(findUserById);
 
 export default router;

@@ -1,12 +1,31 @@
 import { Document, model, Schema } from "mongoose";
-import { TServer } from "./type/Server";
+import { IUser } from "./User";
 
-export interface IServer extends TServer, Document {};
+export interface IServer extends Document {
+  members: IUser[];
+  custom_category: {
+    parentCategory: string;
+    childCategory: string[];
+  };
+  author: {
+    authorId: string;
+    userName: IUser["userName"];
+    avatar: IUser["avatar"];
+  };
+  embeds: {
+    server_category: string;
+    title: string;
+    description: string;
+    thumbnail: string;
+  };
+  likes: string[];
+  isVerified: boolean;
+}
 
 const serverSchema: Schema = new Schema(
   {
     members: {
-      type: [String],
+      type: [Object],
       required: true,
     },
     custom_category: {
@@ -29,9 +48,9 @@ const serverSchema: Schema = new Schema(
     },
     likes: [String],
     isVerified: {
-        type: Boolean,
-        default: false,
-    }
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

@@ -4,8 +4,8 @@ export const serversApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => (
         {
             getUserServers: builder.query({
-                query: () => ({
-                    url: `/servers`,
+                query: (userId) => ({
+                    url: `/servers?userId=${userId}`,
                     transformResponse: (response) => {
                         if (response.status === 400) {
                             return [];
@@ -123,6 +123,7 @@ export const serversApiSlice = apiSlice.injectEndpoints({
 
 export const {
     useGetUserServersQuery,
+    useLazyGetUserServersQuery,
     useGetSingleServerQuery,
     useGetMembersQuery,
     useSearchServerQuery,

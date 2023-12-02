@@ -54,6 +54,9 @@ const UserInfo = ({ defaultProfile, friend, type, senderId }) => {
   const [active, setActive] = useState(false);
 
   const handleServerContextMenu = (e) => {
+    if (showModal) {
+      return;
+    }
     e.preventDefault();
     const rect = e.target.getBoundingClientRect();
     setXy({ x: e.clientX - rect.left, y: e.clientY - rect.top });

@@ -12,7 +12,7 @@ export type TPrivateMessage = {
       message: string,
     };
     author: {
-      userId: IUser["_id"];
+      authorId: IUser["_id"];
       userName: IUser["userName"];
       avatar: IUser["avatar"];
     };

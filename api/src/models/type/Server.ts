@@ -1,13 +1,15 @@
+import { ObjectId } from "mongoose";
 import { IUser } from "../User";
 
 export type TServer = {
-  members: [string: IUser["_id"]],
+  _id: ObjectId,
+  members: IUser[],
   custom_category: {
     parentCategory: string;
     childCategory: string[];
   },
   author: {
-    authorId: IUser["_id"];
+    authorId: string;
     userName: IUser["userName"];
     avatar: IUser["avatar"];
   },
@@ -17,6 +19,6 @@ export type TServer = {
     description: string;
     thumbnail: string;
   },
-  likes: [string: IUser["_id"]],
+  likes: string[],
   isVerified: boolean
 };

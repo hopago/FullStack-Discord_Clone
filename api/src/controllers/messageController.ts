@@ -108,7 +108,7 @@ export const updateMessage = async (req: Request, res: Response, next: NextFunct
         const message = await PrivateMessage.findById(req.params.messageId);
         if (!message) throw new HttpException(400, "Could not found message...");
 
-        if (req.user.id === message.referenced_message.author.userId) {
+        if (req.user.id === message.referenced_message.author.authorId.toString()) {
             const updatedMessage = await PrivateMessage.findByIdAndUpdate(
               req.params.messageId,
               {
@@ -137,7 +137,7 @@ export const deleteMessage = async (req: Request, res: Response, next: NextFunct
         const message = await PrivateMessage.findById(req.params.messageId);
         if (!message) throw new HttpException(400, "Something went wrong...");
 
-        if (req.user.id === message.referenced_message.author.userId) {
+        if (req.user.id === message.referenced_message.author.authorId.toString()) {
             await PrivateMessage.findByIdAndDelete(req.params.messageId);
 
             res.sendStatus(204);

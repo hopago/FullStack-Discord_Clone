@@ -12,7 +12,7 @@ export type TPost = {
   representativeImgUrl: string;
   imgUrlArr: string[];
   reactions: {
-    [key: string]: [string: IUser["_id"]];
+    [key: string]: [string];
   };
   views: number;
 };

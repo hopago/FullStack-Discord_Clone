@@ -94,7 +94,7 @@ export const updateMessage = (req, res, next) => __awaiter(void 0, void 0, void 
         const message = yield PrivateMessage.findById(req.params.messageId);
         if (!message)
             throw new HttpException(400, "Could not found message...");
-        if (req.user.id === message.referenced_message.author.userId) {
+        if (req.user.id === message.referenced_message.author.authorId.toString()) {
             const updatedMessage = yield PrivateMessage.findByIdAndUpdate(req.params.messageId, {
                 $set: {
                     referenced_message: Object.assign({}, req.body)
@@ -117,7 +117,7 @@ export const deleteMessage = (req, res, next) => __awaiter(void 0, void 0, void 
         const message = yield PrivateMessage.findById(req.params.messageId);
         if (!message)
             throw new HttpException(400, "Something went wrong...");
-        if (req.user.id === message.referenced_message.author.userId) {
+        if (req.user.id === message.referenced_message.author.authorId.toString()) {
             yield PrivateMessage.findByIdAndDelete(req.params.messageId);
             res.sendStatus(204);
         }

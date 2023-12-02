@@ -16,7 +16,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 ],
             }),
             getAllFriends: builder.query({
-                query: (userId) => `/users/${userId}/friends`,
+                query: () => `/users/friends`,
                 providesTags: (result, err, arg) => {
                     return [
                         ...result.map(({ _id }) => ({
@@ -26,7 +26,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 }
             }),
             getSingleFriend: builder.query({
-                query: (userId, friendId) => `/users/${userId}/friends/${friendId}`,
+                query: (friendId) => `/users/friends/${friendId}`,
                 providesTags: (result, error, arg) => [
                     { type: 'User', id: arg }
                 ]
@@ -42,6 +42,27 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                 invalidatesTags: (result, error, arg) => [
                     { type: 'User', id: result._id }
                 ],
+            }),
+            addMemo: builder.mutation({
+                query: (friendId, memo) => ({
+                    url: `/users/friends/${friendId}`,
+                    method: 'PUT',
+                    body: {
+                        memo
+                    }
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: 'User', id: result._id }
+                ]
+            }),
+            handleCloseFriends: builder.mutation({
+                query: friendId => ({
+                    url: `/users/friends/close/${friendId}`,
+                    method: 'PUT',
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: 'User', id: result._id }
+                ]
             }),
             removeFriend: builder.mutation({
                 query: (friendId) => ({

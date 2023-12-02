@@ -1,23 +1,128 @@
 import { MoreVert } from "@mui/icons-material";
 import "./profileModal.scss";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { timeAgoFromNow } from "../../../../../../../lib/moment/timeAgo";
-import NoServerExisted from './assets/e86b4414e7dfa126abbd.svg';
+import NoServerExisted from "./assets/e86b4414e7dfa126abbd.svg";
+import NoFriendExisted from "./assets/e86b4414e7dfa126abbd1.svg";
+import jsIcon from "../../../../../sidebar/assets/language/js_lang.png";
+import reactIcon from "../../../../../sidebar/assets/language/react.png";
+import nextIcon from "../../../../../sidebar/assets/language/next.png";
+import {
+  useGetCurrentUserQuery,
+  useLazyFindUserByIdQuery,
+} from "../../../../../../../features/users/slice/usersApiSlice";
+import {
+  useGetUserServersQuery,
+  useLazyGetUserServersQuery,
+} from "../../../../../../../features/server/slice/serversApiSlice";
 
 const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
+  const infoConstants = [
+    "사용자 정보",
+    "최근 게시물",
+    "같이 있는 서버",
+    "같이 아는 친구",
+  ];
+
   const [currentMoreInfo, setCurrentMoreInfo] = useState(0);
-  const isServerExisted = false;
-  const isFriendExisted = false;
+  const [isServerExisted, setIsServerExisted] = useState(false);
+  const [isFriendExisted, setIsFriendExisted] = useState(false);
+  const [commonFriends, setCommonFriends] = useState([]);
+  const [commonServers, setCommonServers] = useState([]);
+  const [active, setActive] = useState(0);
+
+  const [getFriend, { isSuccess, isError, error }] = useLazyFindUserByIdQuery(
+    friend._id
+  );
+
+  const [getCurrentUserServers] =
+    useGetUserServersQuery(); // 캐싱
+
+  const [
+    getFriendServers,
+    { isSuccess: isServerSuccess, isError: isServerError, error: serverError },
+  ] = useLazyGetUserServersQuery(friend._id);
+
+  const { data: currentUser } = useGetCurrentUserQuery(); // 캐싱
+
+  useEffect(() => {
+    if (active === 2) {
+        const { data: currentUserServers } = getCurrentUserServers();
+        const { data: friendServers } = getFriendServers();
+        
+        const validateServerExisted = () => {
+            const isExisted = currentUserServers.members.map((currServerMember) =>
+              friendServers.members.some(
+                (member) => member._id === currServerMember._id
+              )
+            );
+    
+            if (Array.isArray(isExisted) && isExisted.length) {
+                setIsServerExisted(true);
+                setCommonServers(isExisted)
+            } else {
+                setIsServerExisted(false);
+            }
+        };
+    
+        if (isServerSuccess) {
+            validateServerExisted();
+        }
+    
+        if (isServerError) {
+            console.error(serverError);
+            return;
+        }
+    }
+
+    return () => {
+
+    }
+  }, [active]);
+
+  useEffect(() => {
+    if (active === 3) {
+        const { data: currentFriend } = getFriend();
+
+        const validateFriendExisted = () => {
+          const isExisted = currentUser.friends.filter((currUserFriend) =>
+            currentFriend.friends.some(
+              (friend) => friend._id === currUserFriend._id
+            )
+          );
+    
+          if (Array.isArray(isExisted) && isExisted.length) {
+            setIsFriendExisted(true);
+            setCommonFriends(isExisted);
+          } else {
+            setIsFriendExisted(false);
+          }
+        };
+    
+        if (isSuccess) {
+            validateFriendExisted();
+        }
+    
+        if (isError) {
+            console.error(error);
+            return;
+        }
+    }
+
+    return () => {
+
+    };
+  }, [active]);
 
   let moreInfo;
   let languageIcon;
 
   if (friend.language === "javascript") {
-
+    languageIcon = <img alt="" className="userLanguage" src={jsIcon} />;
   } else if (friend.language === "react") {
-
+    languageIcon = <img alt="" className="userLanguage" src={reactIcon} />;
   } else if (friend.language === "next") {
-    
+    languageIcon = <img alt="" className="userLanguage" src={nextIcon} />;
   }
 
   switch (currentMoreInfo) {
@@ -42,6 +147,7 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
             <div className="postImgWrap">
               <img src="" alt="" />
             </div>
+            <h2>인기 게시글</h2>
             <div className="postInfoCol">
               <h1>PostTitle</h1>
               <p>Description ShortCut</p>
@@ -52,6 +158,7 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
             <div className="postImgWrap">
               <img src="" alt="" />
             </div>
+            <h2>최근 게시글</h2>
             <div className="postInfoCol">
               <h1>PostTitle</h1>
               <p>Description ShortCut</p>
@@ -65,15 +172,17 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
       moreInfo = (
         <div className="moreInfoSection">
           {isServerExisted ? (
-            <div className="serverInfo">
-              <div className="serverIconWrap">
-                <img src="" alt="" />
+            commonServers.map((server) => (
+              <div className="serverInfo">
+                <div className="serverIconWrap">
+                  <img src={server.embeds.thumbnail} alt="" />
+                </div>
+                <p>{server.embeds.title}</p>
               </div>
-              <p>ServerName</p>
-            </div>
+            ))
           ) : (
             <div className="emptyServerInfo">
-              <NoServerExisted />
+              <img src={NoServerExisted} alt="" />
               <p>같이 있는 서버가 없음.</p>
             </div>
           )}
@@ -84,17 +193,21 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
       moreInfo = (
         <div className="moreInfoSection">
           {isFriendExisted ? (
-            <div className="friendInfo">
+            commonFriends.map((friend) => (
+              <div className="friendInfo">
                 <div className="flexRow">
-                    <div className="userAvatar">
-                        <img src="" alt="" />
-                    </div>
-                    <span>{friend.userName}</span>
-
+                  <div className="userAvatar">
+                    <img className="avatar" src={friend.avatar} alt="" />
+                  </div>
+                  <span>{friend.userName}</span>
                 </div>
-            </div>
+              </div>
+            ))
           ) : (
-            <div className="emptyFriendInfo"></div>
+            <div className="emptyFriendInfo">
+              <img src={NoFriendExisted} alt="" />
+              <p>같이 아는 친구가 없음.</p>
+            </div>
           )}
         </div>
       );
@@ -124,14 +237,14 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
                       <div className="absoluteUserAvatar">
                         <div className="imgWrap">
                           <img src={friend.avatar} alt="" />
-                          <div className="status-fill" />
+                          <div className="language">{languageIcon}</div>
                         </div>
                       </div>
                       <div className="absoluteServiceContainer">
                         <div className="empty" />
                         <div className="services">
                           <button>메시지 보내기</button>
-                          <MoreVert />
+                          <MoreVert className="friendService" />
                         </div>
                       </div>
                     </div>
@@ -145,33 +258,24 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
                         </div>
                         <div className="selectSection">
                           <div className="selectWrap">
-                            <div className="text">
-                              <div
-                                className="textWrap"
-                                onClick={() => setCurrentMoreInfo(0)}
-                              >
-                                <span>사용자 정보</span>
-                              </div>
-                              <div
-                                className="textWrap"
-                                onClick={() => setCurrentMoreInfo(1)}
-                              >
-                                <span>최근 게시물</span>
-                              </div>
-                              <div
-                                className="textWrap"
-                                onClick={() => setCurrentMoreInfo(2)}
-                              >
-                                <span>같이 있는 서버</span>
-                              </div>
-                              <div
-                                className="textWrap"
-                                onClick={() => setCurrentMoreInfo(3)}
-                              >
-                                <span>같이 아는 친구</span>
-                              </div>
+                            <div className="textContainer">
+                              {infoConstants.map((text, index) => (
+                                <div
+                                  className={
+                                    active === index
+                                      ? "textWrap active"
+                                      : "textWrap"
+                                  }
+                                  onClick={() => {
+                                    setCurrentMoreInfo(index);
+                                    setActive(index);
+                                  }}
+                                  key={`${text}${index}`}
+                                >
+                                  <span className="innerText">{text}</span>
+                                </div>
+                              ))}
                             </div>
-                            <hr />
                           </div>
                         </div>
                         <div className="moreInfo">{moreInfo}</div>

@@ -49,14 +49,15 @@ const Friend = () => {
     handleActiveClass(e);
     socket?.emit("getOnlineFriends", currentUser?._id);
     socket?.on("onlineFriendList", (onlineFriends) => {
-      setFriends(onlineFriends);
+      const onlineFriendList = onlineFriends.filter(friend => friend._id !== currentUser?._id)
+      setFriends(onlineFriendList);
     });
   };
 
   const fetchAllFriends = (e) => {
     resetFetchState();
     handleActiveClass(e);
-    getAllFriends(currentUser?._id)
+    getAllFriends()
       .unwrap()
       .then((data) => setFriends(data))
       .catch((err) => console.error(err));
@@ -103,7 +104,6 @@ const Friend = () => {
 
   useEffect(() => {
     try {
-      socket?.emit("activateUser", currentUser);
       socket?.emit("getOnlineFriends", currentUser?._id);
       socket?.on("onlineFriendList", (onlineFriends) => {
         if (!onlineFriends) return;
