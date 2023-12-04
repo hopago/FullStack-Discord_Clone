@@ -7,9 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { HttpException } from '../middleware/error/utils.js';
-import User from '../models/User.js';
-import Server from '../models/Server.js';
+import { HttpException } from "../middleware/error/utils.js";
+import User from "../models/User.js";
+import Server from "../models/Server.js";
 export const getAllServers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const category = req.query.category;
     if (!category) {
@@ -31,10 +31,9 @@ export const getAllServers = (req, res, next) => __awaiter(void 0, void 0, void 
                     // make sure category string to lowercase
                     server_category: category,
                 },
-            })
-                .limit(20);
+            }).limit(20);
             if (!(servers === null || servers === void 0 ? void 0 : servers.length)) {
-                throw new HttpException(400, "No server yet...");
+                return res.status(400).json("No server yet...");
             }
             res.status(200).json(servers);
         }
@@ -44,40 +43,21 @@ export const getAllServers = (req, res, next) => __awaiter(void 0, void 0, void 
     }
 });
 export const getAllUserServers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId } = req.query;
+    let { userId } = req.query;
+    if (!userId || userId === "undefined") {
+        userId = req.user.id;
+    }
     try {
-        if (!userId) {
-            const user = yield User.findById(req.user.id);
-            if (!user)
-                return res.status(404).json("User not found...");
-            const servers = yield Server.find({
-                members: {
-                    $elemMatch: {
-                        _id: { $eq: user._id }
-                    }
-                }
-            });
-            if (Array.isArray(servers) && !servers.length) {
-                throw new HttpException(400, "No server joined yet...");
-            }
-            res.status(200).json(servers);
+        const user = yield User.findById(userId);
+        if (!user)
+            return res.status(404).json("User not found...");
+        const servers = yield Server.find({
+            "members._id": userId,
+        });
+        if (Array.isArray(servers) && !servers.length) {
+            throw new HttpException(400, "No server joined yet...");
         }
-        else {
-            const user = yield User.findById(userId);
-            if (!user)
-                return res.status(404).json("User not found...");
-            const servers = yield Server.find({
-                members: {
-                    $elemMatch: {
-                        _id: { $eq: userId }
-                    }
-                }
-            });
-            if (Array.isArray(servers) && !servers.length) {
-                throw new HttpException(400, "No server joined yet...");
-            }
-            res.status(200).json(servers);
-        }
+        return res.status(200).json(servers);
     }
     catch (err) {
         next(err);
@@ -96,12 +76,12 @@ export const createServer = (req, res, next) => __awaiter(void 0, void 0, void 0
             language,
             userName,
             avatar,
-            banner
+            banner,
         };
         const newServer = new Server(Object.assign({ members: [userInfo], author: {
                 authorId: req.user.id,
                 userName: user === null || user === void 0 ? void 0 : user.userName,
-                avatar: (_a = user === null || user === void 0 ? void 0 : user.avatar) !== null && _a !== void 0 ? _a : null
+                avatar: (_a = user === null || user === void 0 ? void 0 : user.avatar) !== null && _a !== void 0 ? _a : null,
             } }, req.body));
         yield newServer.save();
         res.status(201).json(createServer);
@@ -202,9 +182,9 @@ export const updateMembers = (req, res, next) => __awaiter(void 0, void 0, void 
             const server = yield Server.findByIdAndUpdate(req.params.serverId, {
                 $pull: {
                     members: {
-                        _id: removedUserId
-                    }
-                }
+                        _id: removedUserId,
+                    },
+                },
             }, { new: true });
             if (!server)
                 return res.status(404).json("Server not found...");
@@ -219,9 +199,9 @@ export const updateMembers = (req, res, next) => __awaiter(void 0, void 0, void 
             const server = yield Server.findByIdAndUpdate(req.params.serverId, {
                 $push: {
                     members: {
-                        _id: joinedUserId
-                    }
-                }
+                        _id: joinedUserId,
+                    },
+                },
             }, { new: true });
             if (!server)
                 return res.status(404).json("Server not found...");
@@ -240,16 +220,16 @@ export const likeServer = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         if (isLiked) {
             yield Server.findByIdAndUpdate(req.params.serverId, {
                 $pull: {
-                    likes: userId
-                }
+                    likes: userId,
+                },
             });
             res.sendStatus(201);
         }
         else {
             yield Server.findByIdAndUpdate(req.params.serverId, {
                 $push: {
-                    likes: userId
-                }
+                    likes: userId,
+                },
             });
             res.sendStatus(201);
         }
@@ -264,10 +244,9 @@ export const searchServer = (req, res, next) => __awaiter(void 0, void 0, void 0
         const servers = yield Server.find({
             title: {
                 $regex: query,
-                $options: "i"
-            }
-        })
-            .limit(20);
+                $options: "i",
+            },
+        }).limit(20);
         if (Array.isArray(servers) && !servers.length)
             throw new HttpException(400, "Server not founded...");
         res.status(200).json(servers);

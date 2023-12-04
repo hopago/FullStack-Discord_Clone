@@ -159,38 +159,6 @@ export const removeFriend = (req, res, next) => __awaiter(void 0, void 0, void 0
         next(err);
     }
 });
-export const addMemo = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const currentUserId = req.user.id;
-    const friendId = req.params.friendId;
-    if (!friendId || friendId === "undefined")
-        return res.status(400).json("Friend Id required...");
-    try {
-        const currentUser = yield User.findById(currentUserId);
-        let updatedFriend;
-        if (!currentUser)
-            return res.status(404).json("Something went wrong in verifying...");
-        if (currentUser) {
-            updatedFriend = currentUser.friends.find((friend) => {
-                friend._id.toString() === friendId;
-            });
-        }
-        if (!updatedFriend)
-            return res.status(404).json("Friend not found...");
-        updatedFriend.memo = req.body.memo;
-        currentUser.friends = currentUser.friends
-            .map((friend) => {
-            if (updatedFriend === undefined)
-                return friend;
-            return friend._id === updatedFriend._id ? updatedFriend : friend;
-        })
-            .filter((friend) => friend !== undefined);
-        yield currentUser.save();
-        return res.status(201).json({ _id: currentUser._id });
-    }
-    catch (err) {
-        next(err);
-    }
-});
 export const handleCloseFriends = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const currentUserId = req.user.id;
     const friendId = req.params.friendId;

@@ -16,6 +16,5 @@ export type TUser = {
     closeFriends: IUser[],
     blackList: [],
     refreshToken: string[],
-    memo: string,
     _doc: any
 };

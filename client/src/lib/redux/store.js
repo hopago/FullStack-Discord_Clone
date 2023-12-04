@@ -22,12 +22,13 @@ import { commentsApiSlice } from '../../features/comments/slice/commentsApiSlice
 import { serversApiSlice } from '../../features/server/slice/serversApiSlice';
 import { conversationsApiSlice } from '../../features/conversation/slice/conversationsApiSlice';
 import { friendRequestApiSlice } from '../../features/friends/slice/friendRequestApiSlice';
+import { memosApiSlice } from '../../features/memos/memosApiSlice';
 
 const persistConfig = {
     key: 'root',
     version: 1,
     storage,
-    blackList: [postsApiSlice.reducerPath, usersApiSlice.reducerPath, commentsApiSlice.reducerPath, serversApiSlice.reducerPath, conversationsApiSlice.reducerPath, friendRequestApiSlice.reducerPath],
+    blackList: [postsApiSlice.reducerPath, usersApiSlice.reducerPath, commentsApiSlice.reducerPath, serversApiSlice.reducerPath, conversationsApiSlice.reducerPath, friendRequestApiSlice.reducerPath, memosApiSlice.reducerPath],
 };
 
 const rootReducer = combineReducers({
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
     [serversApiSlice.reducerPath]: serversApiSlice.reducer,
     [conversationsApiSlice.reducerPath]: conversationsApiSlice.reducer,
     [friendRequestApiSlice.reducerPath]: friendRequestApiSlice.reducer,
+    [memosApiSlice.reducerPath]: memosApiSlice.reducer,
     auth: authReducer,
     user: userReducer,
     conversation: conversationReducer,

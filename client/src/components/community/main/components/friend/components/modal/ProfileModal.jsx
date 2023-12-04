@@ -8,13 +8,19 @@ import jsIcon from "../../../../../sidebar/assets/language/js_lang.png";
 import reactIcon from "../../../../../sidebar/assets/language/react.png";
 import nextIcon from "../../../../../sidebar/assets/language/next.png";
 import {
-  useGetCurrentUserQuery,
   useLazyFindUserByIdQuery,
 } from "../../../../../../../features/users/slice/usersApiSlice";
 import {
-  useGetUserServersQuery,
   useLazyGetUserServersQuery,
 } from "../../../../../../../features/server/slice/serversApiSlice";
+import {
+  useAddMemoMutation,
+  useDeleteMemoMutation,
+  useGetMemoQuery,
+  useUpdateMemoMutation,
+} from "../../../../../../../features/memos/memosApiSlice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../../../../../../../features/users/slice/userSlice";
 
 const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
   const infoConstants = [
@@ -24,94 +30,163 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     "같이 아는 친구",
   ];
 
+  const { data } = useGetMemoQuery(friend._id);
+
   const [currentMoreInfo, setCurrentMoreInfo] = useState(0);
   const [isServerExisted, setIsServerExisted] = useState(false);
   const [isFriendExisted, setIsFriendExisted] = useState(false);
   const [commonFriends, setCommonFriends] = useState([]);
   const [commonServers, setCommonServers] = useState([]);
+  const [editMemo, setEditMemo] = useState(false);
+  const [memo, setMemo] = useState(data?.memo ?? "");
   const [active, setActive] = useState(0);
 
-  const [getFriend, { isSuccess, isError, error }] = useLazyFindUserByIdQuery(
-    friend._id
-  );
+  const [addMemo] = useAddMemoMutation();
+  const [updateMemo] = useUpdateMemoMutation();
+  const [deleteMemo] = useDeleteMemoMutation();
 
-  const [getCurrentUserServers] =
-    useGetUserServersQuery(); // 캐싱
+  const [getFriend] = useLazyFindUserByIdQuery();
 
-  const [
-    getFriendServers,
-    { isSuccess: isServerSuccess, isError: isServerError, error: serverError },
-  ] = useLazyGetUserServersQuery(friend._id);
+  const [getUserServers] = useLazyGetUserServersQuery();
 
-  const { data: currentUser } = useGetCurrentUserQuery(); // 캐싱
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const currFriend = await getFriend(friend._id)
+      .unwrap()
+      .catch((err) => {
+        console.error(err);
+        return;
+      });
+
+    const checkMemoAlreadyExisted = Boolean(data?.memo);
+
+    if (memo === "" && checkMemoAlreadyExisted) {
+      deleteMemo(currFriend._id);
+      setEditMemo((prev) => !prev);
+      return;
+    }
+
+    if (memo === "" && !data) {
+      setEditMemo((prev) => !prev);
+      return;
+    }
+
+    if (checkMemoAlreadyExisted) {
+      await updateMemo({ friendId: currFriend._id, memo })
+        .unwrap()
+        .then((res) => {
+          if (res.status === 201) {
+            setMemo(res.memo);
+            return;
+          }
+        })
+        .catch((err) => console.error(err));
+    } else {
+      await addMemo({ friendId: currFriend._id, memo })
+        .unwrap()
+        .then((res) => {
+          if (res.status === 200) {
+            setMemo(res.memo);
+            return;
+          }
+        })
+        .catch((err) => console.error(err));
+    }
+
+    return setEditMemo((prev) => !prev);
+  };
+
+  const currentUser = useSelector(selectCurrentUser);
 
   useEffect(() => {
-    if (active === 2) {
-        const { data: currentUserServers } = getCurrentUserServers();
-        const { data: friendServers } = getFriendServers();
-        
-        const validateServerExisted = () => {
-            const isExisted = currentUserServers.members.map((currServerMember) =>
-              friendServers.members.some(
-                (member) => member._id === currServerMember._id
-              )
-            );
-    
-            if (Array.isArray(isExisted) && isExisted.length) {
-                setIsServerExisted(true);
-                setCommonServers(isExisted)
-            } else {
-                setIsServerExisted(false);
-            }
-        };
-    
-        if (isServerSuccess) {
-            validateServerExisted();
-        }
-    
-        if (isServerError) {
-            console.error(serverError);
-            return;
-        }
-    }
+    let textarea = document.querySelector(".addMemo");
+
+    const handleKeydown = function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleSubmit(event);
+      }
+    };
+
+    textarea?.addEventListener("keydown", handleKeydown);
 
     return () => {
+      textarea?.removeEventListener("keydown", handleKeydown);
+    };
+  }, [editMemo]);
 
-    }
+  useEffect(() => {
+    if (active !== 2) return;
+
+    const validateServerExisted = async () => {
+      const currentUserServers = await getUserServers(currentUser._id).catch(
+        (err) => console.error(err)
+      );
+      const friendServers = await getUserServers(friend._id).catch((err) =>
+        console.error(err)
+      );
+
+      if (currentUserServers.status === 400 || friendServers.status === 400) {
+        return setIsServerExisted(false);
+      }
+
+      const isExisted = currentUserServers?.members?.map((currServerMember) =>
+        friendServers?.members.some(
+          (member) => member._id === currServerMember._id
+        )
+      );
+
+      if (Array.isArray(isExisted) && isExisted.length) {
+        setIsServerExisted(true);
+        setCommonServers(isExisted);
+      } else {
+        setIsServerExisted(false);
+      }
+    };
+
+    validateServerExisted();
+
+    return () => {};
   }, [active]);
 
   useEffect(() => {
-    if (active === 3) {
-        const { data: currentFriend } = getFriend();
+    if (active !== 3) return;
 
-        const validateFriendExisted = () => {
-          const isExisted = currentUser.friends.filter((currUserFriend) =>
-            currentFriend.friends.some(
-              (friend) => friend._id === currUserFriend._id
-            )
-          );
-    
-          if (Array.isArray(isExisted) && isExisted.length) {
-            setIsFriendExisted(true);
-            setCommonFriends(isExisted);
-          } else {
-            setIsFriendExisted(false);
-          }
-        };
-    
-        if (isSuccess) {
-            validateFriendExisted();
-        }
-    
-        if (isError) {
-            console.error(error);
-            return;
-        }
-    }
+    const validateFriendExisted = (currFriend) => {
+        console.log(currentUser.friends);
+      const isExisted = currentUser?.friends?.filter((currUserFriend) =>
+        currFriend.friends.some((friend) => friend._id === currUserFriend._id)
+      );
 
-    return () => {
-
+      if (Array.isArray(isExisted) && isExisted.length) {
+        setIsFriendExisted(true);
+        setCommonFriends(isExisted);
+      } else {
+        setIsFriendExisted(false);
+      }
     };
+
+    const fetchFriend = async () => {
+      await getFriend(friend._id)
+        .unwrap()
+        .catch((err) => {
+          console.error(err);
+          return;
+        });
+    };
+
+    const setFriendExisted = async () => {
+      const currFriend = await fetchFriend();
+
+      if (currFriend) {
+        validateFriendExisted(currFriend && currFriend);
+      }
+    };
+
+    setFriendExisted();
+
+    return () => {};
   }, [active]);
 
   let moreInfo;
@@ -135,7 +210,20 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
           </div>
           <div className="localMemo">
             <h2>메모</h2>
-            <p>클릭하여 메모 추가하기</p>
+            {editMemo ? (
+              <form onSubmit={handleSubmit}>
+                <textarea
+                  className="addMemo"
+                  placeholder="엔터로 메모 업데이트"
+                  onChange={(e) => setMemo(e.target.value)}
+                  value={memo}
+                />
+              </form>
+            ) : (
+              <p onClick={() => setEditMemo(true)}>
+                {data?.memo ?? "클릭하여 메모 추가하기"}
+              </p>
+            )}
           </div>
         </div>
       );
@@ -172,8 +260,8 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
       moreInfo = (
         <div className="moreInfoSection">
           {isServerExisted ? (
-            commonServers.map((server) => (
-              <div className="serverInfo">
+            commonServers?.map((server) => (
+              <div className="serverInfo" key={server._id}>
                 <div className="serverIconWrap">
                   <img src={server.embeds.thumbnail} alt="" />
                 </div>
@@ -193,8 +281,8 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
       moreInfo = (
         <div className="moreInfoSection">
           {isFriendExisted ? (
-            commonFriends.map((friend) => (
-              <div className="friendInfo">
+            commonFriends?.map((friend) => (
+              <div className="friendInfo" key={friend._id}>
                 <div className="flexRow">
                   <div className="userAvatar">
                     <img className="avatar" src={friend.avatar} alt="" />

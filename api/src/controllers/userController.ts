@@ -178,50 +178,6 @@ export const removeFriend = async (
   }
 };
 
-export const addMemo = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const currentUserId = req.user.id;
-  const friendId = req.params.friendId;
-  if (!friendId || friendId === "undefined")
-    return res.status(400).json("Friend Id required...");
-
-  try {
-    const currentUser = await User.findById(currentUserId);
-    let updatedFriend: IUser | undefined;
-
-    if (!currentUser)
-      return res.status(404).json("Something went wrong in verifying...");
-
-    if (currentUser) {
-      updatedFriend = currentUser.friends.find((friend: IUser) => {
-        friend._id.toString() === friendId;
-      });
-    }
-
-    if (!updatedFriend) return res.status(404).json("Friend not found...");
-
-    updatedFriend.memo = req.body.memo;
-
-    currentUser.friends = currentUser.friends
-      .map((friend: IUser) => {
-        if (updatedFriend === undefined) return friend;
-        return friend._id === updatedFriend._id ? updatedFriend : friend;
-      })
-      .filter(
-        (friend: IUser | undefined): friend is IUser => friend !== undefined
-      );
-
-    await currentUser.save();
-
-    return res.status(201).json({ _id: currentUser._id });
-  } catch (err) {
-    next(err);
-  }
-};
-
 export const handleCloseFriends = async (
   req: Request,
   res: Response,

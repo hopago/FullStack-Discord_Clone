@@ -14,6 +14,7 @@ import privateMessageRouter from './routes/messageRoutes.js';
 import serverConversationRouter from './routes/serverConversationRoutes.js';
 import postRouter from './routes/postRoutes.js';
 import commentRouter from './routes/commentRoutes.js';
+import memoRouter from './routes/memoRoutes.js';
 const app = express();
 connectDB();
 app.use(express.json());
@@ -33,6 +34,7 @@ app.use('/private/messages', privateMessageRouter);
 app.use('/servers/conversation', serverConversationRouter);
 app.use('/posts', postRouter);
 app.use('/comments', commentRouter);
+app.use('/memos', memoRouter);
 // error
 app.use(errorHandler);
 mongoose.connection.once('open', () => {

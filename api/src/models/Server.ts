@@ -3,10 +3,12 @@ import { IUser } from "./User";
 
 export interface IServer extends Document {
   members: IUser[];
-  custom_category: {
-    parentCategory: string;
-    childCategory: string[];
-  };
+  custom_category: [
+    {
+      parentCategory: string;
+      childCategory: string[];
+    }
+  ];
   author: {
     authorId: string;
     userName: IUser["userName"];
@@ -28,16 +30,18 @@ const serverSchema: Schema = new Schema(
       type: [Object],
       required: true,
     },
-    custom_category: {
-      parentCategory: { type: String, required: true, default: "Welcome" },
-      childCategory: {
-        type: [String],
-        default: ["introductions", "announcements", "rules"],
+    custom_category: [
+      {
+        parentCategory: { type: String, required: true, default: "Welcome" },
+        childCategory: {
+          type: [String],
+          default: ["introductions", "announcements", "rules"],
+        },
       },
-    },
+    ],
     author: {
-      authorId: { type: String },
-      userName: { type: String },
+      authorId: { type: String, required: true },
+      userName: { type: String, required: true },
       avatar: { type: String },
     },
     embeds: {

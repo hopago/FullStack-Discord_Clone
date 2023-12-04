@@ -54,11 +54,15 @@ const EditPostEditor = ({ setShowModal, post }) => {
 
         setRepresentativeImgUrl((prev) => {
           prev.push(selectedImgSrc);
-          prev.filter((url) => url !== currRepresentativeImgSrc);
+          // TODO: 리턴 전 후 동작 비교
+          const newRepresentativeArr = prev.filter((url) => url !== currRepresentativeImgSrc);
+          return newRepresentativeArr;
         });
         setImgUrlArr((prev) => {
           prev.push(currRepresentativeImgSrc);
-          prev.filter((url) => url !== selectedImgSrc);
+          // TODO: 리턴 전 후 동작 비교
+          const newImgUrlArr = prev.filter((url) => url !== selectedImgSrc);
+          return newImgUrlArr;
         });
 
         images.forEach((image) => {
@@ -273,14 +277,20 @@ const EditPostEditor = ({ setShowModal, post }) => {
           deleteImage(representativeImgUrl[0]);
         } else {
           setImgUrlArr((prev) => [...representativeImgUrl, ...prev]);
-          imgUrlArr.filter((url) =>
-            alreadyExistedUrl.filter((existedUrl) => existedUrl !== url)
-          );
+          setImgUrlArr((prev) => {
+            return prev.filter((url) =>
+              alreadyExistedUrl.filter((existedUrl) => existedUrl !== url)
+            );
+          })
           deleteImage(imgUrlArr);
         }
 
         setContent("");
-        setCurrPost("");
+        setCurrPost({
+          title: "",
+          content: "",
+          category: "",
+        });
         setError("");
         setRepresentativeImgUrl([]);
         setImgUrlArr([]);

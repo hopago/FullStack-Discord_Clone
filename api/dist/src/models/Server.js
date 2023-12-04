@@ -4,16 +4,18 @@ const serverSchema = new Schema({
         type: [Object],
         required: true,
     },
-    custom_category: {
-        parentCategory: { type: String, required: true, default: "Welcome" },
-        childCategory: {
-            type: [String],
-            default: ["introductions", "announcements", "rules"],
+    custom_category: [
+        {
+            parentCategory: { type: String, required: true, default: "Welcome" },
+            childCategory: {
+                type: [String],
+                default: ["introductions", "announcements", "rules"],
+            },
         },
-    },
+    ],
     author: {
-        authorId: { type: String },
-        userName: { type: String },
+        authorId: { type: String, required: true },
+        userName: { type: String, required: true },
         avatar: { type: String },
     },
     embeds: {

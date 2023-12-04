@@ -43,18 +43,6 @@ export const usersApiSlice = apiSlice.injectEndpoints({
                     { type: 'User', id: result._id }
                 ],
             }),
-            addMemo: builder.mutation({
-                query: (friendId, memo) => ({
-                    url: `/users/friends/${friendId}`,
-                    method: 'PUT',
-                    body: {
-                        memo
-                    }
-                }),
-                invalidatesTags: (result, error, arg) => [
-                    { type: 'User', id: result._id }
-                ]
-            }),
             handleCloseFriends: builder.mutation({
                 query: friendId => ({
                     url: `/users/friends/close/${friendId}`,

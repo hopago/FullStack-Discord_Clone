@@ -8,7 +8,6 @@ import {
   removeFriend,
   findUserById,
   getCurrentUser,
-  addMemo,
   handleCloseFriends,
 } from "../controllers/userController.js";
 
@@ -33,7 +32,6 @@ router
 router
   .route("/friends/:friendId")
   .get(getSingleFriend)
-  .put(addMemo)
   .delete(removeFriend);
 
 router

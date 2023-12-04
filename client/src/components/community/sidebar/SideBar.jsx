@@ -251,6 +251,7 @@ const SideBar = ({ type: basePathName }) => {
               <h2 className="private-message-bradCrumbs">Private Messages</h2>
               {conversations?.map((conversation) => (
                 <Link
+                  key={conversation._id}
                   to={`/community/conversation/${conversation._id}`}
                   className="link"
                 >
