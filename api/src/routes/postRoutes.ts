@@ -7,7 +7,8 @@ import {
   likePost,
   updatePost,
   getPostsBySortOptions,
-  getPostsByAuthorId
+  getPostsByAuthorId,
+  getTrendPostsByAuthorId
 } from "../controllers/postController.js";
 import { verifyJWT } from '../middleware/jwt/verifyJWT.js';
 
@@ -21,21 +22,25 @@ router
   .post(addPost)
 
 router
+  .route('/author/trend/:authorId')
+  .get(getTrendPostsByAuthorId);
+
+router
   .route('/author/:authorId')
   .get(getPostsByAuthorId);
+
+router
+  .route('/like/:postId')
+  .patch(likePost) // TODO: PATCH, cors check
+
+router
+  .route('/views/:postId')
+  .patch(addViewOnPost) // TODO: PATCH, cors check
 
 router
   .route('/:postId')
   .get(getPost)
   .put(updatePost)
   .delete(deletePost)
-
-router
-  .route('/like/:postId')
-  .put(likePost)
-
-router
-  .route('/views/:postId')
-  .put(addViewOnPost)
 
 export default router;

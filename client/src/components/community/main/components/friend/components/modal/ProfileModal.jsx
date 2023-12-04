@@ -117,6 +117,12 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
   }, [editMemo]);
 
   useEffect(() => {
+    if (active !== 1) return;
+
+
+  }, [active]);
+
+  useEffect(() => {
     if (active !== 2) return;
 
     const validateServerExisted = async () => {
@@ -231,22 +237,22 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     case 1:
       moreInfo = (
         <div className="moreInfoSection">
+          <h2>인기 게시글</h2>
           <div className="postInfo">
             <div className="postImgWrap">
               <img src="" alt="" />
             </div>
-            <h2>인기 게시글</h2>
             <div className="postInfoCol">
               <h1>PostTitle</h1>
               <p>Description ShortCut</p>
               <p>Liked Count</p>
             </div>
           </div>
+          <h2>최근 게시글</h2>
           <div className="postInfo">
             <div className="postImgWrap">
               <img src="" alt="" />
             </div>
-            <h2>최근 게시글</h2>
             <div className="postInfoCol">
               <h1>PostTitle</h1>
               <p>Description ShortCut</p>

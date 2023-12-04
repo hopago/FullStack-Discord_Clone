@@ -20,6 +20,12 @@ export const postsApiSlice = apiSlice.injectEndpoints({
                     ...result.map(({ _id }) => ({ type: 'Post', id: _id }))
                 ]
             }),
+            getTrendPostsByAuthorId: builder.query({
+                query: id => `/posts/author/trend/${id}`,
+                providesTags: (result, error, arg) => [
+                    ...result.map(({ _id }) => ({ type: 'Post', id: _id }))
+                ]
+            }),
             getPost: builder.query({
                 query: _id => `/posts/${_id}`,
                 providesTags: (result, error, arg) => [
@@ -114,6 +120,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
 export const {
     useGetPostsBySortOptionsQuery,
     useGetPostsByAuthorIdQuery,
+    useGetTrendPostsByAuthorIdQuery,
     useGetPostQuery,
     useAddNewPostMutation,
     useUpdatePostMutation,

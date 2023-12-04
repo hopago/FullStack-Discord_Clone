@@ -1,8 +1,98 @@
-import Post from "../models/Post.js";
-import User, { IUser } from "../models/User.js";
+import Post, { IPost } from "../models/Post.js";
+import User from "../models/User.js";
 import { HttpException } from "../middleware/error/utils.js";
 import { Response, Request, NextFunction } from "express";
 import Comment from "../models/Comment.js";
+import { Document, Types } from "mongoose";
+
+// export const getPostsBySortOptions = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   const fetchType = req.query.sort;
+//   const categories = req.query.categories;
+//   const userLanguage = req.query.language;
+
+//   if (fetchType === "undefined") return res.status(400).json("Fetch Type is required...");
+
+//   const checkIsArray = (
+//     array: (Document<unknown, {}, IPost> &
+//       IPost & {
+//         _id: Types.ObjectId;
+//       })[]
+//   ) => {
+//     return Array.isArray(array) && !array.length
+//   };
+
+//   if (fetchType === "latest") {
+//     try {
+//       const posts = await Post.find().sort({ createdAt: -1 }).limit(10);
+//       if (checkIsArray(posts))
+//         throw new HttpException(400, "No post found...");
+
+//       res.status(200).json(posts);
+//     } catch (err) {
+//       next(err);
+//     }
+//   } else if (fetchType === "trend") {
+//     try {
+//       const posts = await Post.find().sort({
+//         views: -1,
+//       });
+//       if (checkIsArray(posts))
+//         throw new HttpException(400, "No post found...");
+
+//       res.status(200).json(posts);
+//     } catch (err) {
+//       next(err);
+//     }
+//   } else if (fetchType === "recommend") {
+//     if (categories === "undefined" && userLanguage) {
+//       try {
+//         const posts = await Post.find({
+//           category: userLanguage,
+//         }).limit(20);
+
+//         if (!posts || (Array.isArray(posts) && !posts.length))
+//           throw new HttpException(400, "No post found...");
+
+//         res.status(200).json(posts);
+//       } catch (err) {
+//         next(err);
+//       }
+//     } else if (userLanguage === "undefined" && categories) {
+//       let categoryArr: string[] = [];
+
+//       if (typeof categories === "string") {
+//         const splitCategories = categories.split("#");
+//         categoryArr.push(...splitCategories);
+//       }
+//       try {
+//         const posts = await Post.find({
+//           category: { $in: categoryArr },
+//         }).limit(20);
+
+//         if (!posts || (Array.isArray(posts) && !posts.length))
+//           throw new HttpException(400, "No post found...");
+
+//         res.status(200).json(posts);
+//       } catch (err) {
+//         next(err);
+//       }
+//     } else {
+//       return res.sendStatus(400);
+//     }
+//   } else {
+//     return res.sendStatus(400);
+//   }
+// };
+
+const getPosts = async (filter: any, sort: any, limit: number) => {
+  const posts = await Post.find(filter).sort(sort).limit(limit);
+  if (!posts.length) throw new HttpException(400, "No post found...");
+  return posts;
+};
 
 export const getPostsBySortOptions = async (
   req: Request,
@@ -10,72 +100,44 @@ export const getPostsBySortOptions = async (
   next: NextFunction
 ) => {
   const fetchType = req.query.sort;
-  const checkFetchType = Boolean(fetchType);
+  const categories = req.query.categories;
+  const userLanguage = req.query.language;
 
-  if (checkFetchType) {
+  if (!fetchType) return res.sendStatus(400);
+
+  try {
+    let filter = {};
+    let sort = {};
+    let limit = 20;
+
     if (fetchType === "latest") {
-      try {
-        const posts = await Post.find().sort({ createdAt: -1 }).limit(10);
-        if (Array.isArray(posts) && !posts.length)
-          throw new HttpException(400, "No post found...");
-
-        res.status(200).json(posts);
-      } catch (err) {
-        next(err);
-      }
+      sort = { createdAt: -1 };
+      limit = 10;
     } else if (fetchType === "trend") {
-      try {
-        const posts = await Post.find().sort({
-          views: -1,
-        });
-        if (Array.isArray(posts) && !posts.length)
-          throw new HttpException(400, "No post found...");
-
-        res.status(200).json(posts);
-      } catch (err) {
-        next(err);
-      }
+      sort = { views: -1 };
     } else if (fetchType === "recommend") {
-      const categories = req.query.categories;
-      const userLanguage = req.query.language;
-      if (categories === 'undefined' && userLanguage) {
-        try {
-          const posts = await Post.find({
-            category: userLanguage,
-          }).limit(20);
-
-          if (!posts || (Array.isArray(posts) && !posts.length))
-            throw new HttpException(400, "No post found...");
-
-          res.status(200).json(posts);
-        } catch (err) {
-          next(err);
-        }
-      } else if (userLanguage === 'undefined' && categories) {
+      if (categories !== "undefined" && userLanguage) {
+        filter = { category: userLanguage };
+      } else if (userLanguage !== "undefined" && categories) {
         let categoryArr: string[] = [];
 
         if (typeof categories === "string") {
           const splitCategories = categories.split("#");
-          return categoryArr.push(...splitCategories);
+          categoryArr.push(...splitCategories);
         }
-        try {
-          const posts = await Post.find({
-            category: { $in: categoryArr },
-          }).limit(20);
 
-          if (!posts || (Array.isArray(posts) && !posts.length))
-            throw new HttpException(400, "No post found...");
-
-          res.status(200).json(posts);
-        } catch (err) {
-          next(err);
-        }
+        filter = { category: { $in: categoryArr } };
       } else {
         return res.sendStatus(400);
       }
     } else {
       return res.sendStatus(400);
     }
+
+    const posts = await getPosts(filter, sort, limit);
+    res.status(200).json(posts);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -119,12 +181,50 @@ export const getPostsByAuthorId = async (
       author: {
         authorId,
       },
-    }).limit(10);
+    })
+    .limit(10)
+    .sort('-createdAt');
 
     if (!posts || (Array.isArray(posts) && !posts.length))
       throw new HttpException(400, "No post found...");
 
     res.send(200).json(posts);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getTrendPostsByAuthorId = async(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const authorId = req.params.authorId;
+  if (!authorId || authorId === "undefined") return res.sendStatus(400);
+
+  try {
+    const posts = await Post.aggregate([
+      { $match: { "author.authorId": authorId } },
+      {
+        $addFields: {
+          totalReactions: {
+            $add: [
+              { $size: "$reactions.thumbsUp" },
+              { $size: "$reactions.wow" },
+              { $size: "$reactions.heart" },
+              { $size: "$reactions.rocket" },
+              { $size: "$reactions.coffee" },
+              "$views",
+            ],
+          },
+        },
+      },
+      { $sort: { totalReactions: -1 } },
+      { $limit: 3 },
+    ]);
+    if (!posts.length) throw new HttpException(400, "No post found...");
+
+    return res.status(200).json(posts);
   } catch (err) {
     next(err);
   }
