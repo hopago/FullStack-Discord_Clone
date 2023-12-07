@@ -21,12 +21,14 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../../features/users/slice/userSlice";
 import { socket } from "../../../../..";
 import SendFriendForm from "./components/SendFriendForm";
+import { useLazyGetAllBlackListQuery } from "../../../../../features/blackList/slice/blackListApiSlice";
 
 const Friend = () => {
   const currentUser = useSelector(selectCurrentUser);
 
   const [getAllFriends] = useLazyGetAllFriendsQuery();
   const [getAllFriendRequest] = useLazyGetAllFriendRequestQuery();
+  const [getAllBlackList] = useLazyGetAllBlackListQuery();
   const { data: receivedCount } = useGetReceivedCountQuery();
   const [findUser] = useLazyFindUserByIdQuery();
 
@@ -72,27 +74,50 @@ const Friend = () => {
       .unwrap()
       .then((data) =>
         setFriends(
-          ...data.map((request) => request.members.map((friend) => friend))
+          data[0].members.map((friend) => friend) // TODO: 12 07 edit, test
         )
       )
       .catch((err) => console.error(err));
+  };
+
+  const fetchBlackList = (e) => {
+    setContentType("blackList");
+    setFriends(null);
+    setFriendList(null);
+    handleActiveClass(e);
+    getAllBlackList()
+      .unwrap()
+      .then((data) => {
+        if (data.length) {
+          setFriends(
+            data[0].members.map((friend) => friend) // TODO: 12 07 edit, test
+          )
+        }
+      })
+      .catch(err => console.error(err));
   };
 
   useEffect(() => {
     if (Array.isArray(friends) && friends.length) {
       setFriendList(
         <>
-          {friends?.map((friend) => (
-            <UserInfo
-              type={contentType}
-              senderId={friend._id}
-              key={friend._id}
-              defaultProfile={defaultProfile}
-              friend={friend}
-            />
-          ))}
+          {friends.length
+            ? friends.map((friend) => (
+                <UserInfo
+                  type={contentType}
+                  senderId={friend._id}
+                  key={friend._id}
+                  defaultProfile={defaultProfile}
+                  friend={friend}
+                />
+              ))
+            : null}
         </>
       );
+    }
+
+    return () => {
+
     }
   }, [friends, active]);
 
