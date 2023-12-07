@@ -22,7 +22,7 @@ export const getAllFriendRequest = async (
       return res.status(500).json("Something went wrong in referenced...");
     }
 
-    res.status(200).json(requestList);
+    return res.status(200).json(requestList);
   } catch (err) {
     next(err);
   }
@@ -50,7 +50,7 @@ export const getReceivedCount = async (
     const receivedCount = requestList?.members?.length;
     if (receivedCount === undefined) return res.sendStatus(500);
 
-    res.status(200).json({ count: receivedCount, _id: req.user.id });
+    return res.status(200).json({ count: receivedCount, _id: requestList._id });
   } catch (err) {
     next(err);
   }
@@ -101,14 +101,19 @@ export const sendFriend = async (
           banner,
         };
 
-        await requestTable?.updateOne({
-          $push: {
-            members: currentUserInfo,
+        await requestTable?.updateOne(
+          {
+            $push: {
+              members: currentUserInfo,
+            },
           },
-        });
+          { new: true }
+        );
+
         return res.status(201).json({
           _id: requestTable?._id,
           receiverId: receiver._id,
+          senderId: req.user.id,
         });
       } catch (err) {
         next(err);
@@ -208,7 +213,7 @@ export const handleRequestFriend = async (
             });
             await newConversation.save();
 
-            res
+            return res
               .status(201)
               .json({ newConversation, currentUser, requestTable });
           } catch (err) {
@@ -223,7 +228,8 @@ export const handleRequestFriend = async (
                 },
               },
             });
-            res.status(201).json("Friend request rejected...");
+            
+            return res.status(201).json("Friend request rejected...");
           } catch (err) {
             next(err);
           }

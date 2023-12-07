@@ -15,7 +15,6 @@ export interface IUser extends Document {
     closeFriends: IUser[],
     blackList: [],
     refreshToken: string[],
-    memo: string,
     _doc: any
 };
 

@@ -17,7 +17,7 @@ export const getAllBlackList = async (req: Request, res: Response, next: NextFun
         const blackListArr = blackList.members;
         if (!blackListArr.length) return res.sendStatus(400);
 
-        return res.status(200).json(blackListArr);
+        return res.status(200).json(blackList);
     } catch (err) {
         next(err);
     }
@@ -31,6 +31,9 @@ export const addBlockUser = async (req: Request, res: Response, next:NextFunctio
     try {
         const blockUser = await User.findById(blockUserId);
         if (!blockUser) return res.status(404).json("User not found...");
+        const currentUser = await User.findById(currentUserId);
+        if (!currentUser) return res.status(404).json("User not found...");
+
         const {
           _id,
           avatar,
@@ -41,7 +44,9 @@ export const addBlockUser = async (req: Request, res: Response, next:NextFunctio
           avatar,
           userName
         }
-        
+
+        const isFriendExisted = currentUser.friends.length && currentUser.friends.some(friend => friend._id.toString() === blockUserId);
+
         const blackList = await BlackList.findOne({
             referenced_user: currentUserId
         });
@@ -58,11 +63,15 @@ export const addBlockUser = async (req: Request, res: Response, next:NextFunctio
             },
           });
 
-          return res
-            .status(201)
-            .json({ docsId: blackList._id, ...blockUserInfo });
+          if (isFriendExisted) {
+            const findIndex = currentUser.friends.findIndex(friend => friend._id.toString() === blockUserId);
+            currentUser.friends.splice(findIndex, 1);
+            await currentUser.save();
+          }
+
+          return res.status(201).json({ _id: blackList._id });
         } else {
-          return res.status(500).json("Something went wrong in block user...");
+          return res.status(500).json("Something went wrong in members array...");
         }
     } catch (err) {
         next(err);
@@ -84,7 +93,7 @@ export const deleteBlockUser = async (
     const blackList = await BlackList.findOne({
       referenced_user: currentUserId,
     });
-    if(!blackList) return res.status(404).json("Request dos not found...");
+    if(!blackList) return res.status(404).json("Request docs not found...");
 
     if (
       blackList.members.some((member) => member._id.toString() === blockUserId)
@@ -98,12 +107,12 @@ export const deleteBlockUser = async (
           },
         });
 
-        return res.status(201).json({ docsId: blackList._id });
+        return res.status(201).json({ _id: blackList._id });
       } catch (err) {
         next(err);
       }
     } else {
-      res.status(500).json("Something went wrong...");
+      res.status(500).json("Something went wrong in members array...");
     }
   } catch (err) {
     next(err);

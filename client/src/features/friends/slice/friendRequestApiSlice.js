@@ -8,7 +8,8 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
             getAllFriendRequest: builder.query({
                 query: () => '/friends',
                 provideTags: (result, error, arg) => [
-                    ...result.map(({ _id }) => ({ type: "FriendRequest", id: _id }))
+                    { type: 'FriendRequest', id: result._id },
+                    ...result.members.map(member => ({ type: 'FriendRequestMember', id: member._id }))
                 ]
             }),
             getReceivedCount: builder.query({
@@ -23,7 +24,8 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
                     method: 'POST'
                 }),
                 invalidatesTags: (result, error, arg) => [
-                    { type: 'FriendRequest', id: result._id }
+                    { type: 'FriendRequest', id: result._id },
+                    { type: 'FriendRequestMember', id: result.senderId }
                 ]
             }),
             handleRequestFriend: builder.mutation({

@@ -17,15 +17,35 @@ export const blackListApiSlice = apiSlice.injectEndpoints({
                 providesTags: (result, error, arg) => {
                     if (Array.isArray(result) && result.length) {
                         return [
-                            { type: 'BlackList', id: "LIST" },
-                            ...result.map(({ _id }) => ({
-                                type: "BlackList", id: _id
+                            { type: 'BlackList', id: result._id },
+                            ...result.members.map(({ _id }) => ({
+                                type: "BlackListMember", id: _id
                             }))
                         ]
                     } else {
                         return []
                     }
                 }
+            }),
+            addBlackList: builder.mutation({
+                query: userId => ({
+                    url: `/blackList/${userId}`,
+                    method: 'POST',
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: "BlackList", id: result._id },
+                    { type: "BlackListMember", id: arg }
+                ]
+            }),
+            deleteBlackList: builder.mutation({
+                query: userId => ({
+                    url: `/blackList/${userId}`,
+                    method: "DELETE"
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: "BlackList", id: result._id },
+                    { type: "BlackListMember", id: arg }
+                ]
             })
         }
     )
@@ -33,5 +53,7 @@ export const blackListApiSlice = apiSlice.injectEndpoints({
 
 export const {
     useLazyGetAllBlackListQuery,
-    useGetAllBlackListQuery
+    useGetAllBlackListQuery,
+    useAddBlackListMutation,
+    useDeleteBlackListMutation
 } = blackListApiSlice;
