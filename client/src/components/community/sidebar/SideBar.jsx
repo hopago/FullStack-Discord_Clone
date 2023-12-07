@@ -154,6 +154,7 @@ const SideBar = ({ type: basePathName }) => {
 
   const getFriendInfo = (conversation, value) => {
     const friend = findFriendInfo(conversation);
+    console.log(friend);
 
     if (friend && value === "avatar") return friend.avatar;
     if (friend && value === "userName") return friend.userName;

@@ -4,27 +4,52 @@ export const postsApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => (
         {
             getPostsBySortOptions: builder.query({
-                query: ({ fetchType, categories, language }) => `/posts?sort=${fetchType}&categories=${categories}&language=${language}`,
+                query: ({ fetchType, categories, language }) => ({
+                    url: `/posts?sort=${fetchType}&categories=${categories}&language=${language}`,
+                    transformResponse: (res) => {
+                        if (res.status === 400) {
+                            return []
+                        }
+                        console.log(res);
+                        return res;
+                    }
+                }),
                 providesTags: (result, error, arg) => {
-                    return [
-                        { type: 'Post', id: "LIST" },
-                        ...result.map(({ _id }) => ({
-                            type: 'Post', id: _id
-                        }))
-                    ];
+                    if (Array.isArray(result) && result.length) {
+                        return [
+                            { type: 'Post', id: "LIST" },
+                            ...result.map(({ _id }) => ({
+                                type: 'Post', id: _id
+                            }))
+                        ];
+                    } else {
+                        return [];
+                    }
                 },
             }),
             getPostsByAuthorId: builder.query({
                 query: id => `/posts/author/${id}`,
-                providesTags: (result, error, arg) => [
-                    ...result.map(({ _id }) => ({ type: 'Post', id: _id }))
-                ]
+                providesTags: (result, error, arg) => {
+                    if (Array.isArray(result) && result.length) {
+                        return [
+                            ...result.map(({ _id }) => ({ type: 'Post', id: _id }))
+                        ]
+                    } else {
+                        return [];
+                    }
+                }
             }),
             getTrendPostsByAuthorId: builder.query({
                 query: id => `/posts/author/trend/${id}`,
-                providesTags: (result, error, arg) => [
-                    ...result.map(({ _id }) => ({ type: 'Post', id: _id }))
-                ]
+                providesTags: (result, error, arg) => {
+                    if (Array.isArray(result) && result.length) {
+                        return [
+                            ...result.map(({ _id }) => ({ type: 'Post', id: _id }))
+                        ]
+                    } else {
+                        return [];
+                    }
+                }
             }),
             getPostReactions: builder.query({
                 query: id => `/posts/reactions/${id}`,

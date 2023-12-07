@@ -7,20 +7,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { HttpException } from "../middleware/error/utils.js";
 import BlackList from "../models/BlockRequestTable.js";
 import User from "../models/User.js";
+{ /* 12 05 22 40 */ }
 export const getAllBlackList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield User.findById(req.user.id);
+        if (!user)
+            return res.status(404).json("Something went wrong in verifying...");
         const blackList = yield BlackList.findOne({
             referenced_user: user === null || user === void 0 ? void 0 : user._id
         });
-        const blackListArr = blackList === null || blackList === void 0 ? void 0 : blackList.table.members;
-        if (Array.isArray(blackListArr) && !(blackListArr === null || blackListArr === void 0 ? void 0 : blackListArr.length)) {
-            throw new HttpException(400, "No list founded...");
-        }
-        res.status(200).json(blackListArr);
+        if (!blackList)
+            return res.status(404).json("Request docs not found...");
+        const blackListArr = blackList.members;
+        if (!blackListArr.length)
+            return res.sendStatus(400);
+        return res.status(200).json(blackListArr);
     }
     catch (err) {
         next(err);
@@ -29,23 +32,35 @@ export const getAllBlackList = (req, res, next) => __awaiter(void 0, void 0, voi
 export const addBlockUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const currentUserId = req.user.id;
     const blockUserId = req.params.blockUserId;
+    if (!currentUserId || !blockUserId)
+        return res.status(400).json("Something went wrong in credentials...");
     try {
         const blockUser = yield User.findById(blockUserId);
-        const blockRequestTable = yield BlackList.findOne({
+        if (!blockUser)
+            return res.status(404).json("User not found...");
+        const { _id, avatar, userName, } = blockUser;
+        const blockUserInfo = {
+            _id,
+            avatar,
+            userName
+        };
+        const blackList = yield BlackList.findOne({
             referenced_user: currentUserId
         });
-        if (!(blockRequestTable === null || blockRequestTable === void 0 ? void 0 : blockRequestTable.table.members.includes(blockUser))) {
-            yield (blockRequestTable === null || blockRequestTable === void 0 ? void 0 : blockRequestTable.updateOne({
+        if (!blackList)
+            return res.status(404).json("Request docs not found...");
+        if (!blackList.members.some((member) => member._id.toString() === blockUserId)) {
+            yield (blackList === null || blackList === void 0 ? void 0 : blackList.updateOne({
                 $push: {
-                    table: {
-                        members: blockUser,
-                    },
+                    members: blockUserInfo
                 },
             }));
-            res.sendStatus(201);
+            return res
+                .status(201)
+                .json(Object.assign({ docsId: blackList._id }, blockUserInfo));
         }
         else {
-            throw new HttpException(500, "Something went wrong...");
+            return res.status(500).json("Something went wrong in block user...");
         }
     }
     catch (err) {
@@ -55,20 +70,31 @@ export const addBlockUser = (req, res, next) => __awaiter(void 0, void 0, void 0
 export const deleteBlockUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const currentUserId = req.user.id;
     const blockUserId = req.params.blockUserId;
+    if (!currentUserId || !blockUserId)
+        return res.status(400).json("Something went wrong in credentials...");
     try {
         const blockUser = yield User.findById(blockUserId);
-        const blockRequestTable = yield BlackList.findOne({
+        if (!blockUser)
+            return res.status(404).json("User not found...");
+        const blackList = yield BlackList.findOne({
             referenced_user: currentUserId,
         });
-        if (blockRequestTable === null || blockRequestTable === void 0 ? void 0 : blockRequestTable.table.members.includes(blockUser)) {
-            yield (blockRequestTable === null || blockRequestTable === void 0 ? void 0 : blockRequestTable.updateOne({
-                $pull: {
-                    table: {
-                        members: blockUser,
+        if (!blackList)
+            return res.status(404).json("Request dos not found...");
+        if (blackList.members.some((member) => member._id.toString() === blockUserId)) {
+            try {
+                yield (blackList === null || blackList === void 0 ? void 0 : blackList.updateOne({
+                    $pull: {
+                        members: {
+                            _id: blockUserId,
+                        },
                     },
-                },
-            }));
-            res.sendStatus(201);
+                }));
+                return res.status(201).json({ docsId: blackList._id });
+            }
+            catch (err) {
+                next(err);
+            }
         }
         else {
             res.status(500).json("Something went wrong...");

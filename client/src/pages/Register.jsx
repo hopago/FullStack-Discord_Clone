@@ -164,7 +164,7 @@ const Register = () => {
             {passwordFocus && !validPassword && (
               <p id="pwdnote" className="instruction">
                 <Error />
-                사용자명은 영문이어야하며 4~24 글자입니다.
+                비밀번호는 영문이어야하며 4~24 글자입니다.
                 <br />
                 반드시 대문자나 소문자를 하나 포함해야하며, 숫자나 특수 문자
                 역시 필요합니다.

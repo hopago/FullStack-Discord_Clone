@@ -14,7 +14,7 @@ export const createConversation = async (req: Request, res: Response, next: Next
     try {
         const savedConversation = await newConversation.save();
 
-        res.status(201).json(savedConversation);
+        return res.status(201).json(savedConversation);
     } catch (err) {
         next(err);
     }
@@ -23,7 +23,10 @@ export const createConversation = async (req: Request, res: Response, next: Next
 export const getConversations = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const conversations = await PrivateConversation.find({
-            receiverId: req.user.id
+            $or: [
+                { receiverId: req.user.id },
+                { senderId: req.user.id }
+            ]
         })
         .sort({ updatedAt: - 1 });
         if (
@@ -31,7 +34,7 @@ export const getConversations = async (req: Request, res: Response, next: NextFu
           (Array.isArray(conversations) && !conversations.length)
         ) return res.status(400).json("No conversation found yet...");
 
-        res.status(200).json(conversations);
+        return res.status(200).json(conversations);
     } catch (err) {
         next(err);
     }
@@ -42,7 +45,7 @@ export const getSingleConversation = async (req: Request, res: Response, next: N
         const conversation = await PrivateConversation.findById(req.params.conversationId);
         if (!conversation) throw new HttpException(400, "Could not found this chat room...");
 
-        res.status(200).json(conversation);
+        return res.status(200).json(conversation);
     } catch (err) {
         next(err);
     }
@@ -70,7 +73,7 @@ export const updateConversation = async (req: Request, res: Response, next: Next
           }
         );
 
-        res.status(200).json(updatedConversation);
+        return res.status(200).json(updatedConversation);
     } catch (err) {
         next(err);
     }

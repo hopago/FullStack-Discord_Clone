@@ -10,12 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import FriendAcceptReject from "../models/FriendRequestTable.js";
 import User from "../models/User.js";
 import PrivateConversation from "../models/PrivateConversation.js";
+{ /* 12 05 22 40 */ }
 export const getAllFriendRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield User.findById(req.user.id);
         if (!user)
             return res.status(403).json("Something went wrong in verifying...");
-        const requestList = yield FriendAcceptReject.find({
+        const requestList = yield FriendAcceptReject.findOne({
             referenced_user: user === null || user === void 0 ? void 0 : user._id,
         });
         if (!requestList) {

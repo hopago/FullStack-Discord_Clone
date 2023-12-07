@@ -20,7 +20,7 @@ export const createConversation = (req, res, next) => __awaiter(void 0, void 0, 
     });
     try {
         const savedConversation = yield newConversation.save();
-        res.status(201).json(savedConversation);
+        return res.status(201).json(savedConversation);
     }
     catch (err) {
         next(err);
@@ -29,13 +29,16 @@ export const createConversation = (req, res, next) => __awaiter(void 0, void 0, 
 export const getConversations = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const conversations = yield PrivateConversation.find({
-            receiverId: req.user.id
+            $or: [
+                { receiverId: req.user.id },
+                { senderId: req.user.id }
+            ]
         })
             .sort({ updatedAt: -1 });
         if (!conversations ||
             (Array.isArray(conversations) && !conversations.length))
             return res.status(400).json("No conversation found yet...");
-        res.status(200).json(conversations);
+        return res.status(200).json(conversations);
     }
     catch (err) {
         next(err);
@@ -46,7 +49,7 @@ export const getSingleConversation = (req, res, next) => __awaiter(void 0, void 
         const conversation = yield PrivateConversation.findById(req.params.conversationId);
         if (!conversation)
             throw new HttpException(400, "Could not found this chat room...");
-        res.status(200).json(conversation);
+        return res.status(200).json(conversation);
     }
     catch (err) {
         next(err);
@@ -67,7 +70,7 @@ export const updateConversation = (req, res, next) => __awaiter(void 0, void 0, 
         }, {
             new: true
         });
-        res.status(200).json(updatedConversation);
+        return res.status(200).json(updatedConversation);
     }
     catch (err) {
         next(err);

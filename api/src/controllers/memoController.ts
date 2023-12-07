@@ -104,7 +104,7 @@ export const deleteMemo = async (
     });
     if (!memo) return res.status(404).json("Memo not found...");
 
-    return res.status(204).json({ _id: memo._id });
+    return res.status(204);
   } catch (err) {
     next(err);
   }

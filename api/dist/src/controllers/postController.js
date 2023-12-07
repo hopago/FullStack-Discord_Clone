@@ -202,6 +202,33 @@ export const getTrendPostsByAuthorId = (req, res, next) => __awaiter(void 0, voi
         next(err);
     }
 });
+export const getSinglePostReactionsLength = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const postId = req.params.postId;
+    if (!postId || postId === "undefined")
+        return res.sendStatus(400);
+    try {
+        const post = yield Post.aggregate([
+            { $match: { _id: postId } },
+            {
+                $addFields: {
+                    $add: [
+                        { $size: "$reactions.thumbsUp" },
+                        { $size: "$reactions.wow" },
+                        { $size: "$reactions.heart" },
+                        { $size: "$reactions.rocket" },
+                        { $size: "$reactions.coffee" },
+                    ],
+                },
+            },
+        ]);
+        if (!post.length)
+            return res.status(400).json("No post found...");
+        return res.status(200).json(post[0].totalReactions);
+    }
+    catch (err) {
+        next(err);
+    }
+});
 export const getPost = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const post = yield Post.findById(req.params.postId);

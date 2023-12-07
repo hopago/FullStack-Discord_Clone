@@ -1,5 +1,5 @@
 import express from 'express';
-import { addPost, addViewOnPost, deletePost, getPost, likePost, updatePost, getPostsBySortOptions, getPostsByAuthorId, getTrendPostsByAuthorId } from "../controllers/postController.js";
+import { addPost, addViewOnPost, deletePost, getPost, likePost, updatePost, getPostsBySortOptions, getPostsByAuthorId, getTrendPostsByAuthorId, getSinglePostReactionsLength } from "../controllers/postController.js";
 import { verifyJWT } from '../middleware/jwt/verifyJWT.js';
 const router = express.Router();
 router.use(verifyJWT);
@@ -19,6 +19,9 @@ router
 router
     .route('/views/:postId')
     .patch(addViewOnPost); // TODO: PATCH, cors check
+router
+    .route('/reactions/:postId')
+    .get(getSinglePostReactionsLength);
 router
     .route('/:postId')
     .get(getPost)

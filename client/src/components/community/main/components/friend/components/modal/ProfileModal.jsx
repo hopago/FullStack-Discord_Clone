@@ -256,6 +256,8 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     let trendPostIds;
     let latestPostsIds;
 
+    if (!trendPosts.length || !latestPosts.length) return;
+
     const getTrendPostsIds = () => {
       trendPostIds = trendPosts.map(post => post._id);
     };
@@ -274,7 +276,7 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     const setTrendCounts = async () => {
       const trendPostsReactions = await Promise.all(trendPostIds.map(fetchReactionCounts));
       if (!trendPostsReactions.length) {
-        return console.error("Something went wrong in trend counts...");
+        return console.log("Something went wrong in trend counts...");
       }
 
       setTrendPostsReactionCounts(trendPostsReactions);
@@ -283,7 +285,7 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     const setLatestCounts = async () => {
       const latestPostsReactions = await Promise.all(latestPostsIds.map(fetchReactionCounts));
       if (!latestPostsReactions.length) {
-        return console.error("Something went wrong in latest counts...");
+        return console.log("Something went wrong in latest counts...");
       }
 
       setLatestPostsReactionCounts(latestPostsReactions);
@@ -340,37 +342,43 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
       moreInfo = (
         <div className="moreInfoSection">
           <h2>인기 게시글</h2>
-          {trendPosts?.map((post, index) => (
-            <div className="postInfo">
-              <div className="postImgWrap">
-                <img src={post?.representativeImgUrl} alt="" />
-              </div>
-              <div className="postInfoCol">
-                <h1>{post?.title}</h1>
-                <p>{post?.description.slice(0, 20)}...</p>
-                <p>
-                  {trendPostsReactionCounts.length &&
-                    trendPostsReactionCounts[index]}
-                </p>
-              </div>
-            </div>
-          ))}
+          {/* 로직 완성, css ui 구현 */}
+          {trendPosts?.length > 0
+            ? trendPosts.map((post, index) => (
+                <div className="postInfo">
+                  <div className="postImgWrap">
+                    <img src={post?.representativeImgUrl} alt="" />
+                  </div>
+                  <div className="postInfoCol">
+                    <h1>{post?.title}</h1>
+                    <p>{post?.description.slice(0, 20)}...</p>
+                    <p>
+                      {trendPostsReactionCounts.length &&
+                        trendPostsReactionCounts[index]}
+                    </p>
+                  </div>
+                </div>
+              ))
+            : null}
           <h2>최근 게시글</h2>
-          {latestPosts?.map((post, index) => (
-            <div className="postInfo">
-              <div className="postImgWrap">
-                <img src={post?.representativeImgUrl} alt="" />
-              </div>
-              <div className="postInfoCol">
-                <h1>{post?.title}</h1>
-                <p>{post?.description.slice(0, 20)}...</p>
-                <p>
-                  {latestPostsReactionCounts.length &&
-                    latestPostsReactionCounts[index]}
-                </p>
-              </div>
-            </div>
-          ))}
+          {/* 로직 완성, css ui 구현 */}
+          {latestPosts?.length > 0
+            ? latestPosts.map((post, index) => (
+                <div className="postInfo">
+                  <div className="postImgWrap">
+                    <img src={post?.representativeImgUrl} alt="" />
+                  </div>
+                  <div className="postInfoCol">
+                    <h1>{post?.title}</h1>
+                    <p>{post?.description.slice(0, 20)}...</p>
+                    <p>
+                      {latestPostsReactionCounts.length &&
+                        latestPostsReactionCounts[index]}
+                    </p>
+                  </div>
+                </div>
+              ))
+            : null}
         </div>
       );
       break;

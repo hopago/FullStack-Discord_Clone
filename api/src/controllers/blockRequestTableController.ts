@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { HttpException } from "../middleware/error/utils.js";
 import BlackList from "../models/BlockRequestTable.js";
 import User from "../models/User.js";
 

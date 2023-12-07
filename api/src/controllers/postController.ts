@@ -1,9 +1,8 @@
-import Post, { IPost } from "../models/Post.js";
+import Post from "../models/Post.js";
 import User from "../models/User.js";
 import { HttpException } from "../middleware/error/utils.js";
 import { Response, Request, NextFunction } from "express";
 import Comment from "../models/Comment.js";
-import { Document, Types } from "mongoose";
 
 // export const getPostsBySortOptions = async (
 //   req: Request,

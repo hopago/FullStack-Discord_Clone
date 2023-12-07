@@ -107,7 +107,14 @@ const Friend = () => {
       socket?.emit("getOnlineFriends", currentUser?._id);
       socket?.on("onlineFriendList", (onlineFriends) => {
         if (!onlineFriends) return;
-        setFriends(onlineFriends);
+        console.log(onlineFriends);
+        const filterCurrentUser = onlineFriends.filter(
+          (friend) => {
+            return friend._id !== currentUser?._id;
+          }
+        );
+        console.log(filterCurrentUser);
+        setFriends(filterCurrentUser);
       });
     } catch (err) {
       console.error(err);
@@ -123,7 +130,11 @@ const Friend = () => {
       if (senderId && requestType === "FriendRequest") {
         findUser(senderId)
           .unwrap()
-          .then((data) => setFriends((prev) => [...prev, data]))
+          .then((data) => {
+            if (active === 0) {
+              setFriends((prev) => [data, ...prev]);
+            }
+          })
           .catch((err) => console.error(err));
 
         setFriendRequestCount((prev) => prev + 1);

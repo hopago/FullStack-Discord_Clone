@@ -54,7 +54,7 @@ export const memosApiSlice = apiSlice.injectEndpoints({
                     method: 'DELETE',
                 }),
                 invalidatesTags: (result, error, arg) => [
-                    { type: 'Memo', id: result._id }
+                    { type: 'Memo', id: arg }
                 ]
             })
         }
