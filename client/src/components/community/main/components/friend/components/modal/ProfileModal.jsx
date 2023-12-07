@@ -21,6 +21,9 @@ import {
 } from "../../../../../../../features/memos/memosApiSlice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../../../../features/users/slice/userSlice";
+import { useLazyGetPostReactionsQuery, useLazyGetPostsByAuthorIdQuery, useLazyGetTrendPostsByAuthorIdQuery } from "../../../../../../../features/post/slice/postsApiSlice";
+
+{/* 12 05 22 40 */}
 
 const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
   const infoConstants = [
@@ -40,6 +43,12 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
   const [editMemo, setEditMemo] = useState(false);
   const [memo, setMemo] = useState(data?.memo ?? "");
   const [active, setActive] = useState(0);
+  const [latestPosts, setLatestPosts] = useState([]);
+  const [trendPosts, setTrendPosts] = useState([]);
+  const [emptyPost, setEmptyPost] = useState(false);
+  const [emptyLatestPost, setEmptyLatestPost] = useState(false);
+  const [trendPostsReactionCounts, setTrendPostsReactionCounts] = useState([]);
+  const [latestPostsReactionCounts, setLatestPostsReactionCounts] = useState([]);
 
   const [addMemo] = useAddMemoMutation();
   const [updateMemo] = useUpdateMemoMutation();
@@ -48,6 +57,10 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
   const [getFriend] = useLazyFindUserByIdQuery();
 
   const [getUserServers] = useLazyGetUserServersQuery();
+
+  const [getTrendPostByAuthorId] = useLazyGetTrendPostsByAuthorIdQuery();
+  const [getLatestPost] = useLazyGetPostsByAuthorIdQuery();
+  const [getReactions] = useLazyGetPostReactionsQuery();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -118,8 +131,52 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
 
   useEffect(() => {
     if (active !== 1) return;
+    if (emptyPost && emptyLatestPost) return;
 
+    const fetchFriendTrendPosts = async () => {
+      return await getTrendPostByAuthorId(friend._id);
+    };
+    const fetchFriendLatestPosts = async () => {
+      return await getLatestPost(friend._id);
+    };
 
+    const fetchTrendPosts = async () => {
+      const posts = await fetchFriendTrendPosts();
+
+      if (Array.isArray(posts) && !posts.length) {
+        return setEmptyPost(true);
+      }
+
+      let trendPosts;
+
+      if (posts.length > 3) {
+        trendPosts = posts.slice(0, 2);
+      } else {
+        trendPosts = posts;
+      }
+
+      setTrendPosts(trendPosts);
+    };
+
+    const fetchLatestPost = async () => {
+      const posts = await fetchFriendLatestPosts();
+
+      if (Array.isArray(posts) && !posts.length) {
+        return setEmptyLatestPost(true);
+      }
+
+      let latestPosts;
+
+      if (posts.length > 3) {
+        latestPosts = posts.slice(0, 2);
+      } else {
+        latestPosts = posts;
+      }
+
+      setLatestPosts(latestPosts);
+    };
+
+    Promise.all([fetchTrendPosts(), fetchLatestPost()]);
   }, [active]);
 
   useEffect(() => {
@@ -195,6 +252,51 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     return () => {};
   }, [active]);
 
+  useEffect(() => {
+    let trendPostIds;
+    let latestPostsIds;
+
+    const getTrendPostsIds = () => {
+      trendPostIds = trendPosts.map(post => post._id);
+    };
+
+    const getLatestPostsIds = () => {
+      latestPostsIds = latestPosts.map(post => post._id);
+    };
+
+    getTrendPostsIds();
+    getLatestPostsIds();
+
+    const fetchReactionCounts = async (_id) => {
+      return getReactions(_id);
+    };
+
+    const setTrendCounts = async () => {
+      const trendPostsReactions = await Promise.all(trendPostIds.map(fetchReactionCounts));
+      if (!trendPostsReactions.length) {
+        return console.error("Something went wrong in trend counts...");
+      }
+
+      setTrendPostsReactionCounts(trendPostsReactions);
+    };
+
+    const setLatestCounts = async () => {
+      const latestPostsReactions = await Promise.all(latestPostsIds.map(fetchReactionCounts));
+      if (!latestPostsReactions.length) {
+        return console.error("Something went wrong in latest counts...");
+      }
+
+      setLatestPostsReactionCounts(latestPostsReactions);
+    };
+
+    const fetchAll = async () => {
+      await setTrendCounts();
+      await setLatestCounts();
+    };
+
+    fetchAll();
+  }, [latestPosts.length, trendPosts.length]);
+
   let moreInfo;
   let languageIcon;
 
@@ -238,27 +340,37 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
       moreInfo = (
         <div className="moreInfoSection">
           <h2>인기 게시글</h2>
-          <div className="postInfo">
-            <div className="postImgWrap">
-              <img src="" alt="" />
+          {trendPosts?.map((post, index) => (
+            <div className="postInfo">
+              <div className="postImgWrap">
+                <img src={post?.representativeImgUrl} alt="" />
+              </div>
+              <div className="postInfoCol">
+                <h1>{post?.title}</h1>
+                <p>{post?.description.slice(0, 20)}...</p>
+                <p>
+                  {trendPostsReactionCounts.length &&
+                    trendPostsReactionCounts[index]}
+                </p>
+              </div>
             </div>
-            <div className="postInfoCol">
-              <h1>PostTitle</h1>
-              <p>Description ShortCut</p>
-              <p>Liked Count</p>
-            </div>
-          </div>
+          ))}
           <h2>최근 게시글</h2>
-          <div className="postInfo">
-            <div className="postImgWrap">
-              <img src="" alt="" />
+          {latestPosts?.map((post, index) => (
+            <div className="postInfo">
+              <div className="postImgWrap">
+                <img src={post?.representativeImgUrl} alt="" />
+              </div>
+              <div className="postInfoCol">
+                <h1>{post?.title}</h1>
+                <p>{post?.description.slice(0, 20)}...</p>
+                <p>
+                  {latestPostsReactionCounts.length &&
+                    latestPostsReactionCounts[index]}
+                </p>
+              </div>
             </div>
-            <div className="postInfoCol">
-              <h1>PostTitle</h1>
-              <p>Description ShortCut</p>
-              <p>Liked Count</p>
-            </div>
-          </div>
+          ))}
         </div>
       );
       break;

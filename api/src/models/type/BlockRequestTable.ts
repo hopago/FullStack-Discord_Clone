@@ -1,8 +1,6 @@
-import { TUser } from "./User";
+import { IUser } from "../User";
 
 export type TBlockRequestTable = {
-    table: {
-        referenced_user: string,
-        members: TUser[],
-    }
-}
+  referenced_user: string;
+  members: IUser[];
+};

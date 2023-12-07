@@ -1,6 +1,6 @@
-import { current } from "@reduxjs/toolkit";
 import { apiSlice } from "../../authentication/api/apiSlice";
-import { conversationsApiSlice } from "../../conversation/slice/conversationsApiSlice";
+
+{/* 12 05 22 40 */}
 
 export const friendRequestApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => (
@@ -20,7 +20,7 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
             sendFriend: builder.mutation({
                 query: ({ userName, tag }) => ({
                     url: `/friends?userName=${userName}&tag=${tag}`,
-                    method: 'PUT'
+                    method: 'POST'
                 }),
                 invalidatesTags: (result, error, arg) => [
                     { type: 'FriendRequest', id: result._id }

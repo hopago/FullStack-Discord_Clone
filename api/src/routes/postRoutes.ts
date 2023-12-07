@@ -8,7 +8,8 @@ import {
   updatePost,
   getPostsBySortOptions,
   getPostsByAuthorId,
-  getTrendPostsByAuthorId
+  getTrendPostsByAuthorId,
+  getSinglePostReactionsLength
 } from "../controllers/postController.js";
 import { verifyJWT } from '../middleware/jwt/verifyJWT.js';
 
@@ -36,6 +37,10 @@ router
 router
   .route('/views/:postId')
   .patch(addViewOnPost) // TODO: PATCH, cors check
+
+router
+  .route('/reactions/:postId')
+  .get(getSinglePostReactionsLength);
 
 router
   .route('/:postId')

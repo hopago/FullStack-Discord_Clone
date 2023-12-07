@@ -3,6 +3,8 @@ import { Request, Response, NextFunction } from "express";
 import User, { IUser } from "../models/User.js";
 import PrivateConversation from "../models/PrivateConversation.js";
 
+{/* 12 05 22 40 */}
+
 export const getAllFriendRequest = async (
   req: Request,
   res: Response,
@@ -13,7 +15,7 @@ export const getAllFriendRequest = async (
     if (!user)
       return res.status(403).json("Something went wrong in verifying...");
 
-    const requestList = await FriendAcceptReject.find({
+    const requestList = await FriendAcceptReject.findOne({
       referenced_user: user?._id,
     });
     if (!requestList) {

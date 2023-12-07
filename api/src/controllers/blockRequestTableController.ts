@@ -3,19 +3,22 @@ import { HttpException } from "../middleware/error/utils.js";
 import BlackList from "../models/BlockRequestTable.js";
 import User from "../models/User.js";
 
+{/* 12 05 22 40 */}
+
 export const getAllBlackList = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json("Something went wrong in verifying...");
+
         const blackList = await BlackList.findOne({
             referenced_user: user?._id
         });
+        if (!blackList) return res.status(404).json("Request docs not found...");
 
-        const blackListArr = blackList?.table.members;
-        if (Array.isArray(blackListArr) && !blackListArr?.length) {
-            throw new HttpException(400, "No list founded...");
-        }
+        const blackListArr = blackList.members;
+        if (!blackListArr.length) return res.sendStatus(400);
 
-        res.status(200).json(blackListArr);
+        return res.status(200).json(blackListArr);
     } catch (err) {
         next(err);
     }
@@ -24,23 +27,43 @@ export const getAllBlackList = async (req: Request, res: Response, next: NextFun
 export const addBlockUser = async (req: Request, res: Response, next:NextFunction) => {
     const currentUserId = req.user.id;
     const blockUserId = req.params.blockUserId;
+    if (!currentUserId || !blockUserId) return res.status(400).json("Something went wrong in credentials...");
+
     try {
         const blockUser = await User.findById(blockUserId);
+        if (!blockUser) return res.status(404).json("User not found...");
+        const {
+          _id,
+          avatar,
+          userName,
+        } = blockUser;
+        const blockUserInfo = {
+          _id,
+          avatar,
+          userName
+        }
         
-        const blockRequestTable = await BlackList.findOne({
+        const blackList = await BlackList.findOne({
             referenced_user: currentUserId
         });
-        if (!blockRequestTable?.table.members.includes(blockUser as never)) {
-            await blockRequestTable?.updateOne({
-              $push: {
-                table: {
-                  members: blockUser,
-                },
-              },
-            });
-            res.sendStatus(201);
+        if (!blackList) return res.status(404).json("Request docs not found...");
+
+        if (
+          !blackList.members.some(
+            (member) => member._id.toString() === blockUserId
+          )
+        ) {
+          await blackList?.updateOne({
+            $push: {
+              members: blockUserInfo
+            },
+          });
+
+          return res
+            .status(201)
+            .json({ docsId: blackList._id, ...blockUserInfo });
         } else {
-            throw new HttpException(500, "Something went wrong...");
+          return res.status(500).json("Something went wrong in block user...");
         }
     } catch (err) {
         next(err);
@@ -54,21 +77,32 @@ export const deleteBlockUser = async (
 ) => {
   const currentUserId = req.user.id;
   const blockUserId = req.params.blockUserId;
+  if (!currentUserId || !blockUserId) return res.status(400).json("Something went wrong in credentials...");
   try {
     const blockUser = await User.findById(blockUserId);
+    if (!blockUser) return res.status(404).json("User not found...");
 
-    const blockRequestTable = await BlackList.findOne({
+    const blackList = await BlackList.findOne({
       referenced_user: currentUserId,
     });
-    if (blockRequestTable?.table.members.includes(blockUser as never)) {
-      await blockRequestTable?.updateOne({
-        $pull: {
-          table: {
-            members: blockUser,
+    if(!blackList) return res.status(404).json("Request dos not found...");
+
+    if (
+      blackList.members.some((member) => member._id.toString() === blockUserId)
+    ) {
+      try {
+        await blackList?.updateOne({
+          $pull: {
+            members: {
+              _id: blockUserId,
+            },
           },
-        },
-      });
-      res.sendStatus(201);
+        });
+
+        return res.status(201).json({ docsId: blackList._id });
+      } catch (err) {
+        next(err);
+      }
     } else {
       res.status(500).json("Something went wrong...");
     }
