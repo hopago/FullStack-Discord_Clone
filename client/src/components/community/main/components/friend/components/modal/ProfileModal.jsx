@@ -1,6 +1,6 @@
 import { MoreVert } from "@mui/icons-material";
 import "./profileModal.scss";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { timeAgoFromNow } from "../../../../../../../lib/moment/timeAgo";
 import NoServerExisted from "./assets/e86b4414e7dfa126abbd.svg";
 import NoFriendExisted from "./assets/e86b4414e7dfa126abbd1.svg";
@@ -22,6 +22,7 @@ import {
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../../../../features/users/slice/userSlice";
 import { useLazyGetPostReactionsQuery, useLazyGetPostsByAuthorIdQuery, useLazyGetTrendPostsByAuthorIdQuery } from "../../../../../../../features/post/slice/postsApiSlice";
+import FriendServicePopout from "./popout/FriendServicePopout";
 
 {/* 12 05 22 40 */}
 
@@ -36,6 +37,7 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
   const { data } = useGetMemoQuery(friend._id);
 
   const [currentMoreInfo, setCurrentMoreInfo] = useState(0);
+  const [showPopout, setShowPopout] = useState(false);
   const [isServerExisted, setIsServerExisted] = useState(false);
   const [isFriendExisted, setIsFriendExisted] = useState(false);
   const [commonFriends, setCommonFriends] = useState([]);
@@ -49,6 +51,10 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
   const [emptyLatestPost, setEmptyLatestPost] = useState(false);
   const [trendPostsReactionCounts, setTrendPostsReactionCounts] = useState([]);
   const [latestPostsReactionCounts, setLatestPostsReactionCounts] = useState([]);
+  const [xy, setXy] = useState({
+    x: 0,
+    y: 0,
+  });
 
   const [addMemo] = useAddMemoMutation();
   const [updateMemo] = useUpdateMemoMutation();
@@ -430,6 +436,14 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
       break;
   }
 
+  const handleMoreVertClick = (e) => {
+    setXy({
+      x: e.clientX,
+      y: e.clientY
+    });
+    setShowPopout(true);
+  };
+
   return (
     <div className="profileModal">
       <div className="profileModal-backgroundDrop" />
@@ -458,7 +472,17 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
                         <div className="empty" />
                         <div className="services">
                           <button>메시지 보내기</button>
-                          <MoreVert className="friendService" />
+                          <MoreVert
+                            onClick={handleMoreVertClick}
+                            className="friendService"
+                          />
+                          {showPopout ? (
+                            <FriendServicePopout
+                              showPopout={showPopout}
+                              xy={xy}
+                              setShowPopout={setShowPopout}
+                            />
+                          ) : null}
                         </div>
                       </div>
                     </div>

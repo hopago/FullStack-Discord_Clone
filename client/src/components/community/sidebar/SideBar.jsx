@@ -144,8 +144,6 @@ const SideBar = ({ type: basePathName }) => {
   const [showModal, setShowModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
-  console.log(conversations);
-
   const findFriendInfo = (conversation) => {
     return conversation.members.find((member) => {
       return member._id !== currentUser._id;
@@ -154,7 +152,6 @@ const SideBar = ({ type: basePathName }) => {
 
   const getFriendInfo = (conversation, value) => {
     const friend = findFriendInfo(conversation);
-    console.log(friend);
 
     if (friend && value === "avatar") return friend.avatar;
     if (friend && value === "userName") return friend.userName;

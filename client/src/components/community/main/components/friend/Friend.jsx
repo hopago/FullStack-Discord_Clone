@@ -72,6 +72,7 @@ const Friend = () => {
     handleActiveClass(e);
     getAllFriendRequest()
       .unwrap()
+      .then(data => console.log(data[0].members.map(friend => friend)))
       .then((data) =>
         setFriends(
           data[0].members.map((friend) => friend) // TODO: 12 07 edit, test
@@ -246,7 +247,7 @@ const Friend = () => {
                   className={
                     active === 3 ? "active friend-opt-list" : "friend-opt-list"
                   }
-                  onClick={() => {}}
+                  onClick={fetchBlackList}
                 >
                   차단 목록
                 </div>

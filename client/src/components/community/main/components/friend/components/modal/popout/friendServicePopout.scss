@@ -1,0 +1,48 @@
+.friendServicePopout {
+    position: absolute;
+    width: max-content;
+    height: max-content;
+    box-sizing: border-box;
+
+    .wrapper {
+        width: max-content;
+        height: max-content;
+        display: flex;
+        flex-direction: column;
+        padding: 6px 6px 8px 8px;
+        border-radius: 0.25rem;
+        background-color: #111214;
+
+        .flexCol {
+            padding: 6px 8px;
+            border-radius: 0.25rem;
+            cursor: pointer;
+
+            span {
+                font-size: 14px;
+                font-weight: 500;
+                color: #f23f42;
+            }
+
+            .lastChild {
+                color: #FCFCFE;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            &:hover {
+                background-color: #f23f42;
+                
+                & > span {
+                    color: #FCFCFE;
+                    font-size: 14px;
+                    font-weight: 500;
+                }
+            }
+
+            &:hover:last-child {
+                background-color: #4752C4;
+            }
+        }
+    }
+}
