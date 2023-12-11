@@ -1,4 +1,4 @@
-import PrivateConversation from "../models/PrivateConversation.js";
+import PrivateConversation, { IPrivateConversation } from "../models/PrivateConversation.js";
 import { Request, Response, NextFunction } from "express";
 import { HttpException } from "../middleware/error/utils.js";
 
@@ -41,6 +41,8 @@ export const getConversations = async (req: Request, res: Response, next: NextFu
 };
 
 export const getSingleConversation = async (req: Request, res: Response, next: NextFunction) => {
+    const conversationId = req.params.conversationId;
+    if (!conversationId) return res.sendStatus(400);
     try {
         const conversation = await PrivateConversation.findById(req.params.conversationId);
         if (!conversation) throw new HttpException(400, "Could not found this chat room...");
@@ -51,29 +53,74 @@ export const getSingleConversation = async (req: Request, res: Response, next: N
     }
 };
 
-export const updateConversation = async (req: Request, res: Response, next: NextFunction) => {
+export const getConversationByMemberId = async(req: Request, res: Response, next: NextFunction) => {
+    const currUserId = req.user.id;
+    const friendId = req.body.friendId;
+    if (!currUserId || !friendId) return res.sendStatus(400);
+
     try {
-        const updatedConversation = await PrivateConversation.findOneAndUpdate(
-          {
-            _id: req.params.conversationId,
-          },
+        const foundConversation = await PrivateConversation.findOne({
+            'members._id': {
+                $all: [currUserId, friendId]
+            }
+        });
+        if (!foundConversation) return res.status(404).json("Conversation not found...");
+
+        return res.status(200).json(foundConversation);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const updateConversation = async (req: Request, res: Response, next: NextFunction) => {
+    const conversationId = req.params.conversationId;
+    const currUserId = req.user.id;
+    if (!conversationId || !currUserId) return res.sendStatus(400);
+
+    try {
+        const updatedConversation:IPrivateConversation | null = await PrivateConversation.findOne({
+            _id: conversationId
+        });
+        if (!updateConversation) return res.status(404).json("Conversation not found...");
+
+        const validateUser = updatedConversation?.members.some(member => member._id === currUserId);
+        if (!validateUser) return res.sendStatus(405);
+
+        updatedConversation?.updateOne(
           {
             $set: {
-              ...(req.user.id 
+              ...(req.user.id
                 ? {
-                    readByReceiver: true
-                } 
+                    readByReceiver: true,
+                  }
                 : {
-                    readBySender: true
-                }),
+                    readBySender: true,
+                  }),
             },
           },
           {
-            new: true
+            new: true,
           }
         );
 
         return res.status(200).json(updatedConversation);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const deleteConversation = async(req: Request, res: Response, next: NextFunction) => {
+    const conversationId = req.params.conversationId;
+    const currUserId = req.user.id;
+    if (!conversationId || !currUserId) return res.sendStatus(400);
+    try {
+        if (req.body.type !== "block") return res.sendStatus(405);
+
+        await PrivateConversation.findOneAndDelete({
+          _id: conversationId,
+        });
+
+        return res.status(201).json({ _id: conversationId });
     } catch (err) {
         next(err);
     }

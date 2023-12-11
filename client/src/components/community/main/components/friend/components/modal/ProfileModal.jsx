@@ -478,6 +478,7 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
                           />
                           {showPopout ? (
                             <FriendServicePopout
+                              friend={friend}
                               showPopout={showPopout}
                               xy={xy}
                               setShowPopout={setShowPopout}

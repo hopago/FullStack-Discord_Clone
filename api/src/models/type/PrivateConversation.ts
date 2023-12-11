@@ -1,8 +1,8 @@
-import { TUser } from "./User";
+import { IUser } from "../User";
 
 export type TPrivateConversation = {
     type: string,
-    members: TUser[],
+    members: IUser[],
     senderId: string,
     receiverId: string,
     readBySender: boolean,

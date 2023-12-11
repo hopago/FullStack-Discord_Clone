@@ -32,10 +32,32 @@ export const conversationsApiSlice = apiSlice.injectEndpoints({
                     { type: 'Conversation', id: arg }
                 ]
             }),
+            getConversationByMemberId: builder.query({
+                query: (id) => ({
+                    url: `/conversations/private`,
+                    body: {
+                        friendId: id
+                    }
+                }),
+                providesTags: (result, error, arg) => [
+                    { type: 'Conversation', id: result._id }
+                ]
+            }),
             updateConversation: builder.mutation({
                 query: (conversationId) => `/conversations/${conversationId}`,
                 invalidatesTags: (result, error, arg) => [
                     { type: 'Conversation', id: arg }
+                ]
+            }),
+            deleteConversation: builder.mutation({
+                query: (conversationId) => ({
+                    url: `/conversations/${conversationId}`,
+                    body: {
+                        type: "block"
+                    }
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: "Conversation", id: arg }
                 ]
             })
         }
@@ -45,5 +67,7 @@ export const conversationsApiSlice = apiSlice.injectEndpoints({
 export const {
     useGetConversationsQuery,
     useGetSingleConversationQuery,
-    useUpdateConversationMutation
+    useLazyGetConversationByMemberIdQuery,
+    useUpdateConversationMutation,
+    useDeleteConversationMutation
 } = conversationsApiSlice;

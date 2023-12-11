@@ -1,8 +1,18 @@
 import { Document, model, Schema } from "mongoose";
 import { TPrivateConversation } from "./type/PrivateConversation.js";
 import { ConversationType } from "../config/conversationType.js";
+import { IUser } from "./User.js";
 
-export interface IPrivateConversation extends TPrivateConversation, Document {};
+export interface IPrivateConversation extends TPrivateConversation, Document {
+    type: string,
+    members: IUser[],
+    senderId: string,
+    receiverId: string,
+    readBySender: boolean,
+    readByReceiver: boolean,
+    lastMessageNumber: number,
+    lastMessage: string
+};
 
 const privateConversationSchema: Schema = new Schema(
     {

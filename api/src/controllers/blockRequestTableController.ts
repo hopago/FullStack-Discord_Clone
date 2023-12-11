@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import BlackList from "../models/BlockRequestTable.js";
-import User from "../models/User.js";
+import User, { IUser } from "../models/User.js";
 
 {/* 12 05 22 40 */}
 
@@ -44,6 +44,11 @@ export const addBlockUser = async (req: Request, res: Response, next:NextFunctio
           avatar,
           userName
         }
+
+        const checkDuplicated = currentUser.blackList.some(
+          (user: IUser) => user._id === blockUser._id
+        );
+        if (checkDuplicated) return res.sendStatus(407);
 
         const isFriendExisted = currentUser.friends.length && currentUser.friends.some(friend => friend._id.toString() === blockUserId);
 
