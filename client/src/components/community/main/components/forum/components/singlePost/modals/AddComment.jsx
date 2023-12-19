@@ -100,7 +100,6 @@ const AddComment = ({
   const [showReplyEditIcons, setShowReplyEditIcons] = useState(false);
   const [editCommentReply, setEditCommentReply] = useState(false);
   const [updatedReplyDescription, setUpdatedReplyDescription] = useState("");
-  // 스키마의 잘못된 설계로 fe에서 reply.description으로 임시 식별... _id로 나노 id 생성 고려 or 스키마 분리
   const [identifierDesc, setIdentifierDesc] = useState("");
 
   const closeReplyState = () => {

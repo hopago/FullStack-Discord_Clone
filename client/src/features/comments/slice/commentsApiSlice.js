@@ -33,8 +33,8 @@ export const commentsApiSlice = apiSlice.injectEndpoints({
                         description
                     }
                 }),
-                invalidatesTags: [
-                    { type: 'Comment', id: 'LIST' }
+                invalidatesTags: (result, error, arg) => [
+                    { type: "Post", id: arg.postId }
                 ]
             }),
             updateComment: builder.mutation({

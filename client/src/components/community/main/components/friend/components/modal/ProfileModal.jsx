@@ -23,6 +23,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../../../../features/users/slice/userSlice";
 import { useLazyGetPostReactionsQuery, useLazyGetPostsByAuthorIdQuery, useLazyGetTrendPostsByAuthorIdQuery } from "../../../../../../../features/post/slice/postsApiSlice";
 import FriendServicePopout from "./popout/FriendServicePopout";
+import { Link } from "react-router-dom";
 
 {/* 12 05 22 40 */}
 
@@ -137,7 +138,6 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
 
   useEffect(() => {
     if (active !== 1) return;
-    if (emptyPost && emptyLatestPost) return;
 
     const fetchFriendTrendPosts = async () => {
       return await getTrendPostByAuthorId(friend._id);
@@ -149,16 +149,16 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     const fetchTrendPosts = async () => {
       const posts = await fetchFriendTrendPosts();
 
-      if (Array.isArray(posts) && !posts.length) {
-        return setEmptyPost(true);
+      if (Array.isArray(posts.data) && !posts.data.length) {
+        return;
       }
 
       let trendPosts;
 
-      if (posts.length > 3) {
-        trendPosts = posts.slice(0, 2);
+      if (posts.data.length > 3) {
+        trendPosts = posts.data.slice(0, 3);
       } else {
-        trendPosts = posts;
+        trendPosts = posts.data;
       }
 
       setTrendPosts(trendPosts);
@@ -167,16 +167,16 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     const fetchLatestPost = async () => {
       const posts = await fetchFriendLatestPosts();
 
-      if (Array.isArray(posts) && !posts.length) {
-        return setEmptyLatestPost(true);
+      if (Array.isArray(posts.data) && !posts.data.length) {
+        return;
       }
 
       let latestPosts;
 
-      if (posts.length > 3) {
-        latestPosts = posts.slice(0, 2);
+      if (posts.data.length > 3) {
+        latestPosts = posts.data.slice(0, 3);
       } else {
-        latestPosts = posts;
+        latestPosts = posts.data;
       }
 
       setLatestPosts(latestPosts);
@@ -223,7 +223,6 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     if (active !== 3) return;
 
     const validateFriendExisted = (currFriend) => {
-        console.log(currentUser.friends);
       const isExisted = currentUser?.friends?.filter((currUserFriend) =>
         currFriend.friends.some((friend) => friend._id === currUserFriend._id)
       );
@@ -281,8 +280,8 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
 
     const setTrendCounts = async () => {
       const trendPostsReactions = await Promise.all(trendPostIds.map(fetchReactionCounts));
-      if (!trendPostsReactions.length) {
-        return console.log("Something went wrong in trend counts...");
+      if (!trendPostsReactions) {
+        return;
       }
 
       setTrendPostsReactionCounts(trendPostsReactions);
@@ -290,8 +289,8 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
 
     const setLatestCounts = async () => {
       const latestPostsReactions = await Promise.all(latestPostsIds.map(fetchReactionCounts));
-      if (!latestPostsReactions.length) {
-        return console.log("Something went wrong in latest counts...");
+      if (!latestPostsReactions) {
+        return;
       }
 
       setLatestPostsReactionCounts(latestPostsReactions);
@@ -351,38 +350,54 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
           {/* 로직 완성, css ui 구현 */}
           {trendPosts?.length > 0
             ? trendPosts.map((post, index) => (
-                <div className="postInfo">
-                  <div className="postImgWrap">
-                    <img src={post?.representativeImgUrl} alt="" />
+                <Link to={`/community/forum/${post._id}`} className="link">
+                  <div className="postInfo">
+                    <div className="postImgWrap">
+                      <img src={post?.representativeImgUrl} alt="" />
+                    </div>
+                    <div className="postInfoCol">
+                      <h1>{post?.title}</h1>
+                      <p>
+                        {post?.description && "본문에서 내용을 확인해봐요!"}
+                      </p>
+                      <p>
+                        {trendPostsReactionCounts.length &&
+                        trendPostsReactionCounts[index]?.data - 5 === 0
+                          ? "아직 반응이 없어요."
+                          : `반응 ${
+                              trendPostsReactionCounts[index]?.data - 5
+                            }개`}
+                      </p>
+                    </div>
                   </div>
-                  <div className="postInfoCol">
-                    <h1>{post?.title}</h1>
-                    <p>{post?.description.slice(0, 20)}...</p>
-                    <p>
-                      {trendPostsReactionCounts.length &&
-                        trendPostsReactionCounts[index]}
-                    </p>
-                  </div>
-                </div>
+                </Link>
               ))
             : null}
           <h2>최근 게시글</h2>
           {/* 로직 완성, css ui 구현 */}
           {latestPosts?.length > 0
             ? latestPosts.map((post, index) => (
-                <div className="postInfo">
-                  <div className="postImgWrap">
-                    <img src={post?.representativeImgUrl} alt="" />
+                <Link to={`/community/forum/${post._id}`} className="link">
+                  <div className="postInfo">
+                    <div className="postImgWrap">
+                      <img src={post?.representativeImgUrl} alt="" />
+                    </div>
+                    <div className="postInfoCol">
+                      <h1>{post?.title}</h1>
+                      <p>
+                        {post?.description && "본문에서 내용을 확인해봐요!"}
+                      </p>
+                      <p>
+                        {latestPostsReactionCounts.length &&
+                        latestPostsReactionCounts[index]?.data - 5 === 0
+                          ? "아직 반응이 없어요."
+                          : `반응 ${
+                              latestPostsReactionCounts[index]?.data - 5
+                            }개`}
+                      </p>
+                    </div>
                   </div>
-                  <div className="postInfoCol">
-                    <h1>{post?.title}</h1>
-                    <p>{post?.description.slice(0, 20)}...</p>
-                    <p>
-                      {latestPostsReactionCounts.length &&
-                        latestPostsReactionCounts[index]}
-                    </p>
-                  </div>
-                </div>
+                </Link>
               ))
             : null}
         </div>

@@ -14,8 +14,6 @@ const Discover = () => {
     setActive(index);
   };
 
-  {/* TODO: scrollRef.current?.scrollIntoView({ behavior: "smooth" }); */}
-
   return (
     <div className="discover">
       <SearchBar />

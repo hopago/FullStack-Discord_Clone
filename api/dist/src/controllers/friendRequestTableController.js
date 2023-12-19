@@ -22,7 +22,7 @@ export const getAllFriendRequest = (req, res, next) => __awaiter(void 0, void 0,
         if (!requestList) {
             return res.status(500).json("Something went wrong in referenced...");
         }
-        res.status(200).json(requestList);
+        return res.status(200).json(requestList);
     }
     catch (err) {
         next(err);
@@ -44,7 +44,7 @@ export const getReceivedCount = (req, res, next) => __awaiter(void 0, void 0, vo
         const receivedCount = (_a = requestList === null || requestList === void 0 ? void 0 : requestList.members) === null || _a === void 0 ? void 0 : _a.length;
         if (receivedCount === undefined)
             return res.sendStatus(500);
-        res.status(200).json({ count: receivedCount, _id: req.user.id });
+        return res.status(200).json({ count: receivedCount, _id: requestList._id });
     }
     catch (err) {
         next(err);
@@ -86,10 +86,11 @@ export const sendFriend = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                     $push: {
                         members: currentUserInfo,
                     },
-                }));
+                }, { new: true }));
                 return res.status(201).json({
                     _id: requestTable === null || requestTable === void 0 ? void 0 : requestTable._id,
                     receiverId: receiver._id,
+                    senderId: req.user.id,
                 });
             }
             catch (err) {
@@ -164,7 +165,7 @@ export const handleRequestFriend = (req, res, next) => __awaiter(void 0, void 0,
                             readByReceiver: true,
                         });
                         yield newConversation.save();
-                        res
+                        return res
                             .status(201)
                             .json({ newConversation, currentUser, requestTable });
                     }
@@ -181,7 +182,7 @@ export const handleRequestFriend = (req, res, next) => __awaiter(void 0, void 0,
                                 },
                             },
                         });
-                        res.status(201).json("Friend request rejected...");
+                        return res.status(201).json("Friend request rejected...");
                     }
                     catch (err) {
                         next(err);

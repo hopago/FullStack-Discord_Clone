@@ -51,51 +51,43 @@ const Friend = () => {
     handleActiveClass(e);
     socket?.emit("getOnlineFriends", currentUser?._id);
     socket?.on("onlineFriendList", (onlineFriends) => {
-      const onlineFriendList = onlineFriends.filter(friend => friend._id !== currentUser?._id)
+      const onlineFriendList = onlineFriends.filter(friend => friend._id !== currentUser?._id);
       setFriends(onlineFriendList);
     });
   };
 
-  const fetchAllFriends = (e) => {
+  const fetchAllFriends = async (e) => {
     resetFetchState();
     handleActiveClass(e);
-    getAllFriends()
-      .unwrap()
-      .then((data) => setFriends(data))
-      .catch((err) => console.error(err));
+    const friends = await getAllFriends();
+
+    if (friends.data && friends.data.length) {
+      setFriends(friends.data);
+    }
   };
 
-  const fetchFriendRequest = (e) => {
+  const fetchFriendRequest = async (e) => {
     setContentType("friendRequest");
     setFriends(null);
     setFriendList(null);
     handleActiveClass(e);
-    getAllFriendRequest()
-      .unwrap()
-      .then(data => console.log(data[0].members.map(friend => friend)))
-      .then((data) =>
-        setFriends(
-          data[0].members.map((friend) => friend) // TODO: 12 07 edit, test
-        )
-      )
-      .catch((err) => console.error(err));
+    const requestList = await getAllFriendRequest();
+
+    if (friends) {
+      setFriends(requestList.data[0].members.map((friend) => friend));
+    }
   };
 
-  const fetchBlackList = (e) => {
+  const fetchBlackList = async (e) => {
     setContentType("blackList");
     setFriends(null);
     setFriendList(null);
     handleActiveClass(e);
-    getAllBlackList()
-      .unwrap()
-      .then((data) => {
-        if (data.length) {
-          setFriends(
-            data[0].members.map((friend) => friend) // TODO: 12 07 edit, test
-          )
-        }
-      })
-      .catch(err => console.error(err));
+    const blackList = await getAllBlackList();
+    
+    if (blackList.members) {
+      setFriends(blackList.data[0].members.map((friend) => friend));
+    }
   };
 
   useEffect(() => {
@@ -118,7 +110,7 @@ const Friend = () => {
     }
 
     return () => {
-
+      setFriendList(null);
     }
   }, [friends, active]);
 

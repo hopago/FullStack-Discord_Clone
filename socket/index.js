@@ -1,8 +1,6 @@
 import express from 'express';
 import { Server } from 'socket.io';
 
-{/* TODO: prevent refresh disconnect */}
-
 const PORT = process.env.PORT || 5000;
 const ADMIN = "Admin";
 

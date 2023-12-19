@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyJWT } from "../middleware/jwt/verifyJWT.js";
-import { createConversation, getConversations, getSingleConversation, updateConversation } from '../controllers/conversationController.js';
+import { createConversation, deleteConversation, getConversations, getSingleConversation, updateConversation, } from "../controllers/conversationController.js";
 const router = express.Router();
 router.use(verifyJWT);
 router
@@ -10,5 +10,6 @@ router
 router
     .route('/:conversationId')
     .get(getSingleConversation)
-    .put(updateConversation);
+    .put(updateConversation)
+    .delete(deleteConversation);
 export default router;

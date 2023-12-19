@@ -23,7 +23,7 @@ export const getAllBlackList = (req, res, next) => __awaiter(void 0, void 0, voi
         const blackListArr = blackList.members;
         if (!blackListArr.length)
             return res.sendStatus(400);
-        return res.status(200).json(blackListArr);
+        return res.status(200).json(blackList);
     }
     catch (err) {
         next(err);
@@ -38,12 +38,19 @@ export const addBlockUser = (req, res, next) => __awaiter(void 0, void 0, void 0
         const blockUser = yield User.findById(blockUserId);
         if (!blockUser)
             return res.status(404).json("User not found...");
+        const currentUser = yield User.findById(currentUserId);
+        if (!currentUser)
+            return res.status(404).json("User not found...");
         const { _id, avatar, userName, } = blockUser;
         const blockUserInfo = {
             _id,
             avatar,
             userName
         };
+        const checkDuplicated = currentUser.blackList.some((user) => user._id === blockUser._id);
+        if (checkDuplicated)
+            return res.sendStatus(407);
+        const isFriendExisted = currentUser.friends.length && currentUser.friends.some(friend => friend._id.toString() === blockUserId);
         const blackList = yield BlackList.findOne({
             referenced_user: currentUserId
         });
@@ -55,12 +62,15 @@ export const addBlockUser = (req, res, next) => __awaiter(void 0, void 0, void 0
                     members: blockUserInfo
                 },
             }));
-            return res
-                .status(201)
-                .json(Object.assign({ docsId: blackList._id }, blockUserInfo));
+            if (isFriendExisted) {
+                const findIndex = currentUser.friends.findIndex(friend => friend._id.toString() === blockUserId);
+                currentUser.friends.splice(findIndex, 1);
+                yield currentUser.save();
+            }
+            return res.status(201).json({ _id: blackList._id });
         }
         else {
-            return res.status(500).json("Something went wrong in block user...");
+            return res.status(500).json("Something went wrong in members array...");
         }
     }
     catch (err) {
@@ -80,7 +90,7 @@ export const deleteBlockUser = (req, res, next) => __awaiter(void 0, void 0, voi
             referenced_user: currentUserId,
         });
         if (!blackList)
-            return res.status(404).json("Request dos not found...");
+            return res.status(404).json("Request docs not found...");
         if (blackList.members.some((member) => member._id.toString() === blockUserId)) {
             try {
                 yield (blackList === null || blackList === void 0 ? void 0 : blackList.updateOne({
@@ -90,14 +100,14 @@ export const deleteBlockUser = (req, res, next) => __awaiter(void 0, void 0, voi
                         },
                     },
                 }));
-                return res.status(201).json({ docsId: blackList._id });
+                return res.status(201).json({ _id: blackList._id });
             }
             catch (err) {
                 next(err);
             }
         }
         else {
-            res.status(500).json("Something went wrong...");
+            res.status(500).json("Something went wrong in members array...");
         }
     }
     catch (err) {

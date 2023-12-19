@@ -32,7 +32,7 @@ const PostCards = ({ type }) => {
   } else if (isSuccess && (Array.isArray(posts) && !posts.length)) {
     content = <Spinner message="컨텐츠가 아직 준비되지 않았어요." />;
   } else if (isSuccess) {
-    content = posts.map((post) => <PostCard key={post._id} post={post} />);
+    content = posts.length && posts?.map((post) => <PostCard key={post._id} post={post} />);
   } else if (isError) {
     content = <p>{error}</p>;
   }

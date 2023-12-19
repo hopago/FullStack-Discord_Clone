@@ -248,6 +248,7 @@ export const refreshToken = async (
         });
 
         res.status(200).json({ accessToken });
+        return;
       }
     );
   } catch (err) {

@@ -27,8 +27,6 @@ const Home = () => {
       : pathName === "careers"
       ? { background: "#5865F2", height: "100vh"}
       : { minHeight: "65vh" }
-      
-  {/* TODO: Background img control */}
 
   return (
     <main className="home">

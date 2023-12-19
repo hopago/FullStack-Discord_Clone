@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import { HttpException } from "../middleware/error/utils.js";
 import { Response, Request, NextFunction } from "express";
 import Comment from "../models/Comment.js";
+import mongoose from "mongoose";
 
 // export const getPostsBySortOptions = async (
 //   req: Request,
@@ -177,9 +178,7 @@ export const getPostsByAuthorId = async (
     if (!author) throw new HttpException(400, "Could not found this user...");
 
     const posts = await Post.find({
-      author: {
-        authorId,
-      },
+      "author.authorId": authorId,
     })
     .limit(10)
     .sort('-createdAt');
@@ -187,7 +186,7 @@ export const getPostsByAuthorId = async (
     if (!posts || (Array.isArray(posts) && !posts.length))
       throw new HttpException(400, "No post found...");
 
-    res.send(200).json(posts);
+    return res.status(200).json(posts);
   } catch (err) {
     next(err);
   }
@@ -205,7 +204,7 @@ export const getTrendPostsByAuthorId = async(
     const posts = await Post.aggregate([
       { $match: { "author.authorId": authorId } },
       {
-        $addFields: {
+        $set: {
           totalReactions: {
             $add: [
               { $size: "$reactions.thumbsUp" },
@@ -213,7 +212,7 @@ export const getTrendPostsByAuthorId = async(
               { $size: "$reactions.heart" },
               { $size: "$reactions.rocket" },
               { $size: "$reactions.coffee" },
-              "$views",
+              { $ifNull: [ "$views", 0 ] },
             ],
           },
         },
@@ -239,16 +238,48 @@ export const getSinglePostReactionsLength = async(
 
   try {
     const post = await Post.aggregate([
-      { $match: { _id: postId } },
+      { $match: { _id: new mongoose.Types.ObjectId(postId) } },
       {
-        $addFields: {
-          $add: [
-            { $size: "$reactions.thumbsUp" },
-            { $size: "$reactions.wow" },
-            { $size: "$reactions.heart" },
-            { $size: "$reactions.rocket" },
-            { $size: "$reactions.coffee" },
-          ],
+        $set: {
+          totalReactions: {
+            $add: [
+              {
+                $cond: [
+                  { $isArray: "$reactions.thumbsUp" },
+                  { $size: "$reactions.thumbsUp" },
+                  0,
+                ],
+              },
+              {
+                $cond: [
+                  { $isArray: "$reactions.wow" },
+                  { $size: "$reactions.wow" },
+                  0,
+                ],
+              },
+              {
+                $cond: [
+                  { $isArray: "$reactions.heart" },
+                  { $size: "$reactions.heart" },
+                  0,
+                ],
+              },
+              {
+                $cond: [
+                  { $isArray: "$reactions.rocket" },
+                  { $size: "$reactions.rocket" },
+                  0,
+                ],
+              },
+              {
+                $cond: [
+                  { $isArray: "$reactions.coffee" },
+                  { $size: "$reactions.coffee" },
+                  0,
+                ],
+              },
+            ],
+          },
         },
       },
     ]);

@@ -45,6 +45,9 @@ export const getConversations = (req, res, next) => __awaiter(void 0, void 0, vo
     }
 });
 export const getSingleConversation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const conversationId = req.params.conversationId;
+    if (!conversationId)
+        return res.sendStatus(400);
     try {
         const conversation = yield PrivateConversation.findById(req.params.conversationId);
         if (!conversation)
@@ -55,22 +58,68 @@ export const getSingleConversation = (req, res, next) => __awaiter(void 0, void 
         next(err);
     }
 });
-export const updateConversation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+export const getConversationByMemberId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const currUserId = req.user.id;
+    const friendId = req.body.friendId;
+    if (!currUserId || !friendId)
+        return res.sendStatus(400);
     try {
-        const updatedConversation = yield PrivateConversation.findOneAndUpdate({
-            _id: req.params.conversationId,
-        }, {
+        const foundConversation = yield PrivateConversation.findOne({
+            'members._id': {
+                $all: [currUserId, friendId]
+            }
+        });
+        if (!foundConversation)
+            return res.status(404).json("Conversation not found...");
+        return res.status(200).json(foundConversation);
+    }
+    catch (err) {
+        next(err);
+    }
+});
+export const updateConversation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const conversationId = req.params.conversationId;
+    const currUserId = req.user.id;
+    if (!conversationId || !currUserId)
+        return res.sendStatus(400);
+    try {
+        const updatedConversation = yield PrivateConversation.findOne({
+            _id: conversationId
+        });
+        if (!updateConversation)
+            return res.status(404).json("Conversation not found...");
+        const validateUser = updatedConversation === null || updatedConversation === void 0 ? void 0 : updatedConversation.members.some(member => member._id === currUserId);
+        if (!validateUser)
+            return res.sendStatus(405);
+        updatedConversation === null || updatedConversation === void 0 ? void 0 : updatedConversation.updateOne({
             $set: Object.assign({}, (req.user.id
                 ? {
-                    readByReceiver: true
+                    readByReceiver: true,
                 }
                 : {
-                    readBySender: true
+                    readBySender: true,
                 })),
         }, {
-            new: true
+            new: true,
         });
         return res.status(200).json(updatedConversation);
+    }
+    catch (err) {
+        next(err);
+    }
+});
+export const deleteConversation = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const conversationId = req.params.conversationId;
+    const currUserId = req.user.id;
+    if (!conversationId || !currUserId)
+        return res.sendStatus(400);
+    try {
+        if (req.body.type !== "block")
+            return res.sendStatus(405);
+        yield PrivateConversation.findOneAndDelete({
+            _id: conversationId,
+        });
+        return res.status(201).json({ _id: conversationId });
     }
     catch (err) {
         next(err);
