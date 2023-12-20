@@ -22,9 +22,9 @@ app.use(cors({
     origin: [
         "http://localhost:3000",
         "http://localhost:5000",
-        "https://full-stack-discord-clone.vercel.app/",
+        "https://full-stack-discord-clone.vercel.app",
         "https://git.heroku.com/limitless-dusk-13220.git",
-        "https://limitless-dusk-13220-b937c05e53ef.herokuapp.com/",
+        "https://limitless-dusk-13220-b937c05e53ef.herokuapp.com",
     ],
     credentials: true,
 }));
