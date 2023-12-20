@@ -13,7 +13,7 @@ const expressServer = app.listen(PORT, () => {
 
 const io = new Server(expressServer, {
     cors: {
-        origin: ["http://localhost:3000", "http://localhost:8000", "https://devboardapi.vercel.app", "https://full-stack-discord-clone.vercel.app", "devboardapi-hopagos-projects.vercel.app"]
+        origin: ["http://localhost:3000", "http://localhost:8000", "https://devboardapi.vercel.app", "https://full-stack-discord-clone.vercel.app", "https://devboardapi-hopagos-projects.vercel.app", "https://full-stack-discord-clone-m1c79drzz-hopagos-projects.vercel.app/"]
     }
 });
 
