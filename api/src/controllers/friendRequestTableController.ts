@@ -2,8 +2,14 @@ import FriendAcceptReject from "../models/FriendRequestTable.js";
 import { Request, Response, NextFunction } from "express";
 import User, { IUser } from "../models/User.js";
 import PrivateConversation from "../models/PrivateConversation.js";
+import { getFriendRequestNotifications } from "../services/notifications/getNotifications.js";
+import { createFriendRequestNotification } from "../services/notifications/createNotification.js";
+import { deleteFriendRequestNotification } from "../services/notifications/deleteNotification.js";
+import { seeFriendRequestNotification } from "../services/notifications/seeNotification.js";
 
-{/* 12 05 22 40 */}
+{
+  /* 12 05 22 40 */
+}
 
 export const getAllFriendRequest = async (
   req: Request,
@@ -85,8 +91,7 @@ export const sendFriend = async (
 
     if (
       !requestTable?.members.some(
-        (member: IUser) =>
-          member._id?.toString() === (currentUserId as never)
+        (member: IUser) => member._id?.toString() === (currentUserId as never)
       )
     ) {
       try {
@@ -228,7 +233,7 @@ export const handleRequestFriend = async (
                 },
               },
             });
-            
+
             return res.status(201).json("Friend request rejected...");
           } catch (err) {
             next(err);
@@ -239,6 +244,72 @@ export const handleRequestFriend = async (
       }
     } else {
       return res.status(400).json("Friend request not found...");
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getNotifications = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const notifications = await getFriendRequestNotifications(req, res, next);
+    if (!notifications)
+      return res
+        .status(500)
+        .json("Something went wrong in getNotifications...");
+
+    return res.status(200).json(notifications);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const createNotification = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await createFriendRequestNotification(req, res, next);
+
+    return res.sendStatus(204);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteNotification = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const updatedList = await deleteFriendRequestNotification(req, res, next);
+
+    return res.status(201).json(updatedList);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const seeNotification = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const updatedNotification = await seeFriendRequestNotification(
+      req,
+      res,
+      next
+    );
+
+    if (updatedNotification) {
+      return res.status(201).json(updatedNotification);
     }
   } catch (err) {
     next(err);

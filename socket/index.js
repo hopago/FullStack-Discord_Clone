@@ -69,7 +69,7 @@ io.on('connection', socket => {
             receiver = findUserById(receiverId);
         }
 
-        if (!receiver) {
+        if (!receiver && args.dataType !== "text") {
             console.log(`Type: ${requestType}, Receiver has not found...`);
             return socket.emit("userNotFound", {
                 message: "Receiver not found...",

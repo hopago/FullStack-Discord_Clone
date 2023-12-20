@@ -1,9 +1,13 @@
 import express from 'express';
 import { verifyJWT } from '../middleware/jwt/verifyJWT.js';
 import {
+  createNotification,
+  deleteNotification,
   getAllFriendRequest,
+  getNotifications,
   getReceivedCount,
   handleRequestFriend,
+  seeNotification,
   sendFriend,
 } from "../controllers/friendRequestTableController.js";
 
@@ -21,6 +25,13 @@ router
 router
   .route("/count")
   .get(getReceivedCount);
+
+router
+  .route("/notifications")
+  .get(getNotifications)
+  .post(createNotification)
+  .patch(seeNotification)
+  .delete(deleteNotification);
 
 router
   .route("/process/:senderId")

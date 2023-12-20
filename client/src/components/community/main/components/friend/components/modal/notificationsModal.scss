@@ -55,7 +55,7 @@
                                     width: 100%;
                                     padding: 0.75rem 1rem;
                                     background-color: #070809;
-                                    border-radius: 8px;
+                                    border-radius: 8px 8px 0px 0px;
 
                                     .top {
                                         padding-bottom: 0.25rem;
@@ -147,9 +147,20 @@
                                                 padding: 0.25rem 0.5rem;
                                                 margin-right: 0.25rem;
                                                 cursor: pointer;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                color: #A6ABB8;
+                                                border-radius: 0.25rem;
 
                                                 span {
 
+                                                }
+
+                                                &:hover,
+                                                &.active {
+                                                    background-color: #2C2E32;
+                                                    color: #f2f3f5;
                                                 }
                                             }
                                         }
@@ -172,7 +183,7 @@
                                 width: 100%;
                                 background-color: #2B2D31;
                                 flex: 1;
-                                border-radius: 8px;
+                                border-radius: 0px 0px 8px 8px;
 
                                 ul {
                                     list-style: none;
