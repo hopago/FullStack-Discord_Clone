@@ -24,10 +24,16 @@ const app: Express = express();
 connectDB();
 
 app.use(express.json());
-app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:5000"],
-    credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5000",
+      "https://full-stack-discord-clone.vercel.app/",
+    ],
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 // routes
