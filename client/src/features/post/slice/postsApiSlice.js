@@ -103,7 +103,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
             likePost: builder.mutation({
                 query: ({ initialPost, reactionName, currentUser }) => ({
                     url: `/posts/like/${initialPost._id}`,
-                    method: 'PUT',
+                    method: 'PATCH',
                     body: {
                         reactionName,
                         currentUserId: currentUser._id
@@ -135,7 +135,7 @@ export const postsApiSlice = apiSlice.injectEndpoints({
             addViewOnPost: builder.mutation({
                 query: postId => ({
                     url: `/posts/views/${postId}`,
-                    method: 'PUT',
+                    method: 'PATCH',
                 }),
                 invalidatesTags: (result, error, arg) => [
                     { type: 'Post', id: arg }

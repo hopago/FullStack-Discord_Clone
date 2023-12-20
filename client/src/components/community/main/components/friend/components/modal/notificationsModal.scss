@@ -1,0 +1,189 @@
+.notificationModal {
+    position: absolute;
+    top: 32px;
+    right: 0.5rem;
+    z-index: 999;
+    cursor: default;
+
+    .notificationModal-layer {
+        width: 480px;
+        height: 670px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        position: sticky;
+
+        .notificationModal-modal {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .notificationModal-modal-container {
+                width: 100%;
+                height: 100%;
+
+                .notificationModal-modal-wrapper {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    .notificationModal-contents {
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: space-between;
+
+                        .container {
+                            display: flex;
+                            flex-direction: column;
+                            width: 100%;
+                            height: 100%;
+
+                            .topInfo {
+                                display: flex;
+                                flex-direction: column;
+                                width: 100%;
+
+                                .wrapper {
+                                    width: 100%;
+                                    padding: 0.75rem 1rem;
+                                    background-color: #070809;
+                                    border-radius: 8px;
+
+                                    .top {
+                                        padding-bottom: 0.25rem;
+                                        width: 100%;
+                                        display: flex;
+                                        align-items: center;
+                                        color: #f2f3f5;
+
+                                        .iconWrap {
+                                            margin-right: 0.5rem;
+                                            width: 24px;
+                                            height: 24px;
+                                            display: flex;
+                                            align-items: center;
+                                            justify-content: center;
+                                        }
+
+                                        .text {
+                                            flex: 1;
+
+                                            h1 {
+                                                font-size: 20px;
+                                                color: #DBDEE1;
+                                            }
+                                        }
+
+                                        .friendRequest {
+                                            display: flex;
+                                            align-items: center;
+
+
+                                            .itemWrapper {
+                                                display: flex;
+                                                align-items: center;
+                                                padding: 4px 8px;
+                                                background-color: #313338;
+                                                border-radius: 0.5rem;
+                                                transition: none;
+
+                                                .people {
+                                                    display: flex;
+                                                    justify-content: flex-start;
+                                                    transition: none;
+                                                    margin-right: 0.25rem;
+                                                    color: #A6ABB8;
+                                                }
+
+                                                .count {
+                                                    padding-right: 0.25rem;
+                                                    color: #A6ABB8;
+                                                    width: 16px;
+                                                    height: 16px;
+                                                    border-radius: 50%;
+                                                    font-size: 12px;
+                                                    font-weight: 400;
+                                                    display: flex;
+                                                    align-items: center;
+                                                    justify-content: center;
+                                                    background-color: #41434a;
+                                                    text-align: center;
+
+                                                    span {
+                                                        padding-left: 3.5px;
+                                                    }
+                                                }
+                                            }
+
+                                            &:hover {
+
+                                                .people,
+                                                .count {
+                                                    color: #f2f3f5;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    .bottom {
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: space-between;
+
+                                        .texts {
+                                            display: flex;
+                                            align-items: center;
+
+                                            .textWrap {
+                                                flex: 1;
+                                                padding: 0.25rem 0.5rem;
+                                                margin-right: 0.25rem;
+                                                cursor: pointer;
+
+                                                span {
+
+                                                }
+                                            }
+                                        }
+
+                                        .readAll {
+                                            cursor: pointer;
+
+                                            #doneAll {
+
+                                                &:hover {
+                                                    color: #f2f3f5 !important;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            .scrollNotifications {
+                                width: 100%;
+                                background-color: #2B2D31;
+                                flex: 1;
+                                border-radius: 8px;
+
+                                ul {
+                                    list-style: none;
+                                    padding: 0;
+                                    margin: 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

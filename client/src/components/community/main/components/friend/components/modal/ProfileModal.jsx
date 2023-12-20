@@ -48,8 +48,6 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
   const [active, setActive] = useState(0);
   const [latestPosts, setLatestPosts] = useState([]);
   const [trendPosts, setTrendPosts] = useState([]);
-  const [emptyPost, setEmptyPost] = useState(false);
-  const [emptyLatestPost, setEmptyLatestPost] = useState(false);
   const [trendPostsReactionCounts, setTrendPostsReactionCounts] = useState([]);
   const [latestPostsReactionCounts, setLatestPostsReactionCounts] = useState([]);
   const [xy, setXy] = useState({
@@ -347,7 +345,6 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
       moreInfo = (
         <div className="moreInfoSection">
           <h2>인기 게시글</h2>
-          {/* 로직 완성, css ui 구현 */}
           {trendPosts?.length > 0
             ? trendPosts.map((post, index) => (
                 <Link to={`/community/forum/${post._id}`} className="link">
@@ -374,7 +371,6 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
               ))
             : null}
           <h2>최근 게시글</h2>
-          {/* 로직 완성, css ui 구현 */}
           {latestPosts?.length > 0
             ? latestPosts.map((post, index) => (
                 <Link to={`/community/forum/${post._id}`} className="link">

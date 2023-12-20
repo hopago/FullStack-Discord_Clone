@@ -231,7 +231,7 @@ export const likeComment = (req, res, next) => __awaiter(void 0, void 0, void 0,
                     "comments.0.comment_like_count": req.user.id,
                 },
             }, { new: true }));
-            res.status(201).json(updatedComment);
+            return res.status(201).json(updatedComment);
         }
         else {
             const updatedComment = yield comment.updateOne({
@@ -239,7 +239,7 @@ export const likeComment = (req, res, next) => __awaiter(void 0, void 0, void 0,
                     "comments.0.comment_like_count": req.user.id,
                 },
             }, { new: true });
-            res.status(201).json(updatedComment);
+            return res.status(201).json(updatedComment);
         }
     }
     catch (err) {

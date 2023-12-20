@@ -8,6 +8,16 @@ router
     .post(createComment)
     .get(getComments);
 router
+    .route("/reply/edit/:commentId")
+    .put(updateReplyComment)
+    .delete(deleteReplyComment);
+router
+    .route("/reply/:commentId")
+    .put(replyComment);
+router
+    .route("/like/:commentId")
+    .put(likeComment);
+router
     .route("/length")
     .get(getCommentsLength);
 router
@@ -15,14 +25,4 @@ router
     .get(getComment)
     .put(updateComment)
     .delete(deleteComment);
-router
-    .route("/reply/:commentId")
-    .put(replyComment);
-router
-    .route("/reply/edit/:commentId")
-    .put(updateReplyComment)
-    .delete(deleteReplyComment);
-router
-    .route("/like/:commentId")
-    .put(likeComment);
 export default router;

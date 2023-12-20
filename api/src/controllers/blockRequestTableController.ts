@@ -34,6 +34,8 @@ export const addBlockUser = async (req: Request, res: Response, next:NextFunctio
         const currentUser = await User.findById(currentUserId);
         if (!currentUser) return res.status(404).json("User not found...");
 
+        const isFriend = currentUser.friends.some(friend => friend._id.toString() === blockUser._id.toString());
+
         const {
           _id,
           avatar,

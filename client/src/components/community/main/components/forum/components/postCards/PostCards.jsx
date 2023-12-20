@@ -24,8 +24,6 @@ const PostCards = ({ type }) => {
     error
   } = useGetPostsBySortOptionsQuery(params);
 
-  
-
   let content;
   if (isLoading) {
     content = <Spinner message="컨텐츠를 기다리는 중 이에요..." />;

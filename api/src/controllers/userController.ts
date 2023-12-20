@@ -2,6 +2,7 @@ import { HttpException } from "../middleware/error/utils.js";
 import User, { IUser } from "../models/User.js";
 import { Request, Response, NextFunction } from "express";
 import bcrypt from "bcrypt";
+import PrivateConversation from "../models/PrivateConversation.js";
 
 export const getCurrentUser = async (
   req: Request,
@@ -164,14 +165,27 @@ export const removeFriend = async (
     const friend = await User.findById(friendId);
 
     if (!currentUser?.friends.includes(friend as never)) {
-      await currentUser?.updateOne({
-        $pull: {
-          friends: friend,
-        },
-      });
-      res.sendStatus(201);
+      try {
+        await currentUser?.updateOne({
+          $pull: {
+            "friends._id": friend?._id.toString(),
+          },
+        });
+      } catch (err) {
+        return res.status(500).json(err);
+      }
+
+      try {
+        await PrivateConversation.findOneAndDelete({
+          "members._id": [currentUser?._id.toString(), friend?._id.toString()]
+        });
+      } catch (err) {
+        return res.status(500).json(err);
+      }
+
+      return res.sendStatus(204);
     } else {
-      throw new HttpException(500, "Something went wrong...");
+      return res.sendStatus(500);
     }
   } catch (err) {
     next(err);

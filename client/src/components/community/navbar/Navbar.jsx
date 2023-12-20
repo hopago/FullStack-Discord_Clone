@@ -263,7 +263,7 @@ const Navbar = () => {
               </div>
             )}
           </div>
-          <hr />
+          <hr style={!servers?.length && { display: "none" }} />
           <div className="tutorialContainer-2">
             <div className="flex-col">
               <div

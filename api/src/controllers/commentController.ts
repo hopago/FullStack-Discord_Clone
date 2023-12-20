@@ -293,7 +293,7 @@ export const likeComment = async (
         { new: true }
       );
 
-      res.status(201).json(updatedComment);
+      return res.status(201).json(updatedComment);
     } else {
       const updatedComment = await comment.updateOne(
         {
@@ -304,7 +304,7 @@ export const likeComment = async (
         { new: true }
       );
 
-      res.status(201).json(updatedComment);
+      return res.status(201).json(updatedComment);
     }
   } catch (err) {
     next(err);

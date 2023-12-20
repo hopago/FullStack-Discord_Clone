@@ -1,10 +1,17 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import { Server } from 'socket.io';
+import connectDB from './config/connectDB';
 
 const PORT = process.env.PORT || 5000;
-const ADMIN = "Admin";
 
 const app = express();
+
+app.use(express.json());
+app.use(cors({
+    origin: ["http://localhost:3000", "http://localhost:8000"],
+    credentials: true
+}));
 
 const expressServer = app.listen(PORT, () => {
     console.log(`Socket listening on port: ${PORT}`);
@@ -53,8 +60,15 @@ io.on('connection', socket => {
         }
     });
 
-    socket.on('sendNotification', ({ senderId, receiverId, requestType }) => {
-        const receiver = findUserById(receiverId);
+    socket.on('sendNotification', ({ senderId, receiverId, requestType, ...args }) => {
+        let receiver;
+
+        if (!receiverId && args.receiverUserName && args.receiverTag) {
+            receiver = findUserByUserNameAndTag(args.receiverUserName, args.receiverTag)
+        } else {
+            receiver = findUserById(receiverId);
+        }
+
         if (!receiver) {
             console.log(`Type: ${requestType}, Receiver has not found...`);
             return socket.emit("userNotFound", {
@@ -62,12 +76,56 @@ io.on('connection', socket => {
                 status: 400
             });
         } else {
-            io.to(receiver.socketId).emit("getNotification", {
-                senderId,
-                requestType
-            });
+            if (args.dataType !== "text") {
+                return io.to(receiver.socketId).emit("getNotification", {
+                    senderId,
+                    requestType
+                });
+            }
+
+            let notificationText;
+
+            if (dataType === "text" && requestType === "FriendRequest") {
+                notificationText = `${receiver.userName}님이 친구 요청을 보냈어요.`;
+            }
+
+            if (notificationText) {
+                io.to(receiver.socketId).emit("getNotification", {
+                    senderId,
+                    requestType,
+                    notificationText
+                });
+            }
         }
     });
+
+    socket.on('getFriendRequest', async ({ senderId, receiverUserName, receiverTag }) => {
+        const receiver = findUserByUserNameAndTag(receiverUserName, receiverTag);
+        if (!receiver) {
+            return socket.emit("userNotFound", {
+                message: "Receiver not found...",
+                status: 400
+            });
+        } else {
+            try {
+                await connectDB();
+                const db = mongoose.connection;
+
+                db.once('open', function() {
+                    const changeFriendRequestDocs = db.collection("FriendRequest").watch();
+
+                    changeFriendRequestDocs.on("change", (change) => {
+                        io.to(receiver.socketId).emit("sendFriendRequest", {
+                            change,
+                            senderId
+                        });
+                    });
+                });
+            } catch (err) {
+                console.log(`getFriendRequest Error: ${err}`)
+            }
+        }
+    })
 
     socket.on("logout", (_id) => {
         console.log(UsersState);
@@ -101,6 +159,11 @@ function disconnectUser(_id) {
 
 function findUserById(_id) {
     return UsersState.users.find((user) => user._id === _id);
+}
+
+function findUserByUserNameAndTag(userName, tag) {
+    const user = UsersState.users.find((user) => user.userName === userName && user.tag === tag);
+    return user;
 }
 
 function getOnlineFriends(_id) {

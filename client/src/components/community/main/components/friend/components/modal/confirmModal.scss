@@ -1,0 +1,131 @@
+.confirmModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    cursor: default;
+
+    .confirmModal-backgroundDrop {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0.75;
+        background-color: #070808;
+    }
+
+    .confirmModal-layer {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        position: sticky;
+
+        .confirmModal-modal {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            .confirmModal-modal-container {
+                width: 440px;
+                height: max-content;
+
+                .confirmModal-modal-wrapper {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    .confirmModal-contents {
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: space-between;
+                        background-color: #313338;
+                        color: #F2F3F5;
+                        border-radius: 0.5rem;
+
+                        .container {
+                            width: 100%;
+
+                            .flexCol {
+                                width: 100%;
+                                display: flex;
+                                flex-direction: column;
+
+                                .main {
+                                    margin-top: 0px;
+                                    padding: 1rem;
+                                    display: flex;
+                                    justify-content: flex-start;
+
+                                    h1 {
+                                        font-size: 20px;
+                                    }
+                                }
+
+                                .desc {
+                                    width: 100%;
+                                    padding: 1rem;
+                                    color: #DBDEE1;
+                                    display: flex;
+                                    justify-content: flex-start;
+                                }
+
+                                .buttons {
+                                    width: 100%;
+                                    padding: 1rem;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: flex-end;
+                                    background-color: #2B2D31;
+
+                                    .buttonWrapper {
+                                        display: flex;
+                                        align-items: center;
+
+                                        .cancel {
+                                            margin: 0px 0.75rem;
+                                            border: none;
+                                            font-size: 16px;
+                                            font-weight: 400;
+                                            background-color: transparent;
+                                            color: #F2F3F5;
+                                            cursor: pointer;
+
+                                            &:hover {
+                                                text-decoration: underline;
+                                            }
+                                        }
+
+                                        .confirm {
+                                            background-color: #DA373C;
+                                            padding: 0.5rem 1rem;
+                                            color: #F2F3F5;
+                                            cursor: pointer;
+                                            font-weight: 400;
+                                            border: none;
+                                            font-size: 16px;
+                                            border-radius: 0.5rem;
+                                            transition: all .15s ease;
+
+                                            &:hover {
+                                                background-color: #A12828;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}

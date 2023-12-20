@@ -7,8 +7,9 @@ import ProfileModal from "./modal/ProfileModal";
 import { useDeleteBlackListMutation } from "../../../../../../features/blackList/slice/blackListApiSlice";
 
 const UserInfo = ({ defaultProfile, friend, type, senderId }) => {
+  const [moreVertClicked, setMoreVertClicked] = useState(false);
+
   const [acceptRejectRequest] = useHandleRequestFriendMutation();
-  const [removeBlackList] = useDeleteBlackListMutation();
 
   const handleRequest = (e) => {
     const { id } = e.target;
@@ -55,11 +56,16 @@ const UserInfo = ({ defaultProfile, friend, type, senderId }) => {
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [active, setActive] = useState(false);
 
-  const handleServerContextMenu = (e) => {
-    if (showModal) {
+  const handleServerContextMenu = (e, type) => {
+    if (showModal && type === "friendRequest") {
       return;
     }
     e.preventDefault();
+
+    if (e.type === "click") {
+      setMoreVertClicked(true);
+    }
+
     const rect = e.target.getBoundingClientRect();
     setXy({ x: e.clientX - rect.left, y: e.clientY - rect.top });
     setActive(true);
@@ -83,7 +89,7 @@ const UserInfo = ({ defaultProfile, friend, type, senderId }) => {
         <div
           className="contents"
           style={showModal ? {} : { position: "relative" }}
-          onContextMenu={handleServerContextMenu}
+          onContextMenu={(e) => handleServerContextMenu(e, type)}
         >
           <div className="userInfo">
             <img src={friend.avatar ?? defaultProfile} alt="" />
@@ -104,7 +110,11 @@ const UserInfo = ({ defaultProfile, friend, type, senderId }) => {
                 <ChatBubble style={{ fontSize: "14px" }} />
               )}
             </div>
-            <div className="iconWrap" style={{ fontSize: "14px" }}>
+            <div
+              className="iconWrap"
+              onClick={(e) => handleServerContextMenu(e, type)}
+              style={{ fontSize: "14px" }}
+            >
               {type === "friendRequest" ? (
                 <Close
                   id="friendRequestReject"
@@ -118,6 +128,10 @@ const UserInfo = ({ defaultProfile, friend, type, senderId }) => {
           </div>
           {showContextMenu && (
             <FriendServicesPopout
+              friend={friend}
+              moreVertClicked={moreVertClicked}
+              setMoreVertClicked={setMoreVertClicked}
+              type={type}
               setActive={setActive}
               setShowModal={setShowModal}
               xy={xy}

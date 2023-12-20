@@ -21,6 +21,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 import { HttpException } from "../middleware/error/utils.js";
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
+import PrivateConversation from "../models/PrivateConversation.js";
 export const getCurrentUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.user.id;
     try {
@@ -144,15 +145,28 @@ export const removeFriend = (req, res, next) => __awaiter(void 0, void 0, void 0
         const currentUser = yield User.findById(currentUserId);
         const friend = yield User.findById(friendId);
         if (!(currentUser === null || currentUser === void 0 ? void 0 : currentUser.friends.includes(friend))) {
-            yield (currentUser === null || currentUser === void 0 ? void 0 : currentUser.updateOne({
-                $pull: {
-                    friends: friend,
-                },
-            }));
-            res.sendStatus(201);
+            try {
+                yield (currentUser === null || currentUser === void 0 ? void 0 : currentUser.updateOne({
+                    $pull: {
+                        "friends._id": friend === null || friend === void 0 ? void 0 : friend._id.toString(),
+                    },
+                }));
+            }
+            catch (err) {
+                return res.status(500).json(err);
+            }
+            try {
+                yield PrivateConversation.findOneAndDelete({
+                    "members._id": [currentUser === null || currentUser === void 0 ? void 0 : currentUser._id.toString(), friend === null || friend === void 0 ? void 0 : friend._id.toString()]
+                });
+            }
+            catch (err) {
+                return res.status(500).json(err);
+            }
+            return res.sendStatus(204);
         }
         else {
-            throw new HttpException(500, "Something went wrong...");
+            return res.sendStatus(500);
         }
     }
     catch (err) {

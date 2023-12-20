@@ -104,9 +104,15 @@ export const serversApiSlice = apiSlice.injectEndpoints({
                     url: `/servers/members/${serverId}?${requestType}=${memberId}`,
                     method: 'PUT'
                 }),
-                invalidatesTags: (result, error, arg) => [
-                    { type: 'Server', id: arg.serverId }
-                ]
+                invalidatesTags: (result, error, arg) => {
+                    if (result && Array.isArray(result) && result.length) {
+                        return [
+                            { type: 'Server', id: arg.serverId }
+                        ]
+                    } else {
+                        return []
+                    }
+                }
             }),
             likeServer: builder.mutation({
                 query: ({ serverId }) => ({

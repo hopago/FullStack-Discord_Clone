@@ -76,7 +76,7 @@ const FriendServicePopout = ({ showPopout, setShowPopout, xy, friend }) => {
             console.error(err);
           }
 
-          if (typeof deletedConversation._id === "string") {
+          if (typeof deletedConversation?._id === "string") {
             const deleteConversation = async () => {
               await conversationsApiSlice.endpoints.deleteConversation(
                 deletedConversation._id
@@ -107,10 +107,7 @@ const FriendServicePopout = ({ showPopout, setShowPopout, xy, friend }) => {
   const handleServicePopoutOutsideClick = (e) => {
     const clientX = e.clientX;
     const clientY = e.clientY;
-
-    {
-      /* 165 120 modal x, y */
-    }
+    
     if (
       clientX < xy.x ||
       clientX > xy.x + 165 ||

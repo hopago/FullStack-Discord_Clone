@@ -1,7 +1,7 @@
 import "./sendFriendForm.scss";
 import emptyBanner from "./assets/bca918618b884a382ab5.svg";
-import { useState } from "react";
-import { useSendFriendMutation } from "../../../../../../features/friends/slice/friendRequestApiSlice";
+import { useEffect, useState } from "react";
+import { friendRequestApiSlice, useSendFriendMutation } from "../../../../../../features/friends/slice/friendRequestApiSlice";
 import { socket } from "../../../../../..";
 
 const SendFriendForm = ({ currentUser }) => {
@@ -14,7 +14,7 @@ const SendFriendForm = ({ currentUser }) => {
   });
   const [isError, setIsError] = useState(false);
 
-  const [sendFriend] = useSendFriendMutation();
+  const [sendFriend, { data: sendFriendData }] = useSendFriendMutation();
 
   const handleInput = (e) => {
     setIsError(false);
@@ -31,6 +31,12 @@ const SendFriendForm = ({ currentUser }) => {
     e.preventDefault();
 
     const { userName, tag } = receiver;
+
+    socket?.emit("getFriendRequest", {
+      senderId: currentUser._id,
+      receiverUserName: userName,
+      receiverTag: tag
+    });
 
     sendFriend({
         userName,
@@ -49,10 +55,12 @@ const SendFriendForm = ({ currentUser }) => {
             socket?.on("userNotFound", (res) => {
                 if (res.status === 400) {
                     return () => {
+                        socket.off("sendNotification");
+                        socket.off("getFriendRequest");
                         socket.off("userNotFound");
                     }
                 }
-            })
+            });
         } catch (err) {
             console.error(`socket, userNotFound: ${err}`);
         }
@@ -66,8 +74,34 @@ const SendFriendForm = ({ currentUser }) => {
     })
   };
 
+  useEffect(() => {
+    const updateFriendRequest = (newRequest) => {
+      friendRequestApiSlice.util.updateQueryData("getAllFriendRequest", undefined, (draftRequestList) => {
+        draftRequestList = [newRequest, ...draftRequestList];
+      });
+    };
+
+    const handleNotificationTexts = (senderId) => {
+      socket?.emit("sendNotification", {
+        senderId,
+        receiverUserName: receiver.userName,
+        receiverTag: receiver.tag,
+        requestType: "FriendRequest",
+        dataType: "text",
+      });
+    };
+
+    socket.on("sendFriendRequest", ({ change, senderId }) => {
+      const { fullDocument: newRequest } = change;
+
+      updateFriendRequest(newRequest);
+
+      handleNotificationTexts(senderId);
+    });
+  }, [socket, sendFriendData]);
+
   const canSubmit = Boolean(
-    receiver.userName !== "" && receiver.tag > 9999
+    receiver.userName !== "" && 100000 > receiver.tag > 9999
   );
 
   return (

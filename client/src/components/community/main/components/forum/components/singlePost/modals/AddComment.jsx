@@ -66,14 +66,14 @@ const AddComment = ({
 
   const [addComment] = useAddCommentMutation();
 
-  const handleAddComment = (e) => {
+  const handleAddComment = async (e) => {
     e.preventDefault();
 
     if (Boolean(description)) {
-      addComment({
+      const res = await addComment({
         description,
         postId,
-      }).unwrap();
+      });
 
       setDescription("");
     }

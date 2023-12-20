@@ -7,7 +7,7 @@ import {
   Search,
 } from "@mui/icons-material";
 import defaultProfile from "../../assets/default-profile-pic-e1513291410505.jpg";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import UserInfo from "./components/UserInfo";
 import {
   useLazyFindUserByIdQuery,
@@ -22,6 +22,7 @@ import { selectCurrentUser } from "../../../../../features/users/slice/userSlice
 import { socket } from "../../../../..";
 import SendFriendForm from "./components/SendFriendForm";
 import { useLazyGetAllBlackListQuery } from "../../../../../features/blackList/slice/blackListApiSlice";
+import NotificationsModal from "./components/modal/NotificationsModal";
 
 const Friend = () => {
   const currentUser = useSelector(selectCurrentUser);
@@ -39,6 +40,14 @@ const Friend = () => {
   const [showSendFriendForm, setShowFriendForm] = useState(false);
   const [friendRequestCount, setFriendRequestCount] = useState(0);
   const [contentType, setContentType] = useState("");
+  const [notificationInfo, setNotificationInfo] = useState({
+    user: {
+      avatar: "",
+      userName: ""
+    },
+    text: ""
+  });
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
 
   const resetFetchState = () => {
     setContentType("");
@@ -74,7 +83,7 @@ const Friend = () => {
     const requestList = await getAllFriendRequest();
 
     if (friends) {
-      setFriends(requestList.data[0].members.map((friend) => friend));
+      setFriends(requestList.data.members);
     }
   };
 
@@ -86,7 +95,7 @@ const Friend = () => {
     const blackList = await getAllBlackList();
     
     if (blackList.members) {
-      setFriends(blackList.data[0].members.map((friend) => friend));
+      setFriends(blackList.data.members);
     }
   };
 
@@ -144,25 +153,41 @@ const Friend = () => {
   }, [socket, currentUser]);
 
   useEffect(() => {
-    socket?.on("getNotification", ({ senderId, requestType }) => {
-      if (senderId && requestType === "FriendRequest") {
+    socket?.on(
+      "getNotification",
+      ({ senderId, requestType, notificationText }) => {
         findUser(senderId)
           .unwrap()
           .then((data) => {
-            if (active === 0) {
-              setFriends((prev) => [data, ...prev]);
+            if (
+              senderId &&
+              requestType === "FriendRequest" &&
+              !notificationText
+            ) {
+              if (active === 0) {
+                setFriends((prev) => [data, ...prev]);
+              }
+            } else {
+              setNotificationInfo((curr) => ({
+                ...curr,
+                user: {
+                  userName: data.userName,
+                  avatar: data.avatar ?? defaultProfile,
+                },
+                text: notificationText,
+              }));
             }
           })
           .catch((err) => console.error(err));
 
         setFriendRequestCount((prev) => prev + 1);
       }
-    });
+    );
 
     return () => {
       socket?.off("getNotification");
     };
-  }, [socket]);
+  }, [socket, active]);
 
   const handleActiveClass = (e) => {
     if (e.target.innerText === "온라인") {
@@ -184,6 +209,19 @@ const Friend = () => {
   const handleShowFriendForm = () => {
     setShowFriendForm(true);
     setActive(4);
+  };
+
+  const modalRef = useRef();
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const modalOutsideClick = (e) => {
+    if (e.target.closest(".icon")) {
+      return;
+    }
+
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
+      setShowNotificationsModal(false);
+    }
   };
 
   return (
@@ -261,8 +299,19 @@ const Friend = () => {
               </div>
               <div className="fill" />
               <div className="icons">
-                <div className="icon">
+                <div
+                  className={showNotificationsModal ? "icon active" : "icon"}
+                  style={showNotificationsModal ? { position: "relative" } : {}}
+                  onClick={() => setShowNotificationsModal((prev) => !prev)}
+                >
                   <Notifications />
+                  {showNotificationsModal ? (
+                    <NotificationsModal
+                      modalRef={modalRef}
+                      modalOutsideClick={modalOutsideClick}
+                      setShowNotificationsModal={setShowNotificationsModal}
+                    />
+                  ) : null}
                 </div>
                 <div className="icon">
                   <Help />
