@@ -7,10 +7,10 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "dist/src/app.js"
+      "source": "/(.*)",
+      "destination": "dist/src/app.js"
     }
   ],
   "headers": [
