@@ -7,12 +7,6 @@ const PORT = process.env.PORT || 5000;
 
 const app = express();
 
-app.use(express.json());
-app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:8000"],
-    credentials: true
-}));
-
 const expressServer = app.listen(PORT, () => {
     console.log(`Socket listening on port: ${PORT}`);
 });
