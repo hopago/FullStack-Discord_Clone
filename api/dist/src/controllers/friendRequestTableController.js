@@ -10,7 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import FriendAcceptReject from "../models/FriendRequestTable.js";
 import User from "../models/User.js";
 import PrivateConversation from "../models/PrivateConversation.js";
-{ /* 12 05 22 40 */ }
+import { getFriendRequestNotifications } from "../services/notifications/getNotifications.js";
+import { createFriendRequestNotification } from "../services/notifications/createNotification.js";
+import { deleteFriendRequestNotification } from "../services/notifications/deleteNotification.js";
+import { seeFriendRequestNotification } from "../services/notifications/seeNotification.js";
+{
+    /* 12 05 22 40 */
+}
 export const getAllFriendRequest = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user = yield User.findById(req.user.id);
@@ -195,6 +201,48 @@ export const handleRequestFriend = (req, res, next) => __awaiter(void 0, void 0,
         }
         else {
             return res.status(400).json("Friend request not found...");
+        }
+    }
+    catch (err) {
+        next(err);
+    }
+});
+export const getNotifications = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const notifications = yield getFriendRequestNotifications(req, res, next);
+        if (!notifications)
+            return res
+                .status(500)
+                .json("Something went wrong in getNotifications...");
+        return res.status(200).json(notifications);
+    }
+    catch (err) {
+        next(err);
+    }
+});
+export const createNotification = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield createFriendRequestNotification(req, res, next);
+        return res.sendStatus(204);
+    }
+    catch (err) {
+        next(err);
+    }
+});
+export const deleteNotification = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const updatedList = yield deleteFriendRequestNotification(req, res, next);
+        return res.status(201).json(updatedList);
+    }
+    catch (err) {
+        next(err);
+    }
+});
+export const seeNotification = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const updatedNotification = yield seeFriendRequestNotification(req, res, next);
+        if (updatedNotification) {
+            return res.status(201).json(updatedNotification);
         }
     }
     catch (err) {

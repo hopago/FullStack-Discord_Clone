@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { HttpException } from "../../middleware/error/utils";
-import FriendAcceptReject from "../../models/FriendRequestTable";
-import User, { IUser } from "../../models/User";
+import { HttpException } from "../../middleware/error/utils.js";
+import FriendAcceptReject from "../../models/FriendRequestTable.js";
+import User, { IUser } from "../../models/User.js";
 
 export const createFriendRequestNotification = async (req: Request, res: Response, next: NextFunction) => {
     try {

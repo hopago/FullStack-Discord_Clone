@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { HttpException } from "../../middleware/error/utils";
+import { HttpException } from "../../middleware/error/utils.js";
 import FriendAcceptReject, {
   IFriendRequestTable,
-} from "../../models/FriendRequestTable";
+} from "../../models/FriendRequestTable.js";
 
 export const getFriendRequestNotifications = async (
   req: Request,

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { HttpException } from "../../middleware/error/utils";
-import FriendAcceptReject from "../../models/FriendRequestTable";
+import { HttpException } from "../../middleware/error/utils.js";
+import FriendAcceptReject from "../../models/FriendRequestTable.js";
 
 export const deleteFriendRequestNotification = async (req: Request, res: Response, next: NextFunction) => {
     try {

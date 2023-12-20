@@ -11,6 +11,22 @@ const friendRequestTableSchema = new Schema({
         type: [Object],
         default: [],
     },
+    notifications: [
+        {
+            senderInfo: {
+                type: [Object],
+                default: [],
+            },
+            type: {
+                type: String,
+                required: true,
+            },
+            isRead: {
+                type: Boolean,
+                default: false,
+            },
+        },
+    ],
 }, { timestamps: true });
 const FriendAcceptReject = model("FriendRequest", friendRequestTableSchema);
 export default FriendAcceptReject;

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { HttpException } from "../../middleware/error/utils";
-import FriendAcceptReject from "../../models/FriendRequestTable";
+import { HttpException } from "../../middleware/error/utils.js";
+import FriendAcceptReject from "../../models/FriendRequestTable.js";
 
 export const seeFriendRequestNotification = async (
   req: Request,
@@ -16,7 +16,7 @@ export const seeFriendRequestNotification = async (
       },
       {
         $set: {
-          "notifications.$.isRead": true,
+          "notifications.$[].isRead": true,
         },
       },
       {
