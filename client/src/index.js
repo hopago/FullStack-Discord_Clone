@@ -11,7 +11,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 
 import { io } from 'socket.io-client';
 
-export const socket = io("http://localhost:5000");
+export const socket = io(process.env.REACT_APP_SERVER_URL);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

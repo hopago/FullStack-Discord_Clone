@@ -18,6 +18,14 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
                     { type: 'FriendRequest', id: result._id }
                 ]
             }),
+            getNotifications: builder.query({
+                query: () => ({
+                    url: "/friends/notifications",
+                    body: {
+                        
+                    }
+                })
+            }),
             sendFriend: builder.mutation({
                 query: ({ userName, tag }) => ({
                     url: `/friends?userName=${userName}&tag=${tag}`,
@@ -51,6 +59,15 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
                         patchResult.undo();
                     }
                 }
+            }),
+            createNotification: builder.mutation({
+
+            }),
+            seeNotification: builder.mutation({
+
+            }),
+            deleteNotification: builder.mutation({
+
             })
         }
     )
