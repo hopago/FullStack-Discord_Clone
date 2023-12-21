@@ -7,7 +7,7 @@
     "nodemon": "^3.0.1"
   },
   "scripts": {
-    "build": "nodemon index",
+    "dev": "nodemon index",
     "start": "node index"
   },
   "keywords": [],
