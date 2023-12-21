@@ -24,10 +24,18 @@ const app: Express = express();
 connectDB();
 
 app.use(express.json());
-app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:5000"],
-    credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5000",
+      "https://full-stack-discord-clone.vercel.app/",
+      "https://git.heroku.com/limitless-dusk-13220.git",
+      "https://limitless-dusk-13220-b937c05e53ef.herokuapp.com/",
+    ],
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 
 // routes
@@ -56,3 +64,5 @@ mongoose.connection.once('open', () => {
 mongoose.connection.on('error', err => {
     console.log(err);
 });
+
+// export default app;

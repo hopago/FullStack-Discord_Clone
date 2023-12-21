@@ -19,8 +19,14 @@ const app = express();
 connectDB();
 app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:5000"],
-    credentials: true
+    origin: [
+        "http://localhost:3000",
+        "http://localhost:5000",
+        "https://full-stack-discord-clone.vercel.app/",
+        "https://git.heroku.com/limitless-dusk-13220.git",
+        "https://limitless-dusk-13220-b937c05e53ef.herokuapp.com/",
+    ],
+    credentials: true,
 }));
 app.use(cookieParser());
 // routes
@@ -39,10 +45,11 @@ app.use('/memos', memoRouter);
 app.use(errorHandler);
 mongoose.connection.once('open', () => {
     console.log("Connected to MongoDB");
-    app.listen(8000, () => {
-        console.log(`Server listening on port: 8000`);
-    });
+    // app.listen(8000, () => {
+    //     console.log(`Server listening on port: 8000`);
+    // });
 });
 mongoose.connection.on('error', err => {
     console.log(err);
 });
+export default app;
