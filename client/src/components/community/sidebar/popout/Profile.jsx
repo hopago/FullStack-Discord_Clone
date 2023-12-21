@@ -255,6 +255,10 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
   );
 
   const handleProfilePopoutOutsideClicked = (e) => {
+    if (e.target.closest(".currUserProfileWrapper")) {
+      return;
+    }
+    
     const { screenX, screenY } = e;
 
     const isOutsideClick =
