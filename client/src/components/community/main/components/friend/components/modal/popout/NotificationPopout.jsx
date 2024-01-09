@@ -1,16 +1,14 @@
-import { useSelector } from "react-redux";
 import { useDeleteNotificationMutation } from "../../../../../../../../features/friends/slice/friendRequestApiSlice";
-import { selectCurrentUser } from "../../../../../../../../features/users/slice/userSlice";
 import "./notificationPopout.scss";
 
-const NotificationPopout = ({ _id, setShowServicesPopout }) => {
+const NotificationPopout = ({ _id, setShowServicesPopout, userName, type }) => {
   const [deleteNotification] = useDeleteNotificationMutation();
-  const currUser = useSelector(selectCurrentUser);
 
   const handleDelete = async () => {
     await deleteNotification({
-      userName: currUser.userName,
+      userName,
       _id,
+      type,
     });
 
     setShowServicesPopout(false);

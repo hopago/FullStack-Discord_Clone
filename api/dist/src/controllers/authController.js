@@ -166,8 +166,7 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
                 user.refreshToken = [...newRefreshTokenArray];
                 yield user.save();
                 if (err)
-                    res.sendStatus(403);
-                return;
+                    return res.sendStatus(403);
             }
             const accessToken = jwt.sign({
                 userInfo: {
@@ -183,7 +182,7 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
             }, REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
             user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
             yield user.save();
-            res
+            return res
                 .cookie("jwt", newRefreshToken, {
                 httpOnly: true,
                 secure: true,
@@ -192,7 +191,6 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
             })
                 .status(200)
                 .json({ accessToken });
-            return;
         }));
     }
     catch (err) {

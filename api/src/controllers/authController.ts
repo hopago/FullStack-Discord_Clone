@@ -208,13 +208,12 @@ export const refreshToken = async (
     jwt.verify(
       refreshToken as string,
       REFRESH_TOKEN_SECRET as Secret,
-      async (err: VerifyErrors | null, decoded: any): Promise<void> => {
+      async (err: VerifyErrors | null, decoded: any): Promise<any> => {
         if (err || decoded.userInfo.id !== user._id) {
           user.refreshToken = [...newRefreshTokenArray];
           await user.save();
 
-          if (err) res.sendStatus(403);
-          return;
+          if (err) return res.sendStatus(403);
         }
 
         const accessToken = jwt.sign(
@@ -242,7 +241,7 @@ export const refreshToken = async (
         user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
         await user.save();
 
-        res
+        return res
           .cookie("jwt", newRefreshToken, {
             httpOnly: true,
             secure: true,
@@ -251,8 +250,6 @@ export const refreshToken = async (
           })
           .status(200)
           .json({ accessToken });
-
-        return;
       }
     );
   } catch (err) {

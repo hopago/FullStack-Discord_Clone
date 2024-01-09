@@ -8,29 +8,26 @@ export const seeFriendRequestNotification = async (
   next: NextFunction
 ) => {
   try {
-    const requestList = await FriendAcceptReject.findOneAndUpdate(
-      {
-        referenced_user: req.user.id,
-        "notifications.senderInfo.userName": req.body.userName,
-      },
-      {
-        $set: {
-          "notifications.$[elem].isRead": true,
-        },
-      },
-      {
-        arrayFilters: [
-          {
-            "elem.type": {
-              $in: ["friendRequest_send", "friendRequest_accept"],
-            },
-          },
-        ],
-        new: true,
-      }
-    );
-
-    return requestList;
+    const requestList = await FriendAcceptReject.findOne({
+      referenced_user: req.user.id
+    });
+    
+    if (!requestList) return res.status(404).json("User not found...");
+    
+    let index = -1;
+    const updatedNotification = requestList.notifications.find((notification, i) => {
+      const isMatch = notification.senderInfo.userName === req.body.userName && notification.type === req.body.type;
+      if (isMatch) index = i;
+      return isMatch;
+    });
+    
+    if (index === -1 || !updatedNotification) return res.status(404).json("Notification not found...");
+    
+    requestList.notifications.splice(index, 1, updatedNotification);
+    
+    await requestList.save();
+    
+    return updatedNotification;
   } catch (err) {
     throw new HttpException(500, `FriendRequestNotifications Error: ${err}`);
   }

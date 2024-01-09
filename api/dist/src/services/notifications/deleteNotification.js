@@ -7,25 +7,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { HttpException } from "../../middleware/error/utils.js";
 import FriendAcceptReject from "../../models/FriendRequestTable.js";
 export const deleteFriendRequestNotification = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const requestList = yield FriendAcceptReject.findOneAndUpdate({
-            referenced_user: req.user.id,
-        }, {
-            $pull: {
-                notifications: {
-                    userName: req.body.userName,
-                    type: { $in: ["friendRequest_send", "friendRequest_accept"] },
-                },
-            },
-        }, {
-            new: true,
+        const requestList = yield FriendAcceptReject.findOne({
+            referenced_user: req.user.id
         });
-        return requestList;
+        const index = requestList === null || requestList === void 0 ? void 0 : requestList.notifications.findIndex(notification => {
+            return (notification.senderInfo.userName === req.body.userName &&
+                notification.type === req.body.type);
+        });
+        if (!index)
+            return res.status(404).json("Notification not found...");
+        requestList === null || requestList === void 0 ? void 0 : requestList.notifications.splice(index, 1);
+        yield (requestList === null || requestList === void 0 ? void 0 : requestList.save());
+        return {
+            status: 204
+        };
     }
     catch (err) {
-        throw new HttpException(500, `FriendRequestNotifications Error: ${err}`);
+        return res.status(500).json(err);
     }
 });

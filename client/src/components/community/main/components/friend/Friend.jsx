@@ -12,7 +12,6 @@ import UserInfo from "./components/UserInfo";
 import { useLazyGetAllFriendsQuery } from "../../../../../features/users/slice/usersApiSlice";
 import {
   useGetNotificationsQuery,
-  useGetReceivedCountQuery,
   useLazyGetAllFriendRequestQuery,
   useLazyGetNotificationsQuery,
 } from "../../../../../features/friends/slice/friendRequestApiSlice";
@@ -326,6 +325,7 @@ const Friend = () => {
                   </div>
                   {showNotificationsModal ? (
                     <NotificationsModal
+                      setActive={setActive}
                       modalRef={modalRef}
                       modalOutsideClick={modalOutsideClick}
                       notificationsInfo={notificationsInfo && notificationsInfo}

@@ -27,11 +27,16 @@ const friendRequestSlice = createSlice({
         },
         socket_addCount: (state) => {
             state.notSeenNotifications.length = state.notSeenNotifications.length + 1;
+        },
+        seeNotification: (state, action) => {
+            const { _id } = action.payload;
+            const updatedNotification = state.notSeenNotifications.find(notification => notification._id === _id);
+            updatedNotification.isRead = true;
         }
     },
 });
 
-export const { setNotifications, classifyNotifications, socket_addCount } = friendRequestSlice.actions;
+export const { setNotifications, classifyNotifications, socket_addCount, seeNotification } = friendRequestSlice.actions;
 
 export default friendRequestSlice.reducer;
 

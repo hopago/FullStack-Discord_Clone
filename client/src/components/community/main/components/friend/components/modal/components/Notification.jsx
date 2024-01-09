@@ -1,22 +1,19 @@
 import { useState } from "react";
 import { timeAgoFromNow } from "../../../../../../../../lib/moment/timeAgo";
-import './notification.scss';
+import "./notification.scss";
 import NotificationPopout from "../popout/NotificationPopout";
+import { useNavigate } from "react-router-dom";
+import { useSeeNotificationMutation } from "../../../../../../../../features/friends/slice/friendRequestApiSlice";
+import { useDispatch } from "react-redux";
+import { seeNotification as clientSeeNotification } from "../../../../../../../../features/notifications/friendRequest/friendRequestSlice";
 
-const handleNotificationMessage = ({ type, senderInfo, createdAt, isRead }) => {
-  if (type === "friendRequest_send") {
-    return (
-      <div className={isRead ? "text-body isRead" : "text-body"}>
-        <span className="text">
-          <b>{senderInfo[0].userName}</b>님이 친구 요청을 보냈어요.
-        </span>
-        <p className="createdAt">{timeAgoFromNow(createdAt)}</p>
-      </div>
-    );
-  }
-};
+const Notification = ({ notificationsInfo, infoPopout, setFriendActive }) => {
+  const navigate = useNavigate();
 
-const Notification = ({ notificationsInfo, infoPopout }) => {
+  const dispatch = useDispatch();
+
+  const [seeNotification] = useSeeNotificationMutation();
+
   const [showInfoPopout, setShowInfoPopout] = useState(false);
   const [showServicesPopout, setShowServicesPopout] = useState(false);
 
@@ -41,6 +38,53 @@ const Notification = ({ notificationsInfo, infoPopout }) => {
     }
   };
 
+  const handleNotificationMessage = (
+    { type, _id, senderInfo, createdAt, isRead },
+    setFriendActive
+  ) => {
+    if (type === "friendRequest_send") {
+      const moveToFriendRequest = () => {
+        if (isRead) {
+          setFriendActive(2);
+          navigate("/community");
+          return;
+        }
+
+        seeNotification({
+          userName: senderInfo[0].userName,
+          type,
+        })
+          .then((res) => {
+            if (res.data) {
+              dispatch(
+                clientSeeNotification({
+                  _id,
+                })
+              );
+            }
+          })
+          .then((res) => {
+            setFriendActive(2);
+            navigate("/community");
+          })
+          .catch((err) => console.error(err));
+      };
+      
+      return (
+        <div
+          to="/community"
+          onClick={moveToFriendRequest}
+          className={isRead ? "text-body isRead" : "text-body"}
+        >
+          <span className="text">
+            <b>{senderInfo[0].userName}</b>님이 친구 요청을 보냈어요.
+          </span>
+          <p className="createdAt">{timeAgoFromNow(createdAt)}</p>
+        </div>
+      );
+    }
+  };
+
   return (
     <>
       {notificationsInfo?.map((notification) => {
@@ -52,7 +96,7 @@ const Notification = ({ notificationsInfo, infoPopout }) => {
                   <img src={notification.senderInfo[0].avatar} alt="" />
                 </div>
                 <div className="message">
-                  {handleNotificationMessage(notification)}
+                  {handleNotificationMessage(notification, setFriendActive)}
                 </div>
               </div>
               <div
@@ -81,6 +125,8 @@ const Notification = ({ notificationsInfo, infoPopout }) => {
                 {showInfoPopout && infoPopout}
                 {showServicesPopout ? (
                   <NotificationPopout
+                    type={notification.type}
+                    userName={notification.senderInfo[0].userName}
                     _id={notification._id}
                     setShowServicesPopout={setShowServicesPopout}
                   />

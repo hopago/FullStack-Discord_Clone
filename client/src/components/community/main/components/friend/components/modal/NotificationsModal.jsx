@@ -19,7 +19,8 @@ const InfoPopout = ({ message }) => (
 const NotificationsModal = ({
   modalRef,
   modalOutsideClick,
-  notificationsInfo
+  notificationsInfo,
+  setActive: setFriendActive
 }) => {
   const dispatch = useDispatch();
   const notifications = useSelector(selectCurrNotifications);
@@ -170,6 +171,7 @@ const NotificationsModal = ({
                         }
                       >
                         <Notification
+                          setFriendActive={setFriendActive}
                           notificationsInfo={currNotifications}
                           infoPopout={<InfoPopout message="기타" />}
                         />

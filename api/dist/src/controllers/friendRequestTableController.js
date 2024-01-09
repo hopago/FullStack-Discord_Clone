@@ -231,8 +231,8 @@ export const createNotification = (req, res, next) => __awaiter(void 0, void 0, 
 });
 export const deleteNotification = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const updatedList = yield deleteFriendRequestNotification(req, res, next);
-        return res.status(201).json(updatedList);
+        const { status } = yield deleteFriendRequestNotification(req, res, next);
+        return res.sendStatus(Number(status));
     }
     catch (err) {
         next(err);

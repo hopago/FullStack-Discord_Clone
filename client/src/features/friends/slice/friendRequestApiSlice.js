@@ -74,23 +74,25 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
                 ]
             }),
             seeNotification: builder.mutation({
-                query: (userName) => ({
+                query: ({ userName, type }) => ({
                     url: `/friends/notifications`,
                     method: "PATCH",
                     body: {
-                        userName
+                        userName,
+                        type
                     }
                 }),
                 invalidatesTags: (result, error, arg) => [
                     { type: "Notification", id: "LIST" }
-                ]
+                ],
             }),
             deleteNotification: builder.mutation({
-                query: ({ userName }) => ({
+                query: ({ userName, type }) => ({
                     url: "/friends/notifications",
                     method: "DELETE",
                     body: {
-                        userName
+                        userName,
+                        type
                     }
                 }),
                 invalidatesTags: (result, error, arg) => [
