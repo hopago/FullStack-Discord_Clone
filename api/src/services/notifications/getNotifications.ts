@@ -27,7 +27,7 @@ export const getFriendRequestNotifications = async (
       isRead?: boolean | undefined;
     }[];
 
-    if (req.body.fetchType === "notSeen") {
+    if (req.query.fetchType === "notSeen") {
       notifications = notificationArr.filter(
         (notification) => notification.isRead !== true
       );

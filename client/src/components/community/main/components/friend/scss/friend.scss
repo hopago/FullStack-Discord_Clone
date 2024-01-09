@@ -194,6 +194,27 @@
                             &.active {
                                 color: #f2f3f5;
                             }
+
+                            .notifications {
+                                position: absolute;
+                                top: 0px;
+                                right: 0px;
+                                margin-left: 0.5rem;
+                                
+                                .badge {
+                                    width: 16px;
+                                    height: 16px;
+                                    background-color: #F23F42;
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    font-size: 12px;
+                                    font-weight: bold;
+                                    color: #f2f3f5;
+                                    padding-bottom: 2.5px;
+                                }
+                            }
                         }
                     }
                 }

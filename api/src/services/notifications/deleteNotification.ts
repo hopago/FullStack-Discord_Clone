@@ -4,18 +4,22 @@ import FriendAcceptReject from "../../models/FriendRequestTable.js";
 
 export const deleteFriendRequestNotification = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const requestList = await FriendAcceptReject.findOneAndUpdate({
-            referenced_user: req.user.id
-        }, {
-            $pull: {
+        const requestList = await FriendAcceptReject.findOneAndUpdate(
+            {
+              referenced_user: req.user.id,
+            },
+            {
+              $pull: {
                 notifications: {
-                    userName: req.body.userName,
-                    type: req.body.type
-                }
+                  userName: req.body.userName,
+                  type: { $in: ["friendRequest_send", "friendRequest_accept"] },
+                },
+              },
+            },
+            {
+              new: true,
             }
-        }, {
-            new: true
-        });
+          );
 
         return requestList;
     } catch (err) {

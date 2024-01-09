@@ -153,14 +153,14 @@
                                                 color: #A6ABB8;
                                                 border-radius: 0.25rem;
 
-                                                span {
-
-                                                }
-
                                                 &:hover,
                                                 &.active {
                                                     background-color: #2C2E32;
                                                     color: #f2f3f5;
+
+                                                    span {
+                                                        font-weight: bold;
+                                                    }
                                                 }
                                             }
                                         }
@@ -184,11 +184,86 @@
                                 background-color: #2B2D31;
                                 flex: 1;
                                 border-radius: 0px 0px 8px 8px;
+                                display: flex;
+                                flex-direction: column;
+                                align-items: stretch;
+                                overflow-y: scroll;
 
-                                ul {
-                                    list-style: none;
-                                    padding: 0;
-                                    margin: 0;
+                                &::-webkit-scrollbar {
+                                    display: none;
+                                }
+
+                                .wrapper {
+                                    display: flex;
+                                    flex-direction: column;
+                                    padding: 0px;
+                                    
+                                    .notificationList {
+                                        width: 100%;
+                                        cursor: pointer;
+
+                                        .notificationItem {
+                                            padding: 12px 16px 12px 16px;
+                                            display: flex;
+                                            align-items: center;
+                                            width: 100%;
+
+                                            .content {
+                                                width: 100%;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: space-between;
+
+                                                .senderAvatar {
+                                                    width: 40px;
+                                                    height: 40px;
+                                                    border-radius: 50%;
+                                                    margin-right: 1rem;
+
+                                                    img {
+                                                        width: 100%;
+                                                        height: 100%;
+                                                        border-radius: 50%;
+                                                    }
+                                                }
+
+                                                .message {
+                                                    flex: 1;
+
+                                                    .text-body {
+                                                        width: 100%;
+                                                        display: flex;
+                                                        flex-direction: column;
+
+                                                        .text {
+                                                            color: #DBDEE1;
+                                                        }
+
+                                                        .createdAt {
+                                                            font-size: 12px;
+                                                            font-weight: 400;
+                                                            color: #B5BAC1;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            .button {
+                                                justify-self: flex-end;
+                                                width: 32px;
+                                                height: 32px;
+                                                display: flex;
+                                                align-items: center;
+                                                justify-content: center;
+                                                background-color: #111214;
+                                                border-radius: 50%;
+                                            }
+                                        }
+
+                                        &:hover {
+                                            background-color: #282A2E;
+                                        }
+                                    }
                                 }
                             }
                         }

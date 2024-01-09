@@ -12,16 +12,16 @@ import FriendAcceptReject from "../../models/FriendRequestTable.js";
 export const deleteFriendRequestNotification = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const requestList = yield FriendAcceptReject.findOneAndUpdate({
-            referenced_user: req.user.id
+            referenced_user: req.user.id,
         }, {
             $pull: {
                 notifications: {
                     userName: req.body.userName,
-                    type: req.body.type
-                }
-            }
+                    type: { $in: ["friendRequest_send", "friendRequest_accept"] },
+                },
+            },
         }, {
-            new: true
+            new: true,
         });
         return requestList;
     }

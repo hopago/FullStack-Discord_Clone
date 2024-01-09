@@ -11,31 +11,39 @@ import { HttpException } from "../../middleware/error/utils.js";
 import FriendAcceptReject from "../../models/FriendRequestTable.js";
 import User from "../../models/User.js";
 export const createFriendRequestNotification = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userName, tag } = req.body;
     try {
+        const referredUser = yield User.findOne({
+            userName,
+            tag,
+        });
+        if (!referredUser)
+            return res.status(404).json("Referred User not found...");
         const requestList = yield FriendAcceptReject.findOne({
-            referenced_user: req.user.id
+            referenced_user: referredUser === null || referredUser === void 0 ? void 0 : referredUser._id,
         });
         if (!requestList) {
             throw new HttpException(404, "Request Docs not found...");
         }
         const sender = yield User.findOne({
-            _id: req.body.senderId
+            _id: req.body.senderId,
         });
         if (!sender) {
             throw new HttpException(404, "User not found...");
         }
-        const { avatar, userName } = sender;
+        const { avatar, userName: SenderUserName } = sender;
         const senderInfo = {
             avatar,
-            userName
+            userName: SenderUserName,
         };
-        if (req.body.type !== "friendRequest_send" ||
+        if (req.body.type !== "friendRequest_send" &&
             req.body.type !== "friendRequest_accept") {
             throw new HttpException(400, "Wrong notifications type...");
         }
         const newNotification = {
             senderInfo,
             type: req.body.type,
+            createdAt: new Date()
         };
         requestList.notifications.push(newNotification);
         yield requestList.save();

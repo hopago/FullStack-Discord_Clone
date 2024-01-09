@@ -11,11 +11,12 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "../../../../lib/firebase/config/firebase";
 import { useLogOutMutation } from "../../../../features/authentication/slice/authApiSlice";
 import { useDispatch } from "react-redux";
-import { logOut } from "../../../../features/authentication/slice/authSlice";
+import { authLogout } from "../../../../features/authentication/slice/authSlice";
 import { apiSlice } from "../../../../features/authentication/api/apiSlice";
 import { useNavigate } from "react-router-dom";
 import { persistor } from "../../../../lib/redux/store";
 import { socket } from "../../../..";
+import { userLogout } from "../../../../features/users/slice/userSlice";
 
 const Profile = ({ currentUser, setShowProfile, showProfile }) => {
   const inputRef = useRef();
@@ -35,6 +36,7 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
   const [height, setHeight] = useState();
   const [updatedAvatar, setUpdatedAvatar] = useState({ avatar: null });
   const [updatedBanner, setUpdatedBanner] = useState({ banner: null });
+  const [showSelectForm, setShowSelectForm] = useState(false);
 
   const [updateUserInfo] = useUpdateUserMutation();
   const [logout] = useLogOutMutation();
@@ -117,9 +119,7 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
           language: currentUser.language,
         })
       )
-      .then(
-        setEditUserProfile(false)
-      )
+      .then(setEditUserProfile(false))
       .catch((err) => {
         console.error(err);
         setUpdatedUserInfo({
@@ -131,28 +131,26 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
       });
   };
 
-  const handleLogout = () => {
-    logout()
-      .unwrap()
-      .then(async (res) => {
-        console.log(res);
-        if (res.status === 204) {
-          try {
-            await persistor.purge();
-            socket.emit("logout", currentUser._id);
-            dispatch(logOut());
-            dispatchEvent(apiSlice.util.resetApiState());
-            localStorage.removeItem("persist");
-          } catch (err) {
-            console.error(err);
-          }
-        } else {
-          console.error("Something went wrong in logout...");
+  const handleLogout = async () => {
+    try {
+      const response = await logout();
+      if (response.status === 204 || response.data === null) {
+        try {
+          await persistor.purge();
+          socket.emit("logout", currentUser._id);
+          dispatch(authLogout());
+          dispatch(userLogout());
+          apiSlice.util.resetApiState();
+          navigate("/");
+        } catch (err) {
+          console.error(err);
         }
-      })
-      .catch((err) => console.error(err));
-
-    navigate("/");
+      } else {
+        console.error("Something went wrong in logout...");
+      }
+    } catch (err) {
+      console.error("Something went wrong in logout...");
+    }
   };
 
   const handleBannerChanged = (e) => {
@@ -178,8 +176,6 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
     </div>
   );
   const EditUserLanguage = () => {
-    const [showSelectForm, setShowSelectForm] = useState(false);
-
     const handleLanguageAttribute = (name) => {
       setUpdatedUserInfo((prev) => ({ ...prev, language: name }));
     };
@@ -255,6 +251,10 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
   );
 
   const handleProfilePopoutOutsideClicked = (e) => {
+    if (e.target.closest(".currUserProfileWrapper")) {
+      return;
+    }
+
     const { screenX, screenY } = e;
 
     const isOutsideClick =
@@ -289,8 +289,8 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
     if (updatedBanner.banner) {
       updateUserBanner();
     }
-  }, [updatedBanner.banner])
- 
+  }, [updatedBanner.banner]);
+
   useEffect(() => {
     window.addEventListener("click", handleProfilePopoutOutsideClicked);
 
@@ -313,8 +313,10 @@ const Profile = ({ currentUser, setShowProfile, showProfile }) => {
     <div
       className="accountProfile"
       style={
-        editUserProfile
+        editUserProfile && !showSelectForm
           ? { top: `-495px` }
+          : editUserProfile && showSelectForm
+          ? { top: `-${(502 + height).toString()}px` }
           : { top: `-${(431 + height).toString()}px` }
       }
     >

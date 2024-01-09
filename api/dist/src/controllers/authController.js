@@ -80,15 +80,17 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 if (!foundToken) {
                     newRefreshTokenArray = [];
                 }
-                res.clearCookie("jwt", {
+                return res
+                    .clearCookie("jwt", {
                     httpOnly: true,
                     sameSite: "none",
                     secure: true,
-                });
+                })
+                    .status(401);
             }
             user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
             yield user.save();
-            res
+            return res
                 .cookie("jwt", newRefreshToken, {
                 httpOnly: true,
                 secure: true,
@@ -107,22 +109,23 @@ export const logout = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     try {
         const cookies = req.cookies;
         if (!(cookies === null || cookies === void 0 ? void 0 : cookies.jwt))
-            throw new HttpException(204, "");
+            return res.status(401).json("Cookies not found...");
         const refreshToken = cookies.jwt;
         const user = yield User.findOne({
             refreshToken,
         }).exec();
         if (!user) {
-            res.clearCookie("jwt", {
+            return res
+                .clearCookie("jwt", {
                 httpOnly: true,
                 sameSite: "none",
                 secure: true,
-            });
-            return res.sendStatus(204);
+            })
+                .sendStatus(204);
         }
         user.refreshToken = user.refreshToken.filter((rt) => rt !== refreshToken);
         yield user.save();
-        res
+        return res
             .clearCookie("jwt", {
             httpOnly: true,
             sameSite: "none",
@@ -181,13 +184,15 @@ export const refreshToken = (req, res, next) => __awaiter(void 0, void 0, void 0
             }, REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
             user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
             yield user.save();
-            res.cookie("jwt", newRefreshToken, {
+            res
+                .cookie("jwt", newRefreshToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
                 maxAge: 24 * 60 * 60 * 1000,
-            });
-            res.status(200).json({ accessToken });
+            })
+                .status(200)
+                .json({ accessToken });
             return;
         }));
     }

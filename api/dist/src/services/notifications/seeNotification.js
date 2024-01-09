@@ -13,13 +13,19 @@ export const seeFriendRequestNotification = (req, res, next) => __awaiter(void 0
     try {
         const requestList = yield FriendAcceptReject.findOneAndUpdate({
             referenced_user: req.user.id,
-            "notifications.type": "friendRequest",
             "notifications.senderInfo.userName": req.body.userName,
         }, {
             $set: {
-                "notifications.$[].isRead": true,
+                "notifications.$[elem].isRead": true,
             },
         }, {
+            arrayFilters: [
+                {
+                    "elem.type": {
+                        $in: ["friendRequest_send", "friendRequest_accept"],
+                    },
+                },
+            ],
             new: true,
         });
         return requestList;

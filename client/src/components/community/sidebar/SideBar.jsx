@@ -125,7 +125,7 @@ const ServerSideBar = () => {
               <div className="iconWrap">
                 <Settings className="setting-btn" />
               </div>
-              <div className="iconWrap">
+              <div className="iconWrap" style={{ marginRight: "3px" }}>
                 <Help className="help-btn" />
               </div>
             </div>
@@ -300,7 +300,7 @@ const SideBar = ({ type: basePathName }) => {
             <div className="iconWrap">
               <Settings className="setting-btn" />
             </div>
-            <div className="iconWrap">
+            <div className="iconWrap" style={{ marginRight: "3px" }}>
               <Help className="help-btn" />
             </div>
           </div>

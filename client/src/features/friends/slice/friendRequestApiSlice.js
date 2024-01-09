@@ -1,6 +1,6 @@
 import { apiSlice } from "../../authentication/api/apiSlice";
 
-{/* 12 05 22 40 */}
+{/* 12 05 22 40 */ }
 
 export const friendRequestApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => (
@@ -19,12 +19,10 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
                 ]
             }),
             getNotifications: builder.query({
-                query: () => ({
-                    url: "/friends/notifications",
-                    body: {
-                        
-                    }
-                })
+                query: (fetchType) => `/friends/notifications?fetchType=${fetchType}`,
+                providesTags: (result, error, arg) => [
+                    { type: "Notification", id: "LIST" }
+                ]
             }),
             sendFriend: builder.mutation({
                 query: ({ userName, tag }) => ({
@@ -44,7 +42,7 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
                         isAccepted
                     }
                 }),
-                async onQueryStarted ({ senderId }, { dispatch, queryFulfilled }) {
+                async onQueryStarted({ senderId }, { dispatch, queryFulfilled }) {
                     const patchResult = dispatch(
                         friendRequestApiSlice.util.updateQueryData('getAllFriendRequest', undefined, draftRequest => {
                             draftRequest[0].members = draftRequest[0].members.filter(
@@ -61,13 +59,43 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
                 }
             }),
             createNotification: builder.mutation({
-
+                query: ({ senderId, type = "friendRequest_send", userName, tag }) => ({
+                    url: "/friends/notifications",
+                    method: "POST",
+                    body: {
+                        senderId,
+                        type,
+                        userName,
+                        tag
+                    }
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: "Notification", id: "LIST" }
+                ]
             }),
             seeNotification: builder.mutation({
-
+                query: (userName) => ({
+                    url: `/friends/notifications`,
+                    method: "PATCH",
+                    body: {
+                        userName
+                    }
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: "Notification", id: "LIST" }
+                ]
             }),
             deleteNotification: builder.mutation({
-
+                query: (userName) => ({
+                    url: "/friends/notifications",
+                    method: "DELETE",
+                    body: {
+                        userName
+                    }
+                }),
+                invalidatesTags: (result, error, arg) => [
+                    { type: "Notification", id: "LIST" }
+                ]
             })
         }
     )
@@ -76,6 +104,11 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
 export const {
     useLazyGetAllFriendRequestQuery,
     useGetReceivedCountQuery,
+    useGetNotificationsQuery,
+    useLazyGetNotificationsQuery,
+    useCreateNotificationMutation,
+    useSeeNotificationMutation,
+    useDeleteNotificationMutation,
     useSendFriendMutation,
     useHandleRequestFriendMutation
 } = friendRequestApiSlice;

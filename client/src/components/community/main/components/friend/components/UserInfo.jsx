@@ -4,9 +4,14 @@ import { conversationsApiSlice } from "../../../../../../features/conversation/s
 import { useRef, useState } from "react";
 import FriendServicesPopout from "./FriendServicesPopout";
 import ProfileModal from "./modal/ProfileModal";
-import { useDeleteBlackListMutation } from "../../../../../../features/blackList/slice/blackListApiSlice";
 
-const UserInfo = ({ defaultProfile, friend, type, senderId }) => {
+const UserInfo = ({
+  defaultProfile,
+  friend,
+  type,
+  senderId,
+  contentType,
+}) => {
   const [moreVertClicked, setMoreVertClicked] = useState(false);
 
   const [acceptRejectRequest] = useHandleRequestFriendMutation();
@@ -57,7 +62,10 @@ const UserInfo = ({ defaultProfile, friend, type, senderId }) => {
   const [active, setActive] = useState(false);
 
   const handleServerContextMenu = (e, type) => {
-    if (showModal && type === "friendRequest") {
+    if (
+      (showModal && type === "friendRequest") ||
+      contentType === "friendRequest"
+    ) {
       return;
     }
     e.preventDefault();

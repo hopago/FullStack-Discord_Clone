@@ -11,6 +11,7 @@ export interface IFriendRequestTable extends Document {
     };
     type: "friendRequest_send" | "friendRequest_accept";
     isRead?: boolean;
+    createdAt: Date
   }[];
 };
 
@@ -41,6 +42,7 @@ const friendRequestTableSchema: Schema = new Schema(
           type: Boolean,
           default: false,
         },
+        createdAt: Date,
       },
     ],
   },

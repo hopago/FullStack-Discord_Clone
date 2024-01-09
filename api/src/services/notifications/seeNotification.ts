@@ -11,15 +11,21 @@ export const seeFriendRequestNotification = async (
     const requestList = await FriendAcceptReject.findOneAndUpdate(
       {
         referenced_user: req.user.id,
-        "notifications.type": "friendRequest",
         "notifications.senderInfo.userName": req.body.userName,
       },
       {
         $set: {
-          "notifications.$[].isRead": true,
+          "notifications.$[elem].isRead": true,
         },
       },
       {
+        arrayFilters: [
+          {
+            "elem.type": {
+              $in: ["friendRequest_send", "friendRequest_accept"],
+            },
+          },
+        ],
         new: true,
       }
     );

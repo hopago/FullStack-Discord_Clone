@@ -10,7 +10,6 @@ const FriendServicesPopout = ({
   xy,
   setActive,
   setShowModal,
-  type,
   moreVertClicked,
   setMoreVertClicked,
   friend
@@ -53,8 +52,6 @@ const FriendServicesPopout = ({
     }
   };
 
-  console.log(showConfirm);
-
   return (
     <section
       className="friendServicesPopout"
@@ -78,8 +75,10 @@ const FriendServicesPopout = ({
             <div
               className="text_icon"
               onClick={() => {
-                setActive(false);
                 setShowModal(true);
+                setActive(false);
+                setMoreVertClicked(false);
+                setShowContextMenu(false);
               }}
             >
               <span>프로필</span>

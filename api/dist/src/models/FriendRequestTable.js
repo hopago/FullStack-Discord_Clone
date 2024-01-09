@@ -25,6 +25,7 @@ const friendRequestTableSchema = new Schema({
                 type: Boolean,
                 default: false,
             },
+            createdAt: Date,
         },
     ],
 }, { timestamps: true });

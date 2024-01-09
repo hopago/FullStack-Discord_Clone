@@ -54,72 +54,33 @@ io.on('connection', socket => {
         }
     });
 
-    socket.on('sendNotification', ({ senderId, receiverId, requestType, ...args }) => {
+    socket.on('sendNotification', async ({ senderId, receiverId, requestType, ...args }) => {
         let receiver;
 
-        if (!receiverId && args.receiverUserName && args.receiverTag) {
-            receiver = findUserByUserNameAndTag(args.receiverUserName, args.receiverTag)
-        } else {
+        if (receiverId) {
             receiver = findUserById(receiverId);
         }
 
-        if (!receiver && args.dataType !== "text") {
-            console.log(`Type: ${requestType}, Receiver has not found...`);
-            return socket.emit("userNotFound", {
-                message: "Receiver not found...",
-                status: 400
-            });
-        } else {
-            if (args.dataType !== "text") {
-                return io.to(receiver.socketId).emit("getNotification", {
-                    senderId,
-                    requestType
-                });
-            }
-
-            let notificationText;
-
-            if (dataType === "text" && requestType === "FriendRequest") {
-                notificationText = `${receiver.userName}님이 친구 요청을 보냈어요.`;
-            }
-
-            if (notificationText) {
-                io.to(receiver.socketId).emit("getNotification", {
-                    senderId,
-                    requestType,
-                    notificationText
-                });
-            }
+        if (!receiverId && args.receiverUserName && args.receiverTag) {
+            receiver = findUserByUserNameAndTag(args.receiverUserName, args.receiverTag)
         }
-    });
 
-    socket.on('getFriendRequest', async ({ senderId, receiverUserName, receiverTag }) => {
-        const receiver = findUserByUserNameAndTag(receiverUserName, receiverTag);
         if (!receiver) {
             return socket.emit("userNotFound", {
-                message: "Receiver not found...",
-                status: 400
-            });
-        } else {
-            try {
-                await connectDB();
-                const db = mongoose.connection;
-
-                db.once('open', function() {
-                    const changeFriendRequestDocs = db.collection("FriendRequest").watch();
-
-                    changeFriendRequestDocs.on("change", (change) => {
-                        io.to(receiver.socketId).emit("sendFriendRequest", {
-                            change,
-                            senderId
-                        });
-                    });
-                });
-            } catch (err) {
-                console.log(`getFriendRequest Error: ${err}`)
-            }
+                status: 400,
+                message: "Receiver not found..."
+            })
         }
-    })
+
+        try {
+            io.to(receiver.socketId).emit("getNotification", {
+                receiver,
+                requestType
+            });
+        } catch (err) {
+            console.log(`SendNotification: ${err}`);
+        }
+    });
 
     socket.on("logout", (_id) => {
         console.log(UsersState);

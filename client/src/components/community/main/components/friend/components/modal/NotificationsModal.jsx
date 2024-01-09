@@ -1,21 +1,52 @@
 import { DoneAll, EmojiPeople, NotificationsActive } from "@mui/icons-material";
 import "./notificationsModal.scss";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { timeAgoFromNow } from "../../../../../../../lib/moment/timeAgo";
+import { useGetNotificationsQuery } from "../../../../../../../features/friends/slice/friendRequestApiSlice";
+
+const moreVertInfo = () => (
+  <div className="moreVertInfo">
+    <span>기타</span>
+  </div>
+);
 
 const NotificationsModal = ({
   modalRef,
   modalOutsideClick,
   setShowNotificationsModal,
+
 }) => {
-    useEffect(() => {
-      const handleOutsideClick = (e) => modalOutsideClick(e);
+  const [showMoreVertInfo, setShowMoreVertInfo] = useState(false);
+  const [showMoreVertPopout, setShowMoreVertPopout] = useState(false);
+  const [active, setActive] = useState(0);
 
-      window.addEventListener("click", handleOutsideClick);
+  const { data: notificationsInfo } = useGetNotificationsQuery();
 
-      return () => {
-        window.removeEventListener("click", handleOutsideClick);
-      };
-    }, []);
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+        if (e.target.closest(".icon")) return;
+        modalOutsideClick(e)
+    };
+
+    window.addEventListener("click", handleOutsideClick);
+
+    return () => {
+      window.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
+
+  const handleNotificationMessage = ({ type, senderInfo, createdAt }) => {
+    if (type === "friendRequest_send") {
+      return (
+        <div className="text-body">
+          <span className="text">
+            <b>{senderInfo[0].userName}</b>님이 친구 요청을 보냈어요.
+          </span>
+          <p className="createdAt">{timeAgoFromNow(createdAt)}</p>
+        </div>
+      );
+    }
+  };
 
   return (
     <div
@@ -54,10 +85,20 @@ const NotificationsModal = ({
                       </div>
                       <div className="bottom">
                         <div className="texts">
-                          <div className="textWrap">
+                          <div
+                            className={
+                              active === 0 ? "textWrap active" : "textWrap"
+                            }
+                            onClick={() => setActive(0)}
+                          >
                             <span>나의 알림</span>
                           </div>
-                          <div className="textWrap">
+                          <div
+                            className={
+                              active === 1 ? "textWrap active" : "textWrap"
+                            }
+                            onClick={() => setActive(1)}
+                          >
                             <span>읽지 않음</span>
                           </div>
                         </div>
@@ -73,11 +114,49 @@ const NotificationsModal = ({
                   </div>
                   <div className="scrollNotifications">
                     <div className="wrapper">
-                      <div className="scroll">
-                        <ul>
-                          <li></li>
-                        </ul>
-                      </div>
+                      <ul className="notificationList">
+                        {notificationsInfo?.map((notification) => {
+                          if (!notification.isRead) {
+                            return (
+                              <li
+                                key={notification._id}
+                                className="notificationItem"
+                              >
+                                <div className="content">
+                                  <div className="senderAvatar">
+                                    <img
+                                      src={notification.senderInfo[0].avatar}
+                                      alt=""
+                                    />
+                                  </div>
+                                  <div className="message">
+                                    {handleNotificationMessage(notification)}
+                                  </div>
+                                </div>
+                                <div className="button">
+                                  <svg
+                                    aria-hidden="true"
+                                    role="img"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      fill="currentColor"
+                                      fill-rule="evenodd"
+                                      d="M4 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10-2a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm8 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"
+                                      clip-rule="evenodd"
+                                      class=""
+                                    ></path>
+                                  </svg>
+                                </div>
+                              </li>
+                            );
+                          }
+                        })}
+                      </ul>
                     </div>
                   </div>
                 </div>

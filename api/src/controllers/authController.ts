@@ -102,18 +102,20 @@ export const login = async (
           newRefreshTokenArray = [];
         }
 
-        res.clearCookie("jwt", {
-          httpOnly: true,
-          sameSite: "none",
-          secure: true,
-        });
+        return res
+          .clearCookie("jwt", {
+            httpOnly: true,
+            sameSite: "none",
+            secure: true,
+          })
+          .status(401);
       }
 
       user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
 
       await user.save();
 
-      res
+      return res
         .cookie("jwt", newRefreshToken, {
           httpOnly: true,
           secure: true,
@@ -135,25 +137,26 @@ export const logout = async (
 ) => {
   try {
     const cookies = req.cookies;
-    if (!cookies?.jwt) throw new HttpException(204, "");
+    if (!cookies?.jwt) return res.status(401).json("Cookies not found...");
     const refreshToken = cookies.jwt;
 
     const user = await User.findOne({
       refreshToken,
     }).exec();
     if (!user) {
-      res.clearCookie("jwt", {
-        httpOnly: true,
-        sameSite: "none",
-        secure: true,
-      });
-      return res.sendStatus(204);
+      return res
+        .clearCookie("jwt", {
+          httpOnly: true,
+          sameSite: "none",
+          secure: true,
+        })
+        .sendStatus(204);
     }
 
     user.refreshToken = user.refreshToken.filter((rt) => rt !== refreshToken);
     await user.save();
 
-    res
+    return res
       .clearCookie("jwt", {
         httpOnly: true,
         sameSite: "none",
@@ -240,14 +243,16 @@ export const refreshToken = async (
         user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
         await user.save();
 
-        res.cookie("jwt", newRefreshToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "none",
-          maxAge: 24 * 60 * 60 * 1000,
-        });
+        res
+          .cookie("jwt", newRefreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            maxAge: 24 * 60 * 60 * 1000,
+          })
+          .status(200)
+          .json({ accessToken });
 
-        res.status(200).json({ accessToken });
         return;
       }
     );

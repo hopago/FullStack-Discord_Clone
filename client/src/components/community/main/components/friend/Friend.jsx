@@ -10,12 +10,13 @@ import defaultProfile from "../../assets/default-profile-pic-e1513291410505.jpg"
 import { useEffect, useRef, useState } from "react";
 import UserInfo from "./components/UserInfo";
 import {
-  useLazyFindUserByIdQuery,
   useLazyGetAllFriendsQuery,
 } from "../../../../../features/users/slice/usersApiSlice";
 import {
+  useGetNotificationsQuery,
   useGetReceivedCountQuery,
   useLazyGetAllFriendRequestQuery,
+  useLazyGetNotificationsQuery,
 } from "../../../../../features/friends/slice/friendRequestApiSlice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../../features/users/slice/userSlice";
@@ -31,7 +32,7 @@ const Friend = () => {
   const [getAllFriendRequest] = useLazyGetAllFriendRequestQuery();
   const [getAllBlackList] = useLazyGetAllBlackListQuery();
   const { data: receivedCount } = useGetReceivedCountQuery();
-  const [findUser] = useLazyFindUserByIdQuery();
+  const { data: notificationCountWithServer } = useGetNotificationsQuery();
 
   const [active, setActive] = useState(0);
   const [friends, setFriends] = useState(null);
@@ -40,14 +41,8 @@ const Friend = () => {
   const [showSendFriendForm, setShowFriendForm] = useState(false);
   const [friendRequestCount, setFriendRequestCount] = useState(0);
   const [contentType, setContentType] = useState("");
-  const [notificationInfo, setNotificationInfo] = useState({
-    user: {
-      avatar: "",
-      userName: ""
-    },
-    text: ""
-  });
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const resetFetchState = () => {
     setContentType("");
@@ -82,7 +77,7 @@ const Friend = () => {
     handleActiveClass(e);
     const requestList = await getAllFriendRequest();
 
-    if (friends) {
+    if (requestList) {
       setFriends(requestList.data.members);
     }
   };
@@ -111,6 +106,7 @@ const Friend = () => {
                   key={friend._id}
                   defaultProfile={defaultProfile}
                   friend={friend}
+                  contentType={contentType}
                 />
               ))
             : null}
@@ -153,41 +149,23 @@ const Friend = () => {
   }, [socket, currentUser]);
 
   useEffect(() => {
-    socket?.on(
-      "getNotification",
-      ({ senderId, requestType, notificationText }) => {
-        findUser(senderId)
-          .unwrap()
-          .then((data) => {
-            if (
-              senderId &&
-              requestType === "FriendRequest" &&
-              !notificationText
-            ) {
-              if (active === 0) {
-                setFriends((prev) => [data, ...prev]);
-              }
-            } else {
-              setNotificationInfo((curr) => ({
-                ...curr,
-                user: {
-                  userName: data.userName,
-                  avatar: data.avatar ?? defaultProfile,
-                },
-                text: notificationText,
-              }));
-            }
-          })
-          .catch((err) => console.error(err));
-
+    socket?.on("getNotification", ({ receiver, requestType }) => {
+      if (requestType === ("friendRequest_send" || "friendRequest_accept")) {
         setFriendRequestCount((prev) => prev + 1);
+        setNotificationCount((prev) => prev + 1);
       }
-    );
+    });
 
     return () => {
       socket?.off("getNotification");
     };
   }, [socket, active]);
+
+  useEffect(() => {
+    if (notificationCountWithServer?.length) {
+      setNotificationCount(notificationCountWithServer.length);
+    }
+  }, [notificationCountWithServer?.length]);
 
   const handleActiveClass = (e) => {
     if (e.target.innerText === "온라인") {
@@ -212,7 +190,6 @@ const Friend = () => {
   };
 
   const modalRef = useRef();
-  const [showConfirm, setShowConfirm] = useState(false);
 
   const modalOutsideClick = (e) => {
     if (e.target.closest(".icon")) {
@@ -222,6 +199,17 @@ const Friend = () => {
     if (modalRef.current && !modalRef.current.contains(e.target)) {
       setShowNotificationsModal(false);
     }
+  };
+
+  const handleNotificationIconClick = async (e) => {
+    if (e.target.closest(".notificationModal")) {
+      return;
+    }
+    if (showNotificationsModal) {
+      return setShowNotificationsModal(false);
+    }
+
+    setShowNotificationsModal(true);
   };
 
   return (
@@ -267,7 +255,10 @@ const Friend = () => {
                   onClick={fetchFriendRequest}
                 >
                   <span className="text">대기 중</span>
-                  <div className="notifications">
+                  <div
+                    className="notifications"
+                    style={!friendRequestCount ? { display: "none" } : {}}
+                  >
                     <span className="badge">
                       {Number(friendRequestCount) > 0 && friendRequestCount}
                     </span>
@@ -301,10 +292,22 @@ const Friend = () => {
               <div className="icons">
                 <div
                   className={showNotificationsModal ? "icon active" : "icon"}
-                  style={showNotificationsModal ? { position: "relative" } : {}}
-                  onClick={() => setShowNotificationsModal((prev) => !prev)}
+                  style={{ position: "relative" }}
+                  onClick={handleNotificationIconClick}
                 >
                   <Notifications />
+                  <div
+                    className="notifications"
+                    style={
+                      !notificationCount
+                        ? { display: "none" }
+                        : { display: "inline-block" }
+                    }
+                  >
+                    <span className="badge">
+                      {Number(notificationCount) > 0 && notificationCount}
+                    </span>
+                  </div>
                   {showNotificationsModal ? (
                     <NotificationsModal
                       modalRef={modalRef}

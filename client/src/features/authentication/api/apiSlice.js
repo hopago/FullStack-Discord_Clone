@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { setCredentials, logOut } from '../slice/authSlice';
+import { setCredentials, authLogout } from '../slice/authSlice';
 
 const baseQuery = fetchBaseQuery({
     baseUrl: process.env.REACT_APP_API_URL,
@@ -19,7 +19,7 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
     const isPersisted = JSON.parse(localStorage.getItem("persist"));
 
     if (result?.error?.originalStatus === 403) {
-        if (!isPersisted) return api.dispatch(logOut());
+        if (!isPersisted) return api.dispatch(authLogout());
 
         const refreshResult = await baseQuery('/auth/refresh', api, extraOptions);
 
@@ -28,7 +28,7 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
             api.dispatch(setCredentials({ ...refreshResult.data, user }));
             result = await baseQuery(args, api, extraOptions);
         } else {
-            api.dispatch(logOut());
+            api.dispatch(authLogout());
         }
     }
 
@@ -37,7 +37,7 @@ const baseQueryWithReAuth = async (args, api, extraOptions) => {
 
 export const apiSlice = createApi({
     baseQuery: baseQueryWithReAuth,
-    tagTypes: ['Post', 'User', 'Server', 'Comment', 'FriendRequest', 'Conversation', 'Memo', 'BlackList', 'FriendRequestMember', 'BlackListMember'],
+    tagTypes: ['Post', 'User', 'Server', 'Comment', 'FriendRequest', 'Conversation', 'Memo', 'BlackList', 'FriendRequestMember', 'BlackListMember', 'Notification'],
     endpoints: builder => ({
         
     }),

@@ -1,7 +1,7 @@
 import "./sendFriendForm.scss";
 import emptyBanner from "./assets/bca918618b884a382ab5.svg";
-import { useEffect, useState } from "react";
-import { friendRequestApiSlice, useSendFriendMutation } from "../../../../../../features/friends/slice/friendRequestApiSlice";
+import { useState } from "react";
+import { useCreateNotificationMutation, useSendFriendMutation } from "../../../../../../features/friends/slice/friendRequestApiSlice";
 import { socket } from "../../../../../..";
 
 const SendFriendForm = ({ currentUser }) => {
@@ -14,7 +14,9 @@ const SendFriendForm = ({ currentUser }) => {
   });
   const [isError, setIsError] = useState(false);
 
-  const [sendFriend, { data: sendFriendData }] = useSendFriendMutation();
+  const [sendFriend] = useSendFriendMutation();
+  
+  const [sendNotification] = useCreateNotificationMutation();
 
   const handleInput = (e) => {
     setIsError(false);
@@ -32,23 +34,25 @@ const SendFriendForm = ({ currentUser }) => {
 
     const { userName, tag } = receiver;
 
-    socket?.emit("getFriendRequest", {
-      senderId: currentUser._id,
-      receiverUserName: userName,
-      receiverTag: tag
-    });
-
     sendFriend({
         userName,
         tag
     })
     .unwrap()
-    .then((data) => {
+    .then(async (data) => {
+        await sendNotification({
+          senderId: currentUser._id,
+          type: "friendRequest_send",
+          userName: currentUser.userName,
+          tag: currentUser.tag
+        });
         setShowFetchState("친구 요청을 성공적으로 보냈어요!");
         socket?.emit("sendNotification", {
           senderId: currentUser._id,
           receiverId: data.receiverId,
-          requestType: "FriendRequest",
+          requestType: "friendRequest_send",
+          tag,
+          userName
         });
 
         try {
@@ -56,7 +60,6 @@ const SendFriendForm = ({ currentUser }) => {
                 if (res.status === 400) {
                     return () => {
                         socket.off("sendNotification");
-                        socket.off("getFriendRequest");
                         socket.off("userNotFound");
                     }
                 }
@@ -73,32 +76,6 @@ const SendFriendForm = ({ currentUser }) => {
         `);
     })
   };
-
-  useEffect(() => {
-    const updateFriendRequest = (newRequest) => {
-      friendRequestApiSlice.util.updateQueryData("getAllFriendRequest", undefined, (draftRequestList) => {
-        draftRequestList = [newRequest, ...draftRequestList];
-      });
-    };
-
-    const handleNotificationTexts = (senderId) => {
-      socket?.emit("sendNotification", {
-        senderId,
-        receiverUserName: receiver.userName,
-        receiverTag: receiver.tag,
-        requestType: "FriendRequest",
-        dataType: "text",
-      });
-    };
-
-    socket.on("sendFriendRequest", ({ change, senderId }) => {
-      const { fullDocument: newRequest } = change;
-
-      updateFriendRequest(newRequest);
-
-      handleNotificationTexts(senderId);
-    });
-  }, [socket, sendFriendData]);
 
   const canSubmit = Boolean(
     receiver.userName !== "" && 100000 > receiver.tag > 9999
