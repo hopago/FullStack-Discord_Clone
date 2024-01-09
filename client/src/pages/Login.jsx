@@ -40,7 +40,6 @@ const Login = () => {
 
     try {
       const userData = await login(user).unwrap();
-      const userName = user.userName;
       dispatch(setCredentials({ ...userData }));
       setUser('');
       navigate('/community');

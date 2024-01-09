@@ -102,13 +102,12 @@ export const login = async (
           newRefreshTokenArray = [];
         }
 
-        return res
+        res
           .clearCookie("jwt", {
             httpOnly: true,
             sameSite: "none",
             secure: true,
           })
-          .status(401);
       }
 
       user.refreshToken = [...newRefreshTokenArray, newRefreshToken];

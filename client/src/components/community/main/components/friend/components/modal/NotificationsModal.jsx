@@ -1,31 +1,62 @@
 import { DoneAll, EmojiPeople, NotificationsActive } from "@mui/icons-material";
 import "./notificationsModal.scss";
 import { useEffect, useState } from "react";
-import { timeAgoFromNow } from "../../../../../../../lib/moment/timeAgo";
-import { useGetNotificationsQuery } from "../../../../../../../features/friends/slice/friendRequestApiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  classifyNotifications,
+  selectCurrNotifications,
+  selectNotSeenNotifications,
+  setNotifications,
+} from "../../../../../../../features/notifications/friendRequest/friendRequestSlice";
+import Notification from "./components/Notification";
 
-const moreVertInfo = () => (
+const InfoPopout = ({ message }) => (
   <div className="moreVertInfo">
-    <span>기타</span>
+    <span>{message}</span>
   </div>
 );
 
 const NotificationsModal = ({
   modalRef,
   modalOutsideClick,
-  setShowNotificationsModal,
-
+  notificationsInfo
 }) => {
-  const [showMoreVertInfo, setShowMoreVertInfo] = useState(false);
-  const [showMoreVertPopout, setShowMoreVertPopout] = useState(false);
-  const [active, setActive] = useState(0);
+  const dispatch = useDispatch();
+  const notifications = useSelector(selectCurrNotifications);
+  const notSeenNotifications = useSelector(selectNotSeenNotifications);
 
-  const { data: notificationsInfo } = useGetNotificationsQuery();
+  const [currNotifications, setCurrNotifications] = useState(notifications);
+  const [showInfoPopout, setShowInfoPopout] = useState(false);
+  const [currInfoPopout, setCurrInfoPopout] = useState(0);
+  const [active, setActive] = useState(0);
+  const [hover, setHover] = useState(false);
+
+  const onHover = (e) => {
+    if (e.target.closest(".servicesPopout")) {
+        setHover(false);
+        return;
+    }
+
+    setHover(true);
+  }
+
+  const offHover = () => {
+    setHover(false);
+  }
+
+  const handleCurrInfoPopout = (number) => {
+    setCurrInfoPopout(number);
+    setShowInfoPopout(true);
+  };
+
+  const closeInfoPopout = () => {
+    setShowInfoPopout(false);
+  };
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
-        if (e.target.closest(".icon")) return;
-        modalOutsideClick(e)
+      if (e.target.closest(".icon")) return;
+      modalOutsideClick(e);
     };
 
     window.addEventListener("click", handleOutsideClick);
@@ -35,18 +66,20 @@ const NotificationsModal = ({
     };
   }, []);
 
-  const handleNotificationMessage = ({ type, senderInfo, createdAt }) => {
-    if (type === "friendRequest_send") {
-      return (
-        <div className="text-body">
-          <span className="text">
-            <b>{senderInfo[0].userName}</b>님이 친구 요청을 보냈어요.
-          </span>
-          <p className="createdAt">{timeAgoFromNow(createdAt)}</p>
-        </div>
-      );
+  useEffect(() => {
+    if (notificationsInfo?.length > 0) {
+      dispatch(setNotifications(notificationsInfo));
+      dispatch(classifyNotifications());
     }
-  };
+  }, [notificationsInfo?.length, dispatch]);
+
+  useEffect(() => {
+    if (active === 0) {
+        setCurrNotifications(notifications);
+    } else if (active === 1) {
+        setCurrNotifications(notSeenNotifications);
+    }
+  }, [active]);
 
   return (
     <div
@@ -73,13 +106,18 @@ const NotificationsModal = ({
                           <div
                             className="itemWrapper"
                             style={{ cursor: "pointer" }}
+                            onMouseEnter={() => handleCurrInfoPopout(0)}
+                            onMouseLeave={closeInfoPopout}
                           >
                             <div className="people">
                               <EmojiPeople fontSize="16px" />
                             </div>
                             <div className="count">
-                              <span>0</span>
+                              <span>{notSeenNotifications?.length}</span>
                             </div>
+                            {showInfoPopout && currInfoPopout === 0 ? (
+                              <InfoPopout message="친구 요청 보기" />
+                            ) : null}
                           </div>
                         </div>
                       </div>
@@ -102,60 +140,39 @@ const NotificationsModal = ({
                             <span>읽지 않음</span>
                           </div>
                         </div>
-                        <div className="readAll">
+                        <div
+                          className="readAll"
+                          onMouseEnter={() => handleCurrInfoPopout(1)}
+                          onMouseLeave={closeInfoPopout}
+                        >
                           <DoneAll
                             id="doneAll"
                             fontSize="18px"
                             style={{ color: "#A6ABB8" }}
                           />
+                          {showInfoPopout && currInfoPopout === 1 ? (
+                            <InfoPopout message="모두 읽음으로 표시" />
+                          ) : null}
                         </div>
                       </div>
                     </div>
                   </div>
                   <div className="scrollNotifications">
                     <div className="wrapper">
-                      <ul className="notificationList">
-                        {notificationsInfo?.map((notification) => {
-                          if (!notification.isRead) {
-                            return (
-                              <li
-                                key={notification._id}
-                                className="notificationItem"
-                              >
-                                <div className="content">
-                                  <div className="senderAvatar">
-                                    <img
-                                      src={notification.senderInfo[0].avatar}
-                                      alt=""
-                                    />
-                                  </div>
-                                  <div className="message">
-                                    {handleNotificationMessage(notification)}
-                                  </div>
-                                </div>
-                                <div className="button">
-                                  <svg
-                                    aria-hidden="true"
-                                    role="img"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="16"
-                                    height="16"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      fill="currentColor"
-                                      fill-rule="evenodd"
-                                      d="M4 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10-2a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm8 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"
-                                      clip-rule="evenodd"
-                                      class=""
-                                    ></path>
-                                  </svg>
-                                </div>
-                              </li>
-                            );
-                          }
-                        })}
+                      <ul
+                        className="notificationList"
+                        onMouseEnter={onHover}
+                        onMouseLeave={offHover}
+                        style={
+                          hover
+                            ? { backgroundColor: "#282A2E" }
+                            : { backgroundColor: "inherit" }
+                        }
+                      >
+                        <Notification
+                          notificationsInfo={currNotifications}
+                          infoPopout={<InfoPopout message="기타" />}
+                        />
                       </ul>
                     </div>
                   </div>

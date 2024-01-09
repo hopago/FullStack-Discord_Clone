@@ -80,13 +80,12 @@ export const login = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
                 if (!foundToken) {
                     newRefreshTokenArray = [];
                 }
-                return res
+                res
                     .clearCookie("jwt", {
                     httpOnly: true,
                     sameSite: "none",
                     secure: true,
-                })
-                    .status(401);
+                });
             }
             user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
             yield user.save();

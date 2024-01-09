@@ -86,7 +86,7 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
                 ]
             }),
             deleteNotification: builder.mutation({
-                query: (userName) => ({
+                query: ({ userName }) => ({
                     url: "/friends/notifications",
                     method: "DELETE",
                     body: {
@@ -95,7 +95,23 @@ export const friendRequestApiSlice = apiSlice.injectEndpoints({
                 }),
                 invalidatesTags: (result, error, arg) => [
                     { type: "Notification", id: "LIST" }
-                ]
+                ],
+
+                async onQueryStarted({ _id }, { dispatch, queryFulfilled }) {
+                    const patchResult = dispatch(
+                        friendRequestApiSlice.util.updateQueryData('getNotifications', _id, draftNotifications => {
+                          const findIndex = draftNotifications.findIndex(item => item._id === _id);
+
+                          draftNotifications.splice(findIndex, 1);
+                        })
+                    );
+
+                    try {
+                        await queryFulfilled;
+                    } catch {
+                        patchResult.undo();
+                    }
+                }
             })
         }
     )

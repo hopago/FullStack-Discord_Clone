@@ -25,6 +25,8 @@ import next from "./assets/language/next.png";
 import Profile from "./popout/Profile";
 import { useGetCurrentUserQuery } from "../../../features/users/slice/usersApiSlice";
 import { useGetConversationsQuery } from "../../../features/conversation/slice/conversationsApiSlice";
+import { useSelector } from "react-redux";
+import { selectNotSeenNotifications } from "../../../features/notifications/friendRequest/friendRequestSlice";
 
 export const categories = [
   {
@@ -140,6 +142,8 @@ const SideBar = ({ type: basePathName }) => {
   const { data: currentUser } = useGetCurrentUserQuery();
   const { data: conversations } = useGetConversationsQuery();
 
+  const friendRequestCount = useSelector(selectNotSeenNotifications);
+
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -220,6 +224,15 @@ const SideBar = ({ type: basePathName }) => {
                 >
                   <Group />
                   <span>친구</span>
+                  <div
+                    className="notifications"
+                    style={!friendRequestCount ? { display: "none" } : {}}
+                  >
+                    <span className="badge">
+                      {friendRequestCount.length > 0 &&
+                        friendRequestCount.length}
+                    </span>
+                  </div>
                 </li>
               </Link>
               <Link to="/community/forum" className="link">

@@ -288,9 +288,9 @@ export const deleteNotification = async (
   next: NextFunction
 ) => {
   try {
-    const updatedList = await deleteFriendRequestNotification(req, res, next);
+    const deletedList = await deleteFriendRequestNotification(req, res, next);
 
-    return res.status(201).json(updatedList);
+    return res.status(201).json(deletedList);
   } catch (err) {
     next(err);
   }

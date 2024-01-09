@@ -9,37 +9,43 @@ import {
 import defaultProfile from "../../assets/default-profile-pic-e1513291410505.jpg";
 import { useEffect, useRef, useState } from "react";
 import UserInfo from "./components/UserInfo";
-import {
-  useLazyGetAllFriendsQuery,
-} from "../../../../../features/users/slice/usersApiSlice";
+import { useLazyGetAllFriendsQuery } from "../../../../../features/users/slice/usersApiSlice";
 import {
   useGetNotificationsQuery,
   useGetReceivedCountQuery,
   useLazyGetAllFriendRequestQuery,
   useLazyGetNotificationsQuery,
 } from "../../../../../features/friends/slice/friendRequestApiSlice";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../../features/users/slice/userSlice";
 import { socket } from "../../../../..";
 import SendFriendForm from "./components/SendFriendForm";
 import { useLazyGetAllBlackListQuery } from "../../../../../features/blackList/slice/blackListApiSlice";
 import NotificationsModal from "./components/modal/NotificationsModal";
+import {
+  selectCurrNotifications,
+  setNotifications,
+  socket_addCount,
+} from "../../../../../features/notifications/friendRequest/friendRequestSlice";
 
 const Friend = () => {
   const currentUser = useSelector(selectCurrentUser);
+  const friendNotificationArr = useSelector(selectCurrNotifications);
+
+  const dispatch = useDispatch();
 
   const [getAllFriends] = useLazyGetAllFriendsQuery();
   const [getAllFriendRequest] = useLazyGetAllFriendRequestQuery();
   const [getAllBlackList] = useLazyGetAllBlackListQuery();
-  const { data: receivedCount } = useGetReceivedCountQuery();
-  const { data: notificationCountWithServer } = useGetNotificationsQuery();
+  const { data: friendNotifications } = useGetNotificationsQuery();
+  const [getNotifications] = useLazyGetNotificationsQuery();
 
+  const [notificationsInfo, setNotificationsInfo] = useState(null);
   const [active, setActive] = useState(0);
   const [friends, setFriends] = useState(null);
   const [friendList, setFriendList] = useState(null);
   const [fetchType, setFetchType] = useState("온라인");
   const [showSendFriendForm, setShowFriendForm] = useState(false);
-  const [friendRequestCount, setFriendRequestCount] = useState(0);
   const [contentType, setContentType] = useState("");
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
@@ -55,7 +61,9 @@ const Friend = () => {
     handleActiveClass(e);
     socket?.emit("getOnlineFriends", currentUser?._id);
     socket?.on("onlineFriendList", (onlineFriends) => {
-      const onlineFriendList = onlineFriends.filter(friend => friend._id !== currentUser?._id);
+      const onlineFriendList = onlineFriends.filter(
+        (friend) => friend._id !== currentUser?._id
+      );
       setFriends(onlineFriendList);
     });
   };
@@ -88,12 +96,20 @@ const Friend = () => {
     setFriendList(null);
     handleActiveClass(e);
     const blackList = await getAllBlackList();
-    
+
     if (blackList.members) {
       setFriends(blackList.data.members);
     }
   };
 
+  const fetchFriendNotifications = async (e) => {
+    const { data: notifications } = await getNotifications();
+    if (notifications.length) {
+      setNotificationsInfo(notifications);
+    }
+  };
+
+  {/* 친구 정보 컴포넌츠 랜더 */}
   useEffect(() => {
     if (Array.isArray(friends) && friends.length) {
       setFriendList(
@@ -116,26 +132,26 @@ const Friend = () => {
 
     return () => {
       setFriendList(null);
-    }
+    };
   }, [friends, active]);
 
+  {/* 친구 알림 초기 설정 */}
   useEffect(() => {
-    if (receivedCount?.count) {
-      setFriendRequestCount(receivedCount.count);
+    if (friendNotifications?.length) {
+      dispatch(setNotifications(friendNotifications));
     }
-  }, [receivedCount]);
+  }, [friendNotifications.length]);
 
+  {/* 온라인 유저 fetching 및 랜더 */}
   useEffect(() => {
     try {
       socket?.emit("getOnlineFriends", currentUser?._id);
       socket?.on("onlineFriendList", (onlineFriends) => {
         if (!onlineFriends) return;
         console.log(onlineFriends);
-        const filterCurrentUser = onlineFriends.filter(
-          (friend) => {
-            return friend._id !== currentUser?._id;
-          }
-        );
+        const filterCurrentUser = onlineFriends.filter((friend) => {
+          return friend._id !== currentUser?._id;
+        });
         console.log(filterCurrentUser);
         setFriends(filterCurrentUser);
       });
@@ -148,11 +164,11 @@ const Friend = () => {
     };
   }, [socket, currentUser]);
 
+  {/* 친구 알림 socket으로부터 올리기 */}
   useEffect(() => {
     socket?.on("getNotification", ({ receiver, requestType }) => {
       if (requestType === ("friendRequest_send" || "friendRequest_accept")) {
-        setFriendRequestCount((prev) => prev + 1);
-        setNotificationCount((prev) => prev + 1);
+        return dispatch(socket_addCount());
       }
     });
 
@@ -160,12 +176,6 @@ const Friend = () => {
       socket?.off("getNotification");
     };
   }, [socket, active]);
-
-  useEffect(() => {
-    if (notificationCountWithServer?.length) {
-      setNotificationCount(notificationCountWithServer.length);
-    }
-  }, [notificationCountWithServer?.length]);
 
   const handleActiveClass = (e) => {
     if (e.target.innerText === "온라인") {
@@ -209,6 +219,8 @@ const Friend = () => {
       return setShowNotificationsModal(false);
     }
 
+    await fetchFriendNotifications();
+
     setShowNotificationsModal(true);
   };
 
@@ -244,11 +256,11 @@ const Friend = () => {
                   className={
                     active === 2
                       ? `active friend-opt-list ${
-                          Number(friendRequestCount) > 0 &&
+                          friendNotificationArr.length > 0 &&
                           "friend-request-count"
                         }`
                       : `friend-opt-list ${
-                          Number(friendRequestCount) > 0 &&
+                          friendNotificationArr.length > 0 &&
                           "friend-request-count"
                         }`
                   }
@@ -257,10 +269,13 @@ const Friend = () => {
                   <span className="text">대기 중</span>
                   <div
                     className="notifications"
-                    style={!friendRequestCount ? { display: "none" } : {}}
+                    style={
+                      !friendNotificationArr.length ? { display: "none" } : {}
+                    }
                   >
                     <span className="badge">
-                      {Number(friendRequestCount) > 0 && friendRequestCount}
+                      {friendNotificationArr.length > 0 &&
+                        friendNotificationArr.length}
                     </span>
                   </div>
                 </div>
@@ -299,20 +314,21 @@ const Friend = () => {
                   <div
                     className="notifications"
                     style={
-                      !notificationCount
+                      !friendNotificationArr.length
                         ? { display: "none" }
                         : { display: "inline-block" }
                     }
                   >
                     <span className="badge">
-                      {Number(notificationCount) > 0 && notificationCount}
+                      {friendNotificationArr.length > 0 &&
+                        friendNotificationArr.length}
                     </span>
                   </div>
                   {showNotificationsModal ? (
                     <NotificationsModal
                       modalRef={modalRef}
                       modalOutsideClick={modalOutsideClick}
-                      setShowNotificationsModal={setShowNotificationsModal}
+                      notificationsInfo={notificationsInfo && notificationsInfo}
                     />
                   ) : null}
                 </div>
