@@ -25,7 +25,7 @@ const Base = () => {
           <Route path="/forum" element={<Forum />} />
           <Route path="/forum/:postId" element={<SinglePost />} />
           <Route path="/server" element={<Server />} />
-          <Route path="/conversation/:friendId" element={<Conversation />} />
+          <Route path="/conversation/:conversationId" element={<Conversation />} />
           <Route path="/server/:serverId" element={<UserServer />} />
         </Routes>
       </div>

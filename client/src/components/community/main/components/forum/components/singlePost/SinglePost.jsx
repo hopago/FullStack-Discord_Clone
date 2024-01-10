@@ -3,9 +3,9 @@ import ReactionButtons from "../reactionButtons/ReactionButtons";
 import Spinner from "../../../../../../../lib/react-loader-spinner/Spinner";
 import { useNavigate, useParams } from "react-router-dom";
 import { selectCurrentUser } from "../../../../../../../features/users/slice/userSlice";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import EditPost from "./components/EditPost";
-import { useGetPostQuery, useLikePostMutation } from "../../../../../../../features/post/slice/postsApiSlice";
+import { useGetPostQuery } from "../../../../../../../features/post/slice/postsApiSlice";
 import "moment/locale/ko";
 import defaultAvatar from "../../../../assets/default-profile-pic-e1513291410505.jpg";
 import logo from "../../../../../../home/navbar/assets/free-icon-computer-settings-2888694.png";
@@ -25,6 +25,9 @@ import MoreVertical from "./components/MoreVertical";
 import { setTime } from "../../../../../../../lib/moment/timeAgo";
 import { useGetCommentsLengthQuery } from "../../../../../../../features/comments/slice/commentsApiSlice";
 import DOMPurify from 'isomorphic-dompurify';
+import ProfileModal from "../../../friend/components/modal/ProfileModal";
+
+// TODO: 우측 바 최근 게시글 UI / Fetch, 댓글창에도 프로필 모달 링크 달기
 
 const SinglePost = () => {
   const userBackGroundImg = false;
@@ -43,27 +46,48 @@ const SinglePost = () => {
   const authorId = post?.author.authorId;
 
   const { data: author } = useFindUserByIdQuery(authorId);
-
   const currentUser = useSelector(selectCurrentUser);
 
+  const [isFriend, setIsFriend] = useState(false);
+
   const [showMoreVert, setShowMoreVert] = useState(false);
-  const [editState, setEditState] = useState(false);
+  const [_, setEditState] = useState(false);
 
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
 
   const commentModalRef = useRef();
   const [showCommentForm, setShowCommentForm] = useState(false);
-
+  
   const commentModalOutsideClick = (e) => {
     if (commentModalRef.current === e.target) {
       setShowCommentForm(false);
     }
   };
 
+  const profileModalRef = useRef();
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const modalOutsideClick = (e) => {
+    if (profileModalRef.current === e.target) {
+      setShowProfileModal(false);
+    }
+  };
+
   const handleLikePost = () => {
 
   };
+
+  const showUserProfile = () => {
+    setShowProfileModal(true);
+  };
+
+  useEffect(() => {
+    const isFriend = currentUser.friends.some(
+      (friend) => friend._id === authorId
+    );
+    isFriend ? setIsFriend(true) : setIsFriend(false);
+  }, [currentUser, author]);
 
   if (isLoading) {
     return (
@@ -110,7 +134,7 @@ const SinglePost = () => {
                 <div className="contents-wrapper">
                   <article className="singlePost-content">
                     <div className="top">
-                      <div className="topImgWrapper">
+                      <div className="topImgWrapper" onClick={showUserProfile}>
                         <img
                           src={author?.avatar ? author?.avatar : defaultAvatar}
                           alt=""
@@ -171,11 +195,9 @@ const SinglePost = () => {
                             onClick={() => setShowCommentForm(true)}
                           >
                             <span>
-                              {data?.length ? (
-                                `댓글 ${data?.length}개`
-                              ) : (
-                                "댓글이 아직 없네요..."
-                              )}
+                              {data?.length
+                                ? `댓글 ${data?.length}개`
+                                : "댓글이 아직 없네요..."}
                             </span>
                           </div>
                         </div>
@@ -269,6 +291,14 @@ const SinglePost = () => {
             setShowModal={setShowModal}
             modalRef={modalRef}
             currPost={post}
+          />
+        )}
+        {showProfileModal && (
+          <ProfileModal
+            modalRef={profileModalRef}
+            modalOutsideClick={modalOutsideClick}
+            friend={author}
+            isFriend={isFriend}
           />
         )}
       </>

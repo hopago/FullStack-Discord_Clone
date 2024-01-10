@@ -24,10 +24,11 @@ import { selectCurrentUser } from "../../../../../../../features/users/slice/use
 import { useLazyGetPostReactionsQuery, useLazyGetPostsByAuthorIdQuery, useLazyGetTrendPostsByAuthorIdQuery } from "../../../../../../../features/post/slice/postsApiSlice";
 import FriendServicePopout from "./popout/FriendServicePopout";
 import { Link } from "react-router-dom";
+import ActionButton from "./components/ActionButton";
 
 {/* 12 05 22 40 */}
 
-const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
+const ProfileModal = ({ modalOutsideClick, modalRef, friend, isFriend }) => {
   const infoConstants = [
     "사용자 정보",
     "최근 게시물",
@@ -49,7 +50,9 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
   const [latestPosts, setLatestPosts] = useState([]);
   const [trendPosts, setTrendPosts] = useState([]);
   const [trendPostsReactionCounts, setTrendPostsReactionCounts] = useState([]);
-  const [latestPostsReactionCounts, setLatestPostsReactionCounts] = useState([]);
+  const [latestPostsReactionCounts, setLatestPostsReactionCounts] = useState(
+    []
+  );
   const [xy, setXy] = useState({
     x: 0,
     y: 0,
@@ -262,11 +265,11 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     if (!trendPosts.length || !latestPosts.length) return;
 
     const getTrendPostsIds = () => {
-      trendPostIds = trendPosts.map(post => post._id);
+      trendPostIds = trendPosts.map((post) => post._id);
     };
 
     const getLatestPostsIds = () => {
-      latestPostsIds = latestPosts.map(post => post._id);
+      latestPostsIds = latestPosts.map((post) => post._id);
     };
 
     getTrendPostsIds();
@@ -277,7 +280,9 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     };
 
     const setTrendCounts = async () => {
-      const trendPostsReactions = await Promise.all(trendPostIds.map(fetchReactionCounts));
+      const trendPostsReactions = await Promise.all(
+        trendPostIds.map(fetchReactionCounts)
+      );
       if (!trendPostsReactions) {
         return;
       }
@@ -286,7 +291,9 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
     };
 
     const setLatestCounts = async () => {
-      const latestPostsReactions = await Promise.all(latestPostsIds.map(fetchReactionCounts));
+      const latestPostsReactions = await Promise.all(
+        latestPostsIds.map(fetchReactionCounts)
+      );
       if (!latestPostsReactions) {
         return;
       }
@@ -450,7 +457,7 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
   const handleMoreVertClick = (e) => {
     setXy({
       x: e.clientX,
-      y: e.clientY
+      y: e.clientY,
     });
     setShowPopout(true);
   };
@@ -482,7 +489,11 @@ const ProfileModal = ({ modalOutsideClick, modalRef, friend }) => {
                       <div className="absoluteServiceContainer">
                         <div className="empty" />
                         <div className="services">
-                          <button>메시지 보내기</button>
+                          <ActionButton
+                            isFriend={isFriend}
+                            currentUser={currentUser}
+                            friend={friend}
+                          />
                           <MoreVert
                             onClick={handleMoreVertClick}
                             className="friendService"
