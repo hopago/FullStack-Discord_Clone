@@ -12,7 +12,7 @@ export const seeFriendRequestNotification = async (
       referenced_user: req.user.id
     });
     
-    if (!requestList) return res.status(404).json("User not found...");
+    if (!requestList) throw new HttpException(404, "User not found...");
     
     let index = -1;
     const updatedNotification = requestList.notifications.find((notification, i) => {
@@ -20,14 +20,17 @@ export const seeFriendRequestNotification = async (
       if (isMatch) index = i;
       return isMatch;
     });
-    
-    if (index === -1 || !updatedNotification) return res.status(404).json("Notification not found...");
+    if (index === -1 || !updatedNotification) {
+      throw new HttpException(404, "Notification not found...");
+    }
+
+    updatedNotification.isRead = true;
     
     requestList.notifications.splice(index, 1, updatedNotification);
     
     await requestList.save();
     
-    return updatedNotification;
+    return updatedNotification
   } catch (err) {
     throw new HttpException(500, `FriendRequestNotifications Error: ${err}`);
   }

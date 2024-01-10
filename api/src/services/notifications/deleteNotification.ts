@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { HttpException } from "../../middleware/error/utils.js";
 import FriendAcceptReject from "../../models/FriendRequestTable.js";
+import { Error } from "mongoose";
 
 export const deleteFriendRequestNotification = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -14,7 +15,7 @@ export const deleteFriendRequestNotification = async (req: Request, res: Respons
           notification.type === req.body.type
         );
       });
-      if (!index) return res.status(404).json("Notification not found...");
+      if (!index) throw new HttpException(404, "Notification not found...");
   
       requestList?.notifications.splice(index, 1);
 
@@ -23,7 +24,11 @@ export const deleteFriendRequestNotification = async (req: Request, res: Respons
       return {
         status: 204
       }
-    } catch (err) {
-        return res.status(500).json(err);
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+          throw new HttpException(500, err.message)
+        } else {
+          throw new HttpException(500, `${err}`);
+        }
     }
 };

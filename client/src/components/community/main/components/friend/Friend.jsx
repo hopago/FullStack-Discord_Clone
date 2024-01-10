@@ -22,14 +22,14 @@ import SendFriendForm from "./components/SendFriendForm";
 import { useLazyGetAllBlackListQuery } from "../../../../../features/blackList/slice/blackListApiSlice";
 import NotificationsModal from "./components/modal/NotificationsModal";
 import {
-  selectCurrNotifications,
+  selectNotSeenNotifications,
   setNotifications,
   socket_addCount,
 } from "../../../../../features/notifications/friendRequest/friendRequestSlice";
 
 const Friend = () => {
   const currentUser = useSelector(selectCurrentUser);
-  const friendNotificationArr = useSelector(selectCurrNotifications);
+  const friendNotificationArr = useSelector(selectNotSeenNotifications);
 
   const dispatch = useDispatch();
 
@@ -47,7 +47,6 @@ const Friend = () => {
   const [showSendFriendForm, setShowFriendForm] = useState(false);
   const [contentType, setContentType] = useState("");
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
-  const [notificationCount, setNotificationCount] = useState(0);
 
   const resetFetchState = () => {
     setContentType("");
@@ -139,7 +138,7 @@ const Friend = () => {
     if (friendNotifications?.length) {
       dispatch(setNotifications(friendNotifications));
     }
-  }, [friendNotifications.length]);
+  }, [friendNotifications?.length]);
 
   {/* 온라인 유저 fetching 및 랜더 */}
   useEffect(() => {

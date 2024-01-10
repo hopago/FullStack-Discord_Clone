@@ -15,7 +15,7 @@ export const seeFriendRequestNotification = (req, res, next) => __awaiter(void 0
             referenced_user: req.user.id
         });
         if (!requestList)
-            return res.status(404).json("User not found...");
+            throw new HttpException(404, "User not found...");
         let index = -1;
         const updatedNotification = requestList.notifications.find((notification, i) => {
             const isMatch = notification.senderInfo.userName === req.body.userName && notification.type === req.body.type;
@@ -23,8 +23,10 @@ export const seeFriendRequestNotification = (req, res, next) => __awaiter(void 0
                 index = i;
             return isMatch;
         });
-        if (index === -1 || !updatedNotification)
-            return res.status(404).json("Notification not found...");
+        if (index === -1 || !updatedNotification) {
+            throw new HttpException(404, "Notification not found...");
+        }
+        updatedNotification.isRead = true;
         requestList.notifications.splice(index, 1, updatedNotification);
         yield requestList.save();
         return updatedNotification;

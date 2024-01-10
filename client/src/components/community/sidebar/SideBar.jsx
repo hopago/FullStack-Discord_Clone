@@ -144,6 +144,8 @@ const SideBar = ({ type: basePathName }) => {
 
   const friendRequestCount = useSelector(selectNotSeenNotifications);
 
+  console.log(friendRequestCount.length);
+
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -226,7 +228,7 @@ const SideBar = ({ type: basePathName }) => {
                   <span>친구</span>
                   <div
                     className="notifications"
-                    style={!friendRequestCount ? { display: "none" } : {}}
+                    style={!friendRequestCount.length ? { display: "none" } : {}}
                   >
                     <span className="badge">
                       {friendRequestCount.length > 0 &&

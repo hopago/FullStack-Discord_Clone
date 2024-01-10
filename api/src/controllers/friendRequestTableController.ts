@@ -308,9 +308,7 @@ export const seeNotification = async (
       next
     );
 
-    if (updatedNotification) {
-      return res.status(201).json(updatedNotification);
-    }
+    return res.status(201).json(updatedNotification);
   } catch (err) {
     next(err);
   }

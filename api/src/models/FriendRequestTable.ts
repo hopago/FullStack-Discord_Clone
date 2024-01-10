@@ -31,8 +31,8 @@ const friendRequestTableSchema: Schema = new Schema(
     notifications: [
       {
         senderInfo: {
-          type: [Object],
-          default: [],
+          type: Object,
+          required: true
         },
         type: {
           type: String,

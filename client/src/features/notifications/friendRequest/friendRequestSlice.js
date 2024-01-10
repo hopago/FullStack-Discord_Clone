@@ -17,11 +17,14 @@ const friendRequestSlice = createSlice({
                 state.notifications.forEach((item) => {
                     const targetState = item.isRead ? state.seenNotifications : state.notSeenNotifications;
                     const checkDuplicated = targetState.some(ele => ele._id === item._id || ele.type === item.type);
-                    if (checkDuplicated) return;
 
-                    return !targetState.length 
-                      ? targetState = [item] 
-                      : targetState = [...targetState, item];
+                    if (!checkDuplicated) {
+                        if (item.isRead) {
+                            state.seenNotifications = [...state.seenNotifications, item];
+                        } else {
+                            state.notSeenNotifications = [...state.notSeenNotifications, item];
+                        }
+                    }
                 });
             }
         },
@@ -30,8 +33,11 @@ const friendRequestSlice = createSlice({
         },
         seeNotification: (state, action) => {
             const { _id } = action.payload;
-            const updatedNotification = state.notSeenNotifications.find(notification => notification._id === _id);
-            updatedNotification.isRead = true;
+            const currNotification = state.notSeenNotifications.find(item => item._id === _id);
+            if (currNotification) {
+                state.notSeenNotifications = state.notSeenNotifications.filter(item => item._id !== _id);
+                state.seenNotifications = [...state.seenNotifications, currNotification];
+            }
         }
     },
 });

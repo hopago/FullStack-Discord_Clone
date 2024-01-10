@@ -7,7 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import { HttpException } from "../../middleware/error/utils.js";
 import FriendAcceptReject from "../../models/FriendRequestTable.js";
+import { Error } from "mongoose";
 export const deleteFriendRequestNotification = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const requestList = yield FriendAcceptReject.findOne({
@@ -18,7 +20,7 @@ export const deleteFriendRequestNotification = (req, res, next) => __awaiter(voi
                 notification.type === req.body.type);
         });
         if (!index)
-            return res.status(404).json("Notification not found...");
+            throw new HttpException(404, "Notification not found...");
         requestList === null || requestList === void 0 ? void 0 : requestList.notifications.splice(index, 1);
         yield (requestList === null || requestList === void 0 ? void 0 : requestList.save());
         return {
@@ -26,6 +28,11 @@ export const deleteFriendRequestNotification = (req, res, next) => __awaiter(voi
         };
     }
     catch (err) {
-        return res.status(500).json(err);
+        if (err instanceof Error) {
+            throw new HttpException(500, err.message);
+        }
+        else {
+            throw new HttpException(500, `${err}`);
+        }
     }
 });
