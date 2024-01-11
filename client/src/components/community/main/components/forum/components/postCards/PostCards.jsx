@@ -26,7 +26,13 @@ const PostCards = ({ type }) => {
 
   let content;
   if (isLoading) {
-    content = <Spinner message="컨텐츠를 기다리는 중 이에요..." />;
+    content = (
+      <>
+        <Spinner message="컨텐츠를 기다리는 중 이에요..." />
+        <Spinner message="컨텐츠를 기다리는 중 이에요..." />
+        <Spinner message="컨텐츠를 기다리는 중 이에요..." />
+      </>
+    );
   } else if (isSuccess && (Array.isArray(posts) && !posts.length)) {
     content = <Spinner message="컨텐츠가 아직 준비되지 않았어요." />;
   } else if (isSuccess) {

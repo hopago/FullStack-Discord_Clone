@@ -3,6 +3,7 @@ import { verifyJWT } from "../middleware/jwt/verifyJWT.js";
 import {
   createConversation,
   deleteConversation,
+  getConversationByMemberId,
   getConversations,
   getSingleConversation,
   updateConversation,
@@ -16,6 +17,10 @@ router
   .route('/')
   .get(getConversations)
   .post(createConversation);
+
+router
+  .route("/private")
+  .get(getConversationByMemberId);
 
 router
   .route('/:conversationId')

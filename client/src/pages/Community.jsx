@@ -10,7 +10,7 @@ import Spinner from '../lib/react-loader-spinner/Spinner';
 import { useDispatch } from 'react-redux';
 import { setCurrentUser } from '../features/users/slice/userSlice';
 import { setSocket } from '../features/socket/slice/socketSlice';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 const Community = () => {
   const dispatch = useDispatch();
@@ -55,7 +55,14 @@ const Community = () => {
 
   let content;
   if (isLoading) {
-    content = <Spinner message={"컨텐츠를 기다리는 중 이에요..."} />;
+    content = (
+      <div className="community">
+        <CommunityNavbar />
+        <div className="spinnerWrapper">
+          <Spinner message={"컨텐츠를 기다리는 중 이에요..."} />
+        </div>
+      </div>
+    );
   } else if (isSuccess) {
     content = (
       <div className="community">

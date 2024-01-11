@@ -1,11 +1,11 @@
 import { useSelector } from "react-redux";
 import ReactionButtons from "../reactionButtons/ReactionButtons";
 import Spinner from "../../../../../../../lib/react-loader-spinner/Spinner";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { selectCurrentUser } from "../../../../../../../features/users/slice/userSlice";
 import { useEffect, useRef, useState } from "react";
 import EditPost from "./components/EditPost";
-import { useGetPostQuery } from "../../../../../../../features/post/slice/postsApiSlice";
+import { useGetPostQuery, useGetPostsByAuthorIdQuery, useLazyGetPostsByAuthorIdQuery } from "../../../../../../../features/post/slice/postsApiSlice";
 import "moment/locale/ko";
 import defaultAvatar from "../../../../assets/default-profile-pic-e1513291410505.jpg";
 import logo from "../../../../../../home/navbar/assets/free-icon-computer-settings-2888694.png";
@@ -19,7 +19,7 @@ import {
   ThumbUp,
 } from "@mui/icons-material";
 import "./singlePost.scss";
-import { useFindUserByIdQuery } from "../../../../../../../features/users/slice/usersApiSlice";
+import { useFindUserByIdQuery, useLazyFindUserByIdQuery } from "../../../../../../../features/users/slice/usersApiSlice";
 import AddComment from "./modals/AddComment";
 import MoreVertical from "./components/MoreVertical";
 import { setTime } from "../../../../../../../lib/moment/timeAgo";
@@ -43,10 +43,14 @@ const SinglePost = () => {
     error,
   } = useGetPostQuery(postId);
   const { data } = useGetCommentsLengthQuery(postId);
-  const authorId = post?.author.authorId;
-
-  const { data: author } = useFindUserByIdQuery(authorId);
   const currentUser = useSelector(selectCurrentUser);
+
+  const [authorId, setAuthorId] = useState(post?.author.authorId ?? null);
+  const [author, setAuthor] = useState(null);
+  const [latestPosts, setLatestPosts] = useState([]);
+
+  const [getAuthor] = useLazyFindUserByIdQuery();
+  const [getLatestPosts] = useLazyGetPostsByAuthorIdQuery();
 
   const [isFriend, setIsFriend] = useState(false);
 
@@ -81,6 +85,30 @@ const SinglePost = () => {
   const showUserProfile = () => {
     setShowProfileModal(true);
   };
+
+  useEffect(() => {
+    const fetchAuthorInfo = async () => {
+      const { data:author } = await getAuthor(authorId);
+      setAuthor(author);
+    };
+
+    fetchAuthorInfo();
+  }, [authorId]);
+
+  useEffect(() => {
+    if (!authorId) {
+      return;
+    }
+
+    const fetchLatestPosts = async () => {
+      const { data } = await getLatestPosts(authorId);
+      if (Array.isArray(data) && data.length) {
+        setLatestPosts(data);
+      }
+    }
+
+    fetchLatestPosts();
+  }, [authorId]);
 
   useEffect(() => {
     const isFriend = currentUser.friends.some(
@@ -279,7 +307,15 @@ const SinglePost = () => {
                   <hr className="userInfo-divider" />
                   <div className="bottom">
                     <span>최근 게시글</span>
-                    <p>Post Title</p>
+                    {latestPosts?.map((post) => (
+                      <Link
+                        className="link postLink"
+                        key={post._id}
+                        to={`/community/forum/${post._id}`}
+                      >
+                        <p>{post.title}</p>
+                      </Link>
+                    ))}
                   </div>
                 </div>
               </div>

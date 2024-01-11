@@ -55,14 +55,15 @@ export const getSingleConversation = async (req: Request, res: Response, next: N
 
 export const getConversationByMemberId = async(req: Request, res: Response, next: NextFunction) => {
     const currUserId = req.user.id;
-    const friendId = req.body.friendId;
+    const friendId = req.query.friendId;
     if (!currUserId || !friendId) return res.sendStatus(400);
 
     try {
         const foundConversation = await PrivateConversation.findOne({
-            'members._id': {
-                $all: [currUserId, friendId]
-            }
+          $and: [
+            { members: { $elemMatch: { _id: currUserId } } },
+            { members: { $elemMatch: { _id: friendId } } },
+          ],
         });
         if (!foundConversation) return res.status(404).json("Conversation not found...");
 

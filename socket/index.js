@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import { Server } from 'socket.io';
-import connectDB from './config/connectDB';
+import connectDB from './config/connectDB.js';
 
 const PORT = process.env.PORT || 5000;
 

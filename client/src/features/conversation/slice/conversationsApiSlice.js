@@ -34,14 +34,13 @@ export const conversationsApiSlice = apiSlice.injectEndpoints({
             }),
             getConversationByMemberId: builder.query({
                 query: (id) => ({
-                    url: `/conversations/private`,
-                    body: {
-                        friendId: id
-                    }
+                    url: `/conversations/private?friendId=${id}`
                 }),
-                providesTags: (result, error, arg) => [
-                    { type: 'Conversation', id: result._id }
-                ]
+                providesTags: (result, error, arg) => {
+                    return [
+                        { type: 'Conversation', id: result?._id }
+                    ]
+                }
             }),
             updateConversation: builder.mutation({
                 query: (conversationId) => `/conversations/${conversationId}`,

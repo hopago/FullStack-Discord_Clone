@@ -1,9 +1,10 @@
 import { ChatBubble, Check, Close, MoreVert } from "@mui/icons-material";
 import { useHandleRequestFriendMutation } from "../../../../../../features/friends/slice/friendRequestApiSlice";
-import { conversationsApiSlice } from "../../../../../../features/conversation/slice/conversationsApiSlice";
+import { conversationsApiSlice, useLazyGetConversationByMemberIdQuery } from "../../../../../../features/conversation/slice/conversationsApiSlice";
 import { useRef, useState } from "react";
 import FriendServicesPopout from "./FriendServicesPopout";
 import ProfileModal from "./modal/ProfileModal";
+import { useNavigate } from "react-router-dom";
 
 const UserInfo = ({
   defaultProfile,
@@ -12,9 +13,18 @@ const UserInfo = ({
   senderId,
   contentType,
 }) => {
+  const navigate = useNavigate();
+
   const [moreVertClicked, setMoreVertClicked] = useState(false);
 
   const [acceptRejectRequest] = useHandleRequestFriendMutation();
+  const [getConversationByFriendId] = useLazyGetConversationByMemberIdQuery();
+
+  const fetchConversationId = async () => {
+    const { data: conversation } = await getConversationByFriendId(friend._id);
+
+    return conversation._id;
+  };
 
   const handleRequest = (e) => {
     const { id } = e.target;
@@ -89,6 +99,14 @@ const UserInfo = ({
     }
   };
 
+  const moveToMessage = async () => {
+    if (type !== "friendRequest") {
+      const conversationId = await fetchConversationId();
+
+      navigate(`/community/conversation/${conversationId}`);
+    }
+  };
+
   return (
     <div className="peopleList">
       <div
@@ -107,7 +125,7 @@ const UserInfo = ({
             </div>
           </div>
           <div className="actions">
-            <div className="iconWrap">
+            <div className="iconWrap" onClick={moveToMessage}>
               {type === "friendRequest" ? (
                 <Check
                   id="friendRequestAccept"

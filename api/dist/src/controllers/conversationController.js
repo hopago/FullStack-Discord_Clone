@@ -60,14 +60,15 @@ export const getSingleConversation = (req, res, next) => __awaiter(void 0, void 
 });
 export const getConversationByMemberId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const currUserId = req.user.id;
-    const friendId = req.body.friendId;
+    const friendId = req.query.friendId;
     if (!currUserId || !friendId)
         return res.sendStatus(400);
     try {
         const foundConversation = yield PrivateConversation.findOne({
-            'members._id': {
-                $all: [currUserId, friendId]
-            }
+            $and: [
+                { members: { $elemMatch: { _id: currUserId } } },
+                { members: { $elemMatch: { _id: friendId } } },
+            ],
         });
         if (!foundConversation)
             return res.status(404).json("Conversation not found...");
