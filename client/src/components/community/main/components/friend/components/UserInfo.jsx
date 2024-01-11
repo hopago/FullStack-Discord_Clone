@@ -170,6 +170,7 @@ const UserInfo = ({
               modalRef={modalRef}
               modalOutsideClick={modalOutsideClick}
               friend={friend}
+              isFriend={true}
             />
           )}
         </div>

@@ -15,9 +15,11 @@ export const deleteFriendRequestNotification = async (req: Request, res: Respons
           notification.type === req.body.type
         );
       });
-      if (!index) throw new HttpException(404, "Notification not found...");
+      if (index === -1) throw new HttpException(404, "Notification not found...");
   
-      requestList?.notifications.splice(index, 1);
+      if (index === 0 || index) {
+        requestList?.notifications.splice(index, 1);
+      }
 
       await requestList?.save();
 

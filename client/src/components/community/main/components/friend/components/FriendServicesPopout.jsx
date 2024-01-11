@@ -12,7 +12,8 @@ const FriendServicesPopout = ({
   setShowModal,
   moreVertClicked,
   setMoreVertClicked,
-  friend
+  friend,
+  index
 }) => {
   const [requestType, setRequestType] = useState("");
 
@@ -29,8 +30,8 @@ const FriendServicesPopout = ({
       (screenX < currXy.x || screenX > currXy.x + 188) &&
       (screenY > currXy.y || screenY > currXy.y + 248)
     ) {
-      setActive(false);
-      setMoreVertClicked(false);
+      moreVertClicked && setActive(false);
+      moreVertClicked && setMoreVertClicked(false);
       setShowContextMenu(false);
     }
   };
@@ -62,10 +63,16 @@ const FriendServicesPopout = ({
               right: `${xy.x + 11}px`,
               top: `${xy.y + 16}px`,
             }
-          : {
+          : moreVertClicked !== undefined
+          ? {
               position: "absolute",
               left: `${xy.x + 100}px`,
               top: `${xy.y}px`,
+            }
+          : {
+              position: "absolute",
+              left: `${xy.x + 123}px`,
+              top: `${xy.y + 247 + index * 45}px`,
             }
       }
     >
@@ -119,10 +126,13 @@ const FriendServicesPopout = ({
           >
             <span>친구 삭제하기</span>
           </div>
-          <div className="itemContainer" onClick={() => {
+          <div
+            className="itemContainer"
+            onClick={() => {
               setRequestType("차단");
               setShowConfirm(true);
-            }}>
+            }}
+          >
             <span>차단하기</span>
           </div>
           {showConfirm && (

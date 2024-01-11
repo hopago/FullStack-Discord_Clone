@@ -15,6 +15,7 @@ import serverConversationRouter from './routes/serverConversationRoutes.js';
 import postRouter from './routes/postRoutes.js';
 import commentRouter from './routes/commentRoutes.js';
 import memoRouter from './routes/memoRoutes.js';
+import closeFriendRouter from './routes/closeFriendRoutes.js';
 const app = express();
 connectDB();
 app.use(express.json());
@@ -41,6 +42,7 @@ app.use('/servers/conversation', serverConversationRouter);
 app.use('/posts', postRouter);
 app.use('/comments', commentRouter);
 app.use('/memos', memoRouter);
+app.use("/closeFriends", closeFriendRouter);
 // error
 app.use(errorHandler);
 mongoose.connection.once('open', () => {

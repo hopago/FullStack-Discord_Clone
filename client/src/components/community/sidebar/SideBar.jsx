@@ -27,6 +27,7 @@ import { useGetCurrentUserQuery } from "../../../features/users/slice/usersApiSl
 import { useGetConversationsQuery } from "../../../features/conversation/slice/conversationsApiSlice";
 import { useSelector } from "react-redux";
 import { selectNotSeenNotifications } from "../../../features/notifications/friendRequest/friendRequestSlice";
+import FriendServicesPopout from "../main/components/friend/components/FriendServicesPopout";
 
 export const categories = [
   {
@@ -144,6 +145,12 @@ const SideBar = ({ type: basePathName }) => {
 
   const friendRequestCount = useSelector(selectNotSeenNotifications);
 
+  const [xy, setXy] = useState({
+    x: 0,
+    y: 0
+  });
+  const [showContextMenu, setShowContextMenu] = useState(false);
+
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -160,6 +167,18 @@ const SideBar = ({ type: basePathName }) => {
     if (friend && value === "avatar") return friend.avatar;
     if (friend && value === "userName") return friend.userName;
     if (friend && value === "language") return friend.language;
+  };
+
+  const filterMembers = (members) => {
+    return members.find((member) => member._id !== currentUser._id);
+  }
+
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+
+    const rect = e.target.getBoundingClientRect();
+    setXy({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setShowContextMenu(true);
   };
 
   const modalOutsideClick = (e) => {
@@ -226,7 +245,9 @@ const SideBar = ({ type: basePathName }) => {
                   <span>친구</span>
                   <div
                     className="notifications"
-                    style={!friendRequestCount.length ? { display: "none" } : {}}
+                    style={
+                      !friendRequestCount.length ? { display: "none" } : {}
+                    }
                   >
                     <span className="badge">
                       {friendRequestCount.length > 0 &&
@@ -260,11 +281,12 @@ const SideBar = ({ type: basePathName }) => {
                 </li>
               </Link>
               <h2 className="private-message-bradCrumbs">Private Messages</h2>
-              {conversations?.map((conversation) => (
+              {conversations?.map((conversation, index) => (
                 <Link
                   key={conversation._id}
                   to={`/community/conversation/${conversation._id}`}
                   className="link"
+                  onContextMenu={handleContextMenu}
                 >
                   <li className="sidebar-friend">
                     <div className="sidebar-pp">
@@ -278,6 +300,15 @@ const SideBar = ({ type: basePathName }) => {
                       <p>{getFriendInfo(conversation, "language")} 개발자</p>
                     </div>
                   </li>
+                  {showContextMenu && (
+                    <FriendServicesPopout
+                      index={index}
+                      friend={filterMembers(conversation.members)}
+                      xy={xy}
+                      setShowContextMenu={setShowContextMenu}
+                      showContextMenu={showContextMenu}
+                    />
+                  )}
                 </Link>
               ))}
             </ul>

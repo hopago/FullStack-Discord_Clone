@@ -26,6 +26,7 @@ import { setTime } from "../../../../../../../lib/moment/timeAgo";
 import { useGetCommentsLengthQuery } from "../../../../../../../features/comments/slice/commentsApiSlice";
 import DOMPurify from 'isomorphic-dompurify';
 import ProfileModal from "../../../friend/components/modal/ProfileModal";
+import capitalizeFirstLetter from "../../../../../../../hooks/CapitalizeFirstLetter";
 
 // TODO: 우측 바 최근 게시글 UI / Fetch, 댓글창에도 프로필 모달 링크 달기
 
@@ -292,7 +293,8 @@ const SinglePost = () => {
                     <div className="userText">
                       <h4>{author?.userName}</h4>
                       <p>
-                        <strong>Stack</strong> {author?.language?.toUpperCase()}
+                        <strong>Stack</strong>{" "}
+                        {capitalizeFirstLetter(author?.language)}
                       </p>
                     </div>
                   </div>

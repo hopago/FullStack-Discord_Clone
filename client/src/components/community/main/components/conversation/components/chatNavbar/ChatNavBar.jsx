@@ -10,13 +10,13 @@ import {
 } from '@mui/icons-material';
 import defaultPP from '../assets/default-profile-pic-e1513291410505.jpg';
 
-const ChatNavBar = () => {
+const ChatNavBar = ({ friend }) => {
   return (
     <div className="chatNavBar">
       <div className="upperWrapper">
         <div className="upperLeft">
-          <img src={defaultPP} alt="" />
-          <span>UserName</span>
+          <img src={friend?.avatar ?? defaultPP} alt="" />
+          <span>{friend?.userName}</span>
         </div>
         <div className="upperRight">
           <div className="iconWrapper">

@@ -1,27 +1,47 @@
-import './conversation.scss';
-import ChatNavBar from './components/chatNavbar/ChatNavBar'
-import Messages from './components/messages/Messages'
-import {
-  Redeem,
-  Gif,
-  EmojiEmotions,
-  Add
-} from '@mui/icons-material';
-import defaultPP from '../../../main/assets/default-profile-pic-e1513291410505.jpg';
+import "./conversation.scss";
+import ChatNavBar from "./components/chatNavbar/ChatNavBar";
+import Messages from "./components/messages/Messages";
+import { Redeem, Gif, EmojiEmotions, Add } from "@mui/icons-material";
+import defaultPP from "../../../main/assets/default-profile-pic-e1513291410505.jpg";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../../../../../features/users/slice/userSlice";
+import { useGetSingleConversationQuery } from "../../../../../features/conversation/slice/conversationsApiSlice";
+import { useEffect, useState } from "react";
+import ProfilePanel from "./components/ProfilePanel";
 
 const Conversation = () => {
   const userBackGroundImg = false;
   const userProfilePicture = false;
 
+  const { conversationId } = useParams();
+  const { _id: currentUserId } = useSelector(selectCurrentUser);
+
+  const { data: conversation } = useGetSingleConversationQuery(conversationId);
+
+  const [friend, setFriend] = useState(null);
+
+  useEffect(() => {
+    if (conversation) {
+      const found = conversation.members.find(
+        (member) => member._id !== currentUserId
+      );
+      setFriend(found);
+    }
+  }, [conversation]);
+
   return (
     <div className="community-conversation">
-      <ChatNavBar />
+      <ChatNavBar friend={friend && friend} />
       <hr />
       <div className="community-conversation-content__container">
         <div className="community-conversation-content__left__wrapper">
           <div className="chatContainer">
             <div className="messagesWrapper">
-              <Messages />
+              <Messages
+                friend={friend && friend}
+                conversation={conversation && conversation}
+              />
             </div>
             <div className="messagesForm">
               <form>
@@ -51,53 +71,10 @@ const Conversation = () => {
             </div>
           </div>
         </div>
-        <div className="profilePanel">
-          <div className="profilePanel-ImgContainer">
-            <div className="wrapper">
-              {userBackGroundImg ? (
-                <img src="" alt="" className="background" />
-              ) : (
-                <div className="background-fill" />
-              )}
-              <div className="profilePictureWrapper">
-                {userProfilePicture ? (
-                  <img src="" className="profileImg" />
-                ) : (
-                  <img src={defaultPP} />
-                )}
-                <div className="roleImgWrapper">
-                  <img
-                    src="https://cdn4.iconfinder.com/data/icons/logos-3/600/React.js_logo-512.png"
-                    className="roleImg"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="profilePanel-userInfo">
-            <div className="profilePanel-userInfo-wrapper">
-              <div className="top">
-                <div className="userText">
-                  <h4>UserName</h4>
-                  <p>UserRole</p>
-                </div>
-              </div>
-              <hr className="userInfo-divider" />
-              <div className="center">
-                <span>내 소개</span>
-                <p>User Description</p>
-              </div>
-              <hr className="userInfo-divider" />
-              <div className="bottom">
-                <span>최근 게시글</span>
-                <p>Post Title</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProfilePanel friend={friend && friend} defaultPP={defaultPP} />
       </div>
     </div>
   );
-}
+};
 
-export default Conversation
+export default Conversation;

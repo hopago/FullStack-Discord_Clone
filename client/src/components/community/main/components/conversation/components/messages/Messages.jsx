@@ -1,19 +1,9 @@
 import './messages.scss';
 import defaultPP from '../../../../../main/assets/default-profile-pic-e1513291410505.jpg';
+import { setTime } from '../../../../../../../lib/moment/timeAgo';
+import capitalizeFirstLetter from '../../../../../../../hooks/CapitalizeFirstLetter';
 
-const Messages = () => {
-    const conversationId = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"; 
-    {/* fetch first */}
-
-    const senderId = "JzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ikpva"; 
-    {/* fetch 할 땐 currentUser === receiverId 보낼땐 currentUser === senderId */}
-
-    const receiverId = "wRJSMeKKF2QT4fwpMeJf36POk6yJV"; 
-    {/* fetch 할 땐 sender, 보낼 땐 receiver */}
-
-    const currentUserId = "GFnb2UiLCJpYXQiOjE1MTYyMzkwMjJ9"; {/* 기준 */}
-    {/* friendId: req.params.friendId, currentUserId: redux local Storage */}
-
+const Messages = ({ friend, conversation }) => {
 
 
   return (
@@ -21,22 +11,22 @@ const Messages = () => {
       <div className="friendInfoContainer">
         <div className="friendInfoWrapper">
           <div className="friendPPWrapper">
-            <img src={defaultPP} alt="" />
+            <img src={friend?.avatar ?? defaultPP} alt="" />
           </div>
-          <h3>UserName</h3>
+          <h3>{friend?.userName}</h3>
           <div className="friendMoreInfo">
-            <h3>UserRole</h3>
+            <h3>Stack: {capitalizeFirstLetter(friend?.language)}</h3>
             <div className="friendMoreInfo-rowBottom">
-              <p>UserName님과 나눈 대화의 첫 부분입니다.</p>
+              <p>{friend?.userName}님과 나눈 대화의 첫 부분입니다.</p>
               <button>친구 삭제하기</button>
             </div>
           </div>
         </div>
       </div>
       <div className="divider">
-        <span>2023년 10월 3일</span>
+        <span>{setTime(conversation?.createdAt, conversation?.updatedAt)}</span>
       </div>
-      <div className={`chat-messages ${conversationId}`}>
+      <div className={`chat-messages`}>
         <div className="chat-messages-left">
           <img src={defaultPP} alt="" />
         </div>
@@ -62,7 +52,7 @@ const Messages = () => {
           </div>
         </div>
       </div>
-      <div className={`chat-messages ${conversationId}`}>
+      <div className={`chat-messages`}>
         <div className="chat-messages-left">
           <img src={defaultPP} alt="" />
         </div>

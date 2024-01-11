@@ -19,9 +19,11 @@ export const deleteFriendRequestNotification = (req, res, next) => __awaiter(voi
             return (notification.senderInfo.userName === req.body.userName &&
                 notification.type === req.body.type);
         });
-        if (!index)
+        if (index === -1)
             throw new HttpException(404, "Notification not found...");
-        requestList === null || requestList === void 0 ? void 0 : requestList.notifications.splice(index, 1);
+        if (index === 0 || index) {
+            requestList === null || requestList === void 0 ? void 0 : requestList.notifications.splice(index, 1);
+        }
         yield (requestList === null || requestList === void 0 ? void 0 : requestList.save());
         return {
             status: 204

@@ -65,6 +65,8 @@ export const addBlockUser = (req, res, next) => __awaiter(void 0, void 0, void 0
             }));
             if (isFriendExisted) {
                 const findIndex = currentUser.friends.findIndex(friend => friend._id.toString() === blockUserId);
+                if (findIndex === -1)
+                    return res.status(409).json("Friend already blocked...");
                 currentUser.friends.splice(findIndex, 1);
                 yield currentUser.save();
             }
