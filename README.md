@@ -34,3 +34,51 @@ Devboard는 개발자를 위한 커뮤니티입니다. 회원가입시에 자신
 - [**src/utils**](src/styles): 레이아웃과 관련된 훅들이 위치합니다.
 
   
+## ⚙️ Setting Up
+
+.env
+
+#클라이언트
+#### REACT_APP_FIREBASE_API_KEY
+
+#API 서버
+#### MONGO_URI
+
+#### ACCESS_TOKEN_KEY
+-랜덤 문자열입니다.
+
+#### REFRESH_TOKEN_KEY
+-랜덤 문자열입니다.
+
+## 🚀 Run Locally
+
+1.Clone the easyreadme repository:
+
+```sh
+git clone -b develope https://github.com/hopago/FullStack-Discord_Clone.git
+```
+
+2.Install dependencies:
+
+```bash
+pnpm install
+
+bun install
+
+npm install
+
+yarn install
+
+```
+
+3.Start the development mode:
+
+```bash
+pnpm start
+
+bun start
+
+npm start
+
+yarn start
+```
