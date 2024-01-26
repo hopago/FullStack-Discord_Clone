@@ -7,8 +7,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import CloseFriend from "../../models/CloseFriend";
-import { HttpException } from "../../middleware/error/utils";
+import CloseFriend from "../../models/CloseFriend.js";
+import { HttpException } from "../../middleware/error/utils.js";
 export const addCloseFriend = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const currentUserId = req.user.id;
     const friendInfo = req.body;

@@ -21,16 +21,19 @@ const privateMessageSchema = new Schema({
                 required: true,
             },
         },
-        author: {
-            authorId: {
-                type: String,
-            },
-            userName: {
-                type: String,
-            },
-            avatar: {
-                type: String,
-            },
+    },
+    author: {
+        authorId: {
+            type: String,
+            required: true,
+        },
+        userName: {
+            type: String,
+            required: true,
+        },
+        avatar: {
+            type: String,
+            required: true,
         },
     },
 }, { timestamps: true });

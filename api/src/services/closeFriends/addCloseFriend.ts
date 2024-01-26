@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import CloseFriend, { ICloseFriend } from "../../models/CloseFriend";
-import { HttpException } from "../../middleware/error/utils";
+import CloseFriend, { ICloseFriend } from "../../models/CloseFriend.js";
+import { HttpException } from "../../middleware/error/utils.js";
 
 export const addCloseFriend = async (
   req: Request,

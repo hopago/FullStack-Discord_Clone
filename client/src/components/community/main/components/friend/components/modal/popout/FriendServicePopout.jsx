@@ -19,9 +19,6 @@ const FriendServicePopout = ({ showPopout, setShowPopout, xy, friend }) => {
       .unwrap()
       .then((res) => {
         if (res.data) {
-          {
-            /* 차단 상태 설정 Fe: 서버일 경우 메시지 필터 Backend: conversation delete, message delete++ */
-          }
           try {
             usersApiSlice.util.updateQueryData(
               "getCurrentUser",

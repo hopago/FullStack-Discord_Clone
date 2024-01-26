@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "./scss/sidebar.scss";
 import {
   Group,
@@ -8,7 +8,6 @@ import {
   Help,
   AccountCircle,
   Verified,
-  Star,
   Computer,
   School,
   Work,
@@ -28,6 +27,7 @@ import { useGetConversationsQuery } from "../../../features/conversation/slice/c
 import { useSelector } from "react-redux";
 import { selectNotSeenNotifications } from "../../../features/notifications/friendRequest/friendRequestSlice";
 import FriendServicesPopout from "../main/components/friend/components/FriendServicesPopout";
+import ProfileModal from "../main/components/friend/components/modal/ProfileModal";
 
 export const categories = [
   {
@@ -145,11 +145,27 @@ const SideBar = ({ type: basePathName }) => {
 
   const friendRequestCount = useSelector(selectNotSeenNotifications);
 
+  const navigate = useNavigate();
+
+  const moveToConversation = (e, _id) => {
+    if (showContextMenu || e.target.closest(".profileModal-layer")) return;
+    navigate(`/community/conversation/${_id}`);
+  };
+
   const [xy, setXy] = useState({
     x: 0,
     y: 0
   });
   const [showContextMenu, setShowContextMenu] = useState(false);
+
+  const profileModalRef = useRef();
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const profileModalOutsideClick = (e) => {
+    if (profileModalRef.current === e.target) {
+      setShowProfileModal(false);
+    }
+  };
 
   const modalRef = useRef();
   const [showModal, setShowModal] = useState(false);
@@ -175,6 +191,8 @@ const SideBar = ({ type: basePathName }) => {
 
   const handleContextMenu = (e) => {
     e.preventDefault();
+
+    if (showProfileModal) return;
 
     const rect = e.target.getBoundingClientRect();
     setXy({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -282,11 +300,12 @@ const SideBar = ({ type: basePathName }) => {
               </Link>
               <h2 className="private-message-bradCrumbs">Private Messages</h2>
               {conversations?.map((conversation, index) => (
-                <Link
+                <div
                   key={conversation._id}
-                  to={`/community/conversation/${conversation._id}`}
+                  onClick={(e) => moveToConversation(e, conversation._id)}
                   className="link"
                   onContextMenu={handleContextMenu}
+                  style={{ cursor: "pointer" }}
                 >
                   <li className="sidebar-friend">
                     <div className="sidebar-pp">
@@ -307,9 +326,19 @@ const SideBar = ({ type: basePathName }) => {
                       xy={xy}
                       setShowContextMenu={setShowContextMenu}
                       showContextMenu={showContextMenu}
+                      setShowModal={setShowProfileModal}
+                      setActive={null}
                     />
                   )}
-                </Link>
+                  {showProfileModal && (
+                    <ProfileModal
+                      modalRef={profileModalRef}
+                      modalOutsideClick={profileModalOutsideClick}
+                      friend={findFriendInfo(conversation)}
+                      isFriend={true}
+                    />
+                  )}
+                </div>
               ))}
             </ul>
           </div>

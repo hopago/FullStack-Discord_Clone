@@ -8,13 +8,13 @@ export type TPrivateMessage = {
   };
   referenced_message: {
     content: {
-      imgUrl: string,
-      message: string,
+      imgUrl: string;
+      message: string;
     };
-    author: {
-      authorId: IUser["_id"];
-      userName: IUser["userName"];
-      avatar: IUser["avatar"];
-    };
-  }
+  };
+  author: {
+    authorId: IUser["_id"];
+    userName: IUser["userName"];
+    avatar: IUser["avatar"];
+  };
 };

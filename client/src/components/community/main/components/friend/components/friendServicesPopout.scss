@@ -11,9 +11,10 @@
     border-radius: 0.7rem;
     z-index: 99999;
 
-    .wrapper {
+    .context__wrapper {
         width: 100%;
         padding: 0.5rem 0.75rem;
+        padding-bottom: 8px;
 
         .flexCol {
             width: 100%;

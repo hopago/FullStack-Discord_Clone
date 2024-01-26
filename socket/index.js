@@ -1,7 +1,5 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import { Server } from 'socket.io';
-import connectDB from './config/connectDB.js';
 
 const PORT = process.env.PORT || 5000;
 
@@ -30,7 +28,7 @@ io.on('connection', socket => {
         if (friends.length) {
             friends.map(friend => {
                 const friendSocketId = findUserById(friend._id)?.socketId;
-    
+
                 if (friendSocketId) {
                     const onlineFriends = getOnlineFriends(friend._id);
                     io.to(friendSocketId).emit('onlineFriendList', onlineFriends);
@@ -82,6 +80,36 @@ io.on('connection', socket => {
         }
     });
 
+    socket.on('sendMessage', async ({ message, receiverId, senderId }) => {
+        let receiver;
+
+        const sender = findUserById(senderId);
+
+        if (receiverId) {
+            receiver = findUserById(receiverId);
+        }
+
+        if (!receiverId && args.receiverUserName && args.receiverTag) {
+            receiver = findUserByUserNameAndTag(args.receiverUserName, args.receiverTag)
+        }
+
+        if (!receiver) {
+            return socket.emit("userNotFound", {
+                status: 400,
+                message: "Receiver not found..."
+            })
+        }
+
+        try {
+            io.to([receiver.socketId, sender.socketId]).emit("getMessage", {
+                message,
+            });
+        } catch (err) {
+            console.log(`SendMessage: ${err}`);
+            return { status: 500, message: `Internal ${err}` }
+        }
+    });
+
     socket.on("logout", (_id) => {
         console.log(UsersState);
         const user = findUserById(_id);
@@ -105,7 +133,7 @@ function activateUser(user, friends, socketId) {
     console.log(activateUser);
 
     !UsersState.users.some((user) => user._id === activateUser._id) &&
-      UsersState.users.push(activateUser);
+        UsersState.users.push(activateUser);
 }
 
 function disconnectUser(_id) {
@@ -133,5 +161,5 @@ function getOnlineFriends(_id) {
         console.log(`${currentUser.userName}#${currentUser.tag} has no friend...`);
         return;
     }
-    return UsersState.users.filter(user => friends.filter(friend => friend._id === user._id ));
+    return UsersState.users.filter(user => friends.filter(friend => friend._id === user._id));
 }

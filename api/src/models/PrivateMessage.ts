@@ -1,4 +1,4 @@
-import { Document, model, Schema, ObjectId } from "mongoose";
+import { Document, model, Schema } from "mongoose";
 import { TPrivateMessage } from "./type/PrivateMessage";
 
 export interface IPrivateMessage extends TPrivateMessage, Document {};
@@ -25,16 +25,19 @@ const privateMessageSchema: Schema = new Schema(
           required: true,
         },
       },
-      author: {
-        authorId: {
-          type: String,
-        },
-        userName: {
-          type: String,
-        },
-        avatar: {
-          type: String,
-        },
+    },
+    author: {
+      authorId: {
+        type: String,
+        required: true,
+      },
+      userName: {
+        type: String,
+        required: true,
+      },
+      avatar: {
+        type: String,
+        required: true,
       },
     },
   },

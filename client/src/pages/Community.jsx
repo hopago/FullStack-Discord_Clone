@@ -27,7 +27,7 @@ const Community = () => {
     if (!currentUser) {
       refetch();
     }
-  }, [currentUser]);
+  }, [currentUser, isLoading]);
 
   if (currentUser) {
     dispatch(setCurrentUser(currentUser));

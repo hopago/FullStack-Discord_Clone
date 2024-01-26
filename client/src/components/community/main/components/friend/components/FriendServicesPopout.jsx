@@ -13,9 +13,24 @@ const FriendServicesPopout = ({
   moreVertClicked,
   setMoreVertClicked,
   friend,
-  index
+  index,
 }) => {
   const [requestType, setRequestType] = useState("");
+
+  const handleProfileClick = (e) => {
+    e.preventDefault();
+
+    setShowModal(true);
+    setShowContextMenu(false);
+
+    setActive && setActive(false);
+    setMoreVertClicked && setMoreVertClicked(false);
+  };
+
+  const handleFriendRemoveClick = () => {
+    setRequestType("삭제");
+    setShowConfirm(true);
+  };
 
   const handleContextMenuOutsideClick = (e) => {
     if (e.target.closest(".iconWrap") || e.target.closest(".wrapper")) {
@@ -30,7 +45,7 @@ const FriendServicesPopout = ({
       (screenX < currXy.x || screenX > currXy.x + 188) &&
       (screenY > currXy.y || screenY > currXy.y + 248)
     ) {
-      moreVertClicked && setActive(false);
+      setActive && setActive(false);
       moreVertClicked && setMoreVertClicked(false);
       setShowContextMenu(false);
     }
@@ -76,18 +91,10 @@ const FriendServicesPopout = ({
             }
       }
     >
-      <div className="wrapper">
+      <div className="context__wrapper">
         <div className="flexCol">
           <div className="itemContainer">
-            <div
-              className="text_icon"
-              onClick={() => {
-                setShowModal(true);
-                setActive(false);
-                setMoreVertClicked(false);
-                setShowContextMenu(false);
-              }}
-            >
+            <div className="text_icon" onClick={handleProfileClick}>
               <span>프로필</span>
             </div>
           </div>
@@ -117,13 +124,7 @@ const FriendServicesPopout = ({
               <ArrowRight />
             </div>
           </div>
-          <div
-            className="itemContainer"
-            onClick={() => {
-              setRequestType("삭제");
-              setShowConfirm(true);
-            }}
-          >
+          <div className="itemContainer" onClick={handleFriendRemoveClick}>
             <span>친구 삭제하기</span>
           </div>
           <div

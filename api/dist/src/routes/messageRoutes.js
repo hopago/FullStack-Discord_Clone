@@ -4,7 +4,7 @@ import { getMessages, createMessage, updateMessage, deleteMessage, } from "../co
 const router = express.Router();
 router.use(verifyJWT);
 router
-    .route('/:conversationId')
+    .route('/conversation/:conversationId')
     .get(getMessages)
     .post(createMessage);
 router

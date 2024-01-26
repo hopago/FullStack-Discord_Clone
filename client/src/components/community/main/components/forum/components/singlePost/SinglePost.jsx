@@ -46,7 +46,7 @@ const SinglePost = () => {
   const { data } = useGetCommentsLengthQuery(postId);
   const currentUser = useSelector(selectCurrentUser);
 
-  const [authorId, setAuthorId] = useState(post?.author.authorId ?? null);
+  const [authorId, setAuthorId] = useState(post?.author.authorId);
   const [author, setAuthor] = useState(null);
   const [latestPosts, setLatestPosts] = useState([]);
 
@@ -93,7 +93,9 @@ const SinglePost = () => {
       setAuthor(author);
     };
 
-    fetchAuthorInfo();
+    if (authorId !== null) {
+      fetchAuthorInfo();
+    }
   }, [authorId]);
 
   useEffect(() => {

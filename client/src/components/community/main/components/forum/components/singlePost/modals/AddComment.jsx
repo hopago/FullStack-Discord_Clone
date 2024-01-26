@@ -203,7 +203,7 @@ const AddComment = ({
                 </div>
               </div>
             </div>
-            {author._id === currentUser._id && (
+            {author?._id === currentUser?._id && (
               <div className="moreVert">
                 <MoreVert />
               </div>

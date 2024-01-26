@@ -12,14 +12,10 @@ const Base = () => {
   const params = useParams();
   const pathName = Object.values(params)[0];
 
-  {/* 친구 데이터 fetch point */}
-
   return (
     <div className="community-base">
       <div className="community-content">
-        {/* SideBar // 친구 포럼 서버 */}
         <SideBar type={pathName} />
-        {/* Main */}
         <Routes>
           <Route path="/" element={<Friend />} />
           <Route path="/forum" element={<Forum />} />

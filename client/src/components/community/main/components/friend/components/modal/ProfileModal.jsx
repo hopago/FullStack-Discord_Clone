@@ -7,12 +7,8 @@ import NoFriendExisted from "./assets/e86b4414e7dfa126abbd1.svg";
 import jsIcon from "../../../../../sidebar/assets/language/js_lang.png";
 import reactIcon from "../../../../../sidebar/assets/language/react.png";
 import nextIcon from "../../../../../sidebar/assets/language/next.png";
-import {
-  useLazyFindUserByIdQuery,
-} from "../../../../../../../features/users/slice/usersApiSlice";
-import {
-  useLazyGetUserServersQuery,
-} from "../../../../../../../features/server/slice/serversApiSlice";
+import { useLazyFindUserByIdQuery } from "../../../../../../../features/users/slice/usersApiSlice";
+import { useLazyGetUserServersQuery } from "../../../../../../../features/server/slice/serversApiSlice";
 import {
   useAddMemoMutation,
   useDeleteMemoMutation,
@@ -21,12 +17,14 @@ import {
 } from "../../../../../../../features/memos/memosApiSlice";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../../../../features/users/slice/userSlice";
-import { useLazyGetPostReactionsQuery, useLazyGetPostsByAuthorIdQuery, useLazyGetTrendPostsByAuthorIdQuery } from "../../../../../../../features/post/slice/postsApiSlice";
+import {
+  useLazyGetPostReactionsQuery,
+  useLazyGetPostsByAuthorIdQuery,
+  useLazyGetTrendPostsByAuthorIdQuery,
+} from "../../../../../../../features/post/slice/postsApiSlice";
 import FriendServicePopout from "./popout/FriendServicePopout";
 import { Link } from "react-router-dom";
 import ActionButton from "./components/ActionButton";
-
-{/* 12 05 22 40 */}
 
 const ProfileModal = ({ modalOutsideClick, modalRef, friend, isFriend }) => {
   const infoConstants = [

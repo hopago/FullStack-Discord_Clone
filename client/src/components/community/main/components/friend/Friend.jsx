@@ -369,7 +369,6 @@ const Friend = () => {
           <div className="wrapper">
             <h2>친한 친구</h2>
             <div className="body-right-itemCard">
-              {/* fetch */}
               <div className="listItem-wrapper">
                 <div className="listItem">
                   <img src={defaultProfile} alt="" />

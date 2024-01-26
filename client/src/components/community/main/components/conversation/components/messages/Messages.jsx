@@ -2,9 +2,26 @@ import './messages.scss';
 import defaultPP from '../../../../../main/assets/default-profile-pic-e1513291410505.jpg';
 import { setTime } from '../../../../../../../lib/moment/timeAgo';
 import capitalizeFirstLetter from '../../../../../../../hooks/CapitalizeFirstLetter';
+import MessageList from './components/MessageList';
+import { useEffect } from 'react';
+import { socket } from '../../../../../../..';
+import { messagesApiSlice } from '../../../../../../../features/messages/messagesApiSlice';
 
 const Messages = ({ friend, conversation }) => {
+  useEffect(() => {
+    socket.on("getMessage", ({ message }) => {
+      messagesApiSlice.util.updateQueryData("getMessages", conversation._id, (draftMessages) => {
+        const { referenced_message, author } = message;
 
+        const validMessage = {
+          referenced_message,
+          author
+        };
+
+        return [...draftMessages, validMessage];
+      })
+    });
+  }, [socket]);
 
   return (
     <div className="conversation-messages-scrollContent">
@@ -26,58 +43,7 @@ const Messages = ({ friend, conversation }) => {
       <div className="divider">
         <span>{setTime(conversation?.createdAt, conversation?.updatedAt)}</span>
       </div>
-      <div className={`chat-messages`}>
-        <div className="chat-messages-left">
-          <img src={defaultPP} alt="" />
-        </div>
-        <div className="chat-messages-right">
-          <div className="headerTexts">
-            <h3>UserName</h3>
-            <span>2023.10.03</span>
-          </div>
-          <div className="messages-content">
-            {/* if img */}
-            <div className="message-imgContent">
-              <div className="imgContent-wrap">
-                <img
-                  src="https://images.pexels.com/photos/3362698/pexels-photo-3362698.jpeg?auto=compress&cs=tinysrgb&w=1600&lazy=load"
-                  alt=""
-                />
-              </div>
-            </div>
-            {/* texts */}
-            <div className="message-textContent">
-              <span>안녕하세요</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className={`chat-messages`}>
-        <div className="chat-messages-left">
-          <img src={defaultPP} alt="" />
-        </div>
-        <div className="chat-messages-right">
-          <div className="headerTexts">
-            <h3>UserName</h3>
-            <span>2023.10.03</span>
-          </div>
-          <div className="messages-content">
-            {/* if img */}
-            <div className="message-imgContent">
-              <div className="imgContent-wrap">
-                <img
-                  src="https://images.pexels.com/photos/3362698/pexels-photo-3362698.jpeg?auto=compress&cs=tinysrgb&w=1600&lazy=load"
-                  alt=""
-                />
-              </div>
-            </div>
-            {/* texts */}
-            <div className="message-textContent">
-              <span>안녕하세요</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <MessageList defaultPP={defaultPP} />
     </div>
   );
 }
